@@ -39,7 +39,7 @@ func NewMainModel() MainModel {
 		},
 		MenuItem{
 			title:       "⚙️ Gestion de Configuration",
-			description: "Modifier et gérer vos configurations dotfiles",
+			description: "Éditer vos fichiers de configuration (.zshrc, .gitconfig, etc.)",
 			action:      "config",
 		},
 		MenuItem{
@@ -149,22 +149,31 @@ func (m MainModel) View() string {
 
 	var s strings.Builder
 
-	// Clean header
-	s.WriteString(CreateBanner("🚀 Dotfiles Manager"))
+	// Improved header with better spacing
 	s.WriteString("\n")
+	s.WriteString(CreateBanner("🚀 Dotfiles Manager"))
+	s.WriteString("\n\n")
 	s.WriteString(SubtitleStyle.Render("Interface moderne pour la gestion de vos dotfiles"))
 	s.WriteString("\n\n")
 
-	// Main content
-	s.WriteString(m.list.View())
+	// Add separator for better visual separation
+	s.WriteString(CreateSeparator(60))
+	s.WriteString("\n\n")
 
-	// Simple footer
+	// Main content with better spacing
+	s.WriteString(m.list.View())
 	s.WriteString("\n")
+
+	// Add separator before footer
+	s.WriteString(CreateSeparator(60))
+	s.WriteString("\n")
+
+	// Improved footer with better formatting
 	s.WriteString(FooterStyle.Render("↑/↓ Navigation • Entrée Sélectionner • Ctrl+C Quitter"))
 
 	// Status message if present
 	if m.statusMsg != "" {
-		s.WriteString("\n")
+		s.WriteString("\n\n")
 		s.WriteString(CreateStatusBadge("info", m.statusMsg))
 	}
 

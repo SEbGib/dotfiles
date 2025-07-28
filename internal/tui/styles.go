@@ -48,13 +48,15 @@ var (
 			Foreground(ColorPrimary).
 			Padding(1, 2).
 			Margin(0, 0, 1, 0).
-			Align(lipgloss.Center) // Subtitle style
+			Align(lipgloss.Center)
+
+	// Subtitle style - improved readability
 	SubtitleStyle = lipgloss.NewStyle().
 			Foreground(ColorTextSecondary).
 			Italic(true).
 			Margin(0, 0, 1, 0).
+			Padding(0, 2).
 			Align(lipgloss.Center)
-
 	// Menu item styles
 	MenuItemStyle = lipgloss.NewStyle().
 			Padding(0, 2).

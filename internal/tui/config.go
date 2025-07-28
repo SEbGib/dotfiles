@@ -16,8 +16,9 @@ func NewConfigModel() ConfigModel {
 		MenuItem{title: "📝 Éditer .zshrc", description: "Configuration du shell Zsh", action: "edit_zshrc"},
 		MenuItem{title: "⚙️ Éditer .gitconfig", description: "Configuration Git", action: "edit_gitconfig"},
 		MenuItem{title: "🎨 Éditer starship.toml", description: "Configuration du prompt", action: "edit_starship"},
-		MenuItem{title: "📁 Éditer configuration Neovim", description: "Configuration de l'éditeur", action: "edit_nvim"},
-		MenuItem{title: "🖥️ Éditer configuration tmux", description: "Configuration du multiplexeur", action: "edit_tmux"},
+		MenuItem{title: "📁 Éditer init.lua (Neovim)", description: "Configuration de l'éditeur", action: "edit_nvim"},
+		MenuItem{title: "🖥️ Éditer tmux.conf", description: "Configuration du multiplexeur", action: "edit_tmux"},
+		MenuItem{title: "🔧 Éditer .aliases", description: "Aliases personnalisés", action: "edit_aliases"},
 		MenuItem{title: "🔙 Retour au menu principal", description: "", action: "back"},
 	}
 
@@ -43,8 +44,23 @@ func (m ConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return NewMainModel(), nil
 		case "enter":
 			i, ok := m.list.SelectedItem().(MenuItem)
-			if ok && i.action == "back" {
-				return NewMainModel(), nil
+			if ok {
+				switch i.action {
+				case "back":
+					return NewMainModel(), nil
+				case "edit_zshrc":
+					return NewEditorModel("$HOME/.zshrc", ".zshrc"), nil
+				case "edit_gitconfig":
+					return NewEditorModel("$HOME/.gitconfig", ".gitconfig"), nil
+				case "edit_starship":
+					return NewEditorModel("$HOME/.config/starship.toml", "starship.toml"), nil
+				case "edit_nvim":
+					return NewEditorModel("$HOME/.config/nvim/init.lua", "init.lua"), nil
+				case "edit_tmux":
+					return NewEditorModel("$HOME/.config/tmux/tmux.conf", "tmux.conf"), nil
+				case "edit_aliases":
+					return NewEditorModel("$HOME/.aliases", ".aliases"), nil
+				}
 			}
 		}
 	}
