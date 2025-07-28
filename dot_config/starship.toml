@@ -132,15 +132,9 @@ symbol = "📦 "
 style = "bold yellow"
 format = "[$symbol$version]($style) "
 
-[composer]
-symbol = "🎼 "
-style = "bold blue"
-format = "[$symbol($version )]($style)"
+# composer module removed due to compatibility issues
 
-[npm]
-symbol = "📦 "
-style = "bold red"
-format = "[$symbol($version )]($style)"
+# npm module removed due to compatibility issues
 
 # ===== SYSTÈME =====
 
