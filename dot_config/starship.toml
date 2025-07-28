@@ -79,10 +79,6 @@ style = "bold green"
 format = "[$symbol($version )]($style)"
 detect_files = ["package.json", ".nvmrc"]
 
-[typescript]
-symbol = "⚡ "
-style = "bold blue"
-format = "[$symbol($version )]($style)"
 
 [python]
 symbol = "🐍 "

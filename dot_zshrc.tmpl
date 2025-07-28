@@ -1,7 +1,7 @@
 # Configuration Zsh moderne - Générée par Chezmoi
 # Hostname: {{ .chezmoi.hostname }}
 # OS: {{ .chezmoi.os }}
-# User: {{ .username }}
+# User: {{ .chezmoi.username }}
 
 # ===== PERFORMANCE PROFILING =====
 # Décommenter pour mesurer temps de démarrage
@@ -607,7 +607,7 @@ update_all() {
 
 # Message de bienvenue personnalisé
 if [[ -o interactive ]] && [[ -z "$TMUX" ]]; then
-    echo "🚀 Terminal $(tput setaf 6){{ .username }}$(tput sgr0) sur $(tput setaf 3){{ .chezmoi.hostname }}$(tput sgr0) ({{ .chezmoi.os }}/{{ .chezmoi.arch }})"
+    echo "🚀 Terminal $(tput setaf 6){{ .chezmoi.username }}$(tput sgr0) sur $(tput setaf 3){{ .chezmoi.hostname }}$(tput sgr0) ({{ .chezmoi.os }}/{{ .chezmoi.arch }})"
     {{- if .personal }}
     echo "💼 Mode: $(tput setaf 2)Personnel$(tput sgr0)"
     {{- else if .work }}
