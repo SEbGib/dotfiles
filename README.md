@@ -19,6 +19,97 @@ Configuration complète et moderne pour un environnement de développement PHP/S
 sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/votreusername/dotfiles.git
 ```
 
+### 💾 Sauvegarde automatique
+
+**Lors de la première installation, vos configurations existantes sont automatiquement sauvegardées !**
+
+Le script détecte et sauvegarde :
+- Configurations shell (`.zshrc`, `.bashrc`, etc.)
+- Configuration Git (`.gitconfig`)
+- Configurations d'éditeurs (`.vimrc`, `.config/nvim`)
+- Configuration tmux (`.tmux.conf`)
+- Oh My Zsh et plugins existants
+- Configuration SSH
+- Et bien plus...
+
+La sauvegarde est créée dans `~/.dotfiles-backup-YYYYMMDD_HHMMSS/` avec :
+- 📄 Tous vos fichiers de configuration
+- 📋 Liste des packages installés
+- ℹ️ Informations système
+- 🔧 Script de restauration
+
+### 🔄 Restauration des anciennes configurations
+
+Si vous voulez revenir à vos anciennes configurations :
+
+```bash
+# Trouver votre sauvegarde
+ls ~/.dotfiles-backup-*
+
+# Restaurer (remplacez par le bon chemin)
+cp -r ~/.dotfiles-backup-YYYYMMDD_HHMMSS/* ~/
+
+# Ou utiliser l'alias créé
+source ~/.dotfiles-backup-YYYYMMDD_HHMMSS/restore_alias.sh
+restore-dotfiles-backup
+```
+
+## 📋 Processus d'installation détaillé
+
+L'installation suit ces étapes automatiquement :
+
+1. **💾 Sauvegarde** - Vos configurations existantes sont sauvegardées
+2. **🔧 Installation des outils** - Starship, Zsh, outils modernes
+3. **🐚 Configuration Zsh** - Oh My Zsh + plugins modernes
+4. **📁 Création des dossiers** - Structure de développement
+5. **⚙️ Application des configs** - Neovim, tmux, Git, etc.
+6. **🎨 Thème Catppuccin** - Interface coordonnée
+7. **🔐 Secrets Bitwarden** - Si configuré
+
+### ⚠️ Prérequis
+
+- **Git** installé
+- **Curl** disponible
+- Connexion Internet
+- Permissions d'écriture dans `$HOME`
+
+### 🎯 Installation personnalisée
+
+Pour une installation avec options spécifiques :
+
+```bash
+# Installation non-interactive (accepte tout)
+chezmoi init --apply --force https://github.com/votreusername/dotfiles.git
+
+# Installation avec sauvegarde forcée
+chezmoi init https://github.com/votreusername/dotfiles.git
+chezmoi apply
+
+# Installation en mode debug
+chezmoi init --verbose https://github.com/votreusername/dotfiles.git
+chezmoi apply --verbose
+```
+
+### ✅ Vérification de l'installation
+
+Après l'installation, vérifiez que tout fonctionne correctement :
+
+```bash
+# Télécharger et exécuter le script de vérification
+curl -fsSL https://raw.githubusercontent.com/votreusername/dotfiles/main/verify-installation.sh | bash
+
+# Ou si vous avez cloné le repository
+./verify-installation.sh
+```
+
+Le script vérifie :
+- ✅ Tous les outils installés (Starship, Zsh, Neovim, etc.)
+- ✅ Fichiers de configuration présents
+- ✅ Plugins Zsh fonctionnels
+- ✅ Sauvegardes créées
+- ✅ Shell configuré correctement
+- 📊 Rapport détaillé avec taux de réussite
+
 ## 📦 Ce qui est installé
 
 ### Outils essentiels
