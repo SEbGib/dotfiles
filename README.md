@@ -164,6 +164,56 @@ chezmoi update
 update_all  # Alias configuré
 ```
 
+## 🗑️ Désinstallation
+
+Si vous souhaitez supprimer cette configuration :
+
+### Désinstallation rapide
+```bash
+# Télécharger et exécuter le script de désinstallation simple
+curl -fsSL https://raw.githubusercontent.com/votreusername/dotfiles/main/uninstall.sh | bash
+```
+
+### Désinstallation avancée
+```bash
+# Télécharger le script complet avec options
+curl -fsSL https://raw.githubusercontent.com/votreusername/dotfiles/main/remove-dotfiles.sh -o remove-dotfiles.sh
+chmod +x remove-dotfiles.sh
+
+# Voir les options disponibles
+./remove-dotfiles.sh --help
+
+# Simulation (voir ce qui serait supprimé)
+./remove-dotfiles.sh --dry-run
+
+# Désinstallation interactive
+./remove-dotfiles.sh
+
+# Désinstallation automatique
+./remove-dotfiles.sh --yes
+
+# Garder certains éléments
+./remove-dotfiles.sh --keep-tools --keep-shell
+
+# Suppression complète (attention!)
+./remove-dotfiles.sh --nuclear
+```
+
+### Options de désinstallation
+
+- `--dry-run` : Mode simulation (ne supprime rien)
+- `--yes` : Mode non-interactif
+- `--verbose` : Affichage détaillé
+- `--backup-only` : Créer seulement une sauvegarde
+- `--keep-tools` : Garder les outils installés (starship, eza, etc.)
+- `--keep-shell` : Ne pas restaurer le shell précédent
+- `--keep-configs` : Garder les fichiers de configuration
+- `--nuclear` : Suppression complète (attention!)
+
+### Sauvegarde automatique
+
+Les scripts de désinstallation créent automatiquement une sauvegarde dans `~/.dotfiles-removal-backup-YYYYMMDD_HHMMSS/` avant toute suppression.
+
 ## 🎨 Thèmes
 
 Thème **Catppuccin Mocha** coordonné :
