@@ -6,21 +6,9 @@ import (
 	"github.com/charmbracelet/bubbles/key"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
-// Styles
-var (
-	titleStyle = lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#FAFAFA")).
-			Background(lipgloss.Color("#7D56F4")).
-			Padding(0, 1)
-
-	statusMessageStyle = lipgloss.NewStyle().
-				Foreground(lipgloss.AdaptiveColor{Light: "#04B575", Dark: "#04B575"}).
-				Render
-)
-
+// Import the new styles (styles are now in styles.go)
 // Menu items
 type MenuItem struct {
 	title       string
@@ -93,9 +81,9 @@ func NewMainModel() MainModel {
 	l.Title = "🏠 Dotfiles Manager - Menu Principal"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
-	l.Styles.Title = titleStyle
+	l.Styles.Title = HeaderStyle
 	l.Styles.PaginationStyle = list.DefaultStyles().PaginationStyle.PaddingLeft(4)
-	l.Styles.HelpStyle = list.DefaultStyles().HelpStyle.PaddingLeft(4).PaddingBottom(1)
+	l.Styles.HelpStyle = HelpStyle
 
 	return MainModel{
 		list:        l,
@@ -156,33 +144,34 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // View renders the model
 func (m MainModel) View() string {
 	if m.quitting {
-		return "Au revoir! 👋\n"
+		return CreateStatusBadge("info", "Au revoir! 👋")
 	}
 
 	var s strings.Builder
 
-	// Header
-	s.WriteString(lipgloss.NewStyle().
-		Bold(true).
-		Foreground(lipgloss.Color("#7D56F4")).
-		Render("🚀 Dotfiles Manager - Configuration Moderne"))
+	// Beautiful header with banner
+	s.WriteString(CreateBanner("🚀 Dotfiles Manager - Configuration Moderne"))
 	s.WriteString("\n\n")
 
-	// Main content
-	s.WriteString(m.list.View())
+	// Subtitle
+	s.WriteString(SubtitleStyle.Render("Interface moderne pour la gestion de vos dotfiles"))
+	s.WriteString("\n\n")
 
-	// Footer
-	s.WriteString("\n")
-	s.WriteString(lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#626262")).
-		Render("• Utilisez ↑/↓ pour naviguer • Entrée pour sélectionner • Ctrl+C pour quitter"))
+	// Main content in a card
+	listContent := m.list.View()
+	s.WriteString(CardStyle.Render(listContent))
 
+	// Beautiful footer
+	footerText := "• ↑/↓ Navigation • Entrée Sélectionner • Ctrl+C Quitter"
+	s.WriteString(FooterStyle.Render(footerText))
+
+	// Status message if present
 	if m.statusMsg != "" {
-		s.WriteString("\n\n")
-		s.WriteString(statusMessageStyle(m.statusMsg))
+		s.WriteString("\n")
+		s.WriteString(CreateStatusBadge("info", m.statusMsg))
 	}
 
-	return s.String()
+	return AppStyle.Render(s.String())
 }
 
 // Key bindings

@@ -5,7 +5,6 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 type ToolsModel struct {
@@ -56,10 +55,13 @@ func (m ToolsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m ToolsModel) View() string {
 	var s strings.Builder
-	s.WriteString(lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#7D56F4")).Render("🔧 Gestion des Outils"))
+
+	s.WriteString(CreateBanner("🔧 Gestion des Outils"))
 	s.WriteString("\n\n")
-	s.WriteString(m.list.View())
-	s.WriteString("\n")
-	s.WriteString(lipgloss.NewStyle().Foreground(lipgloss.Color("#626262")).Render("• Entrée pour sélectionner • Échap pour retour • Ctrl+C pour quitter"))
-	return s.String()
+	s.WriteString(SubtitleStyle.Render("Installez et gérez vos outils de développement"))
+	s.WriteString("\n\n")
+	s.WriteString(CardStyle.Render(m.list.View()))
+	s.WriteString(FooterStyle.Render("• Entrée Sélectionner • Échap Retour • Ctrl+C Quitter"))
+
+	return AppStyle.Render(s.String())
 }

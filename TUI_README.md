@@ -61,6 +61,12 @@ dotfiles-tui
 
 ### Lancement
 ```bash
+# Demo avec présentation des nouvelles fonctionnalités
+./showcase-tui.sh
+
+# Lancement standard
+./launch-tui.sh
+
 # Depuis le dossier du projet
 ./dotfiles-tui
 
@@ -102,13 +108,23 @@ dotfiles/
 
 ## 🎨 Thème et Style
 
-L'interface utilise le thème **Catppuccin** pour une cohérence avec le reste de votre environnement :
+L'interface utilise le thème **Catppuccin Mocha** complet avec Lip Gloss pour une expérience visuelle exceptionnelle :
 
-- **Couleur principale** : `#7D56F4` (Violet)
-- **Succès** : `#04B575` (Vert)
-- **Avertissement** : `#FFAA00` (Orange)
-- **Erreur** : `#FF5555` (Rouge)
-- **Texte secondaire** : `#626262` (Gris)
+### 🌈 Palette de Couleurs
+- **Mauve** : `#cba6f7` - Couleur principale et accents
+- **Bleu** : `#89b4fa` - Éléments secondaires et bordures  
+- **Rose** : `#f38ba8` - Accents et éléments actifs
+- **Vert** : `#a6e3a1` - Succès et éléments positifs
+- **Jaune** : `#f9e2af` - Avertissements et informations
+- **Ciel** : `#74c7ec` - Informations et éléments neutres
+
+### ✨ Éléments Visuels
+- **Bordures arrondies et doubles** pour les cartes et bannières
+- **Badges de status colorés** avec icônes expressives
+- **Barres de progression stylisées** avec indicateurs visuels
+- **Logs formatés** avec timestamps et couleurs
+- **Cartes organisationnelles** pour structurer le contenu
+- **Animations fluides** avec spinners et transitions
 
 ## 🔧 Développement
 

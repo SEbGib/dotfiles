@@ -294,19 +294,16 @@ func (m InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m InstallModel) View() string {
 	if m.quitting {
-		return "Installation interrompue.\n"
+		return CreateStatusBadge("warning", "Installation interrompue")
 	}
 
 	var s strings.Builder
 
-	// Header
-	s.WriteString(lipgloss.NewStyle().
-		Bold(true).
-		Foreground(lipgloss.Color("#7D56F4")).
-		Render("🚀 Installation Interactive des Dotfiles"))
+	// Beautiful header
+	s.WriteString(CreateBanner("🚀 Installation Interactive des Dotfiles"))
 	s.WriteString("\n\n")
 
-	// Progress bar
+	// Progress section in a card
 	completedSteps := 0
 	for _, step := range m.steps {
 		if step.completed {
@@ -315,81 +312,79 @@ func (m InstallModel) View() string {
 	}
 
 	progressPercent := float64(completedSteps) / float64(len(m.steps))
-	s.WriteString(m.progress.ViewAs(progressPercent))
-	s.WriteString(fmt.Sprintf(" %d/%d étapes terminées\n\n", completedSteps, len(m.steps)))
+	progressBar := CreateProgressBar(progressPercent, 50)
+	progressText := fmt.Sprintf("%d/%d étapes terminées (%.0f%%)",
+		completedSteps, len(m.steps), progressPercent*100)
 
-	// Steps list
+	progressCard := CreateCard("📊 Progression",
+		progressBar+"\n"+progressText)
+	s.WriteString(progressCard)
+	s.WriteString("\n")
+
+	// Steps list in a beautiful card
+	var stepsContent strings.Builder
 	for i, step := range m.steps {
-		var status string
-		var style lipgloss.Style
+		var statusText string
 
 		if step.completed {
-			status = "✅"
-			style = lipgloss.NewStyle().Foreground(lipgloss.Color("#04B575"))
+			statusText = CreateStatusBadge("success", step.name)
 		} else if step.running {
-			status = m.spinner.View()
-			style = lipgloss.NewStyle().Foreground(lipgloss.Color("#FFAA00"))
+			statusText = SpinnerStyle.Render(m.spinner.View()) + " " +
+				MenuItemStyle.Render(step.name)
 		} else if step.error != "" {
-			status = "❌"
-			style = lipgloss.NewStyle().Foreground(lipgloss.Color("#FF5555"))
+			statusText = CreateStatusBadge("error", step.name+" - "+step.error)
 		} else {
-			status = "⏳"
-			style = lipgloss.NewStyle().Foreground(lipgloss.Color("#626262"))
+			statusText = CreateStatusBadge("pending", step.name)
 		}
 
-		stepText := fmt.Sprintf("%s %s", status, step.name)
-		if step.error != "" {
-			stepText += fmt.Sprintf(" - Erreur: %s", step.error)
-		}
-
-		s.WriteString(style.Render(stepText))
-		s.WriteString("\n")
+		stepsContent.WriteString(statusText)
+		stepsContent.WriteString("\n")
 
 		if i == m.currentStep && step.running {
-			s.WriteString(lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#626262")).
-				Render(fmt.Sprintf("   %s", step.description)))
-			s.WriteString("\n")
+			stepsContent.WriteString(SubtitleStyle.Render("   " + step.description))
+			stepsContent.WriteString("\n")
 		}
 	}
 
-	// Status
-	s.WriteString("\n")
-	s.WriteString(lipgloss.NewStyle().
-		Bold(true).
-		Foreground(lipgloss.Color("#FFAA00")).
-		Render("Status: "))
-	s.WriteString(m.status)
-	s.WriteString("\n")
+	stepsCard := CreateCard("📋 Étapes d'installation", stepsContent.String())
+	s.WriteString(stepsCard)
 
-	// Logs
+	// Status section
+	s.WriteString("\n")
+	statusCard := CreateCard("📊 Status",
+		CreateStatusBadge("info", m.status))
+	s.WriteString(statusCard)
+
+	// Logs section
 	if len(m.logs) > 0 {
 		s.WriteString("\n")
-		s.WriteString(lipgloss.NewStyle().
-			Bold(true).
-			Foreground(lipgloss.Color("#7D56F4")).
-			Render("📋 Logs récents:"))
-		s.WriteString("\n")
-
+		var logsContent strings.Builder
 		for _, log := range m.logs {
-			s.WriteString(lipgloss.NewStyle().
-				Foreground(lipgloss.Color("#626262")).
-				Render(fmt.Sprintf("  %s", log)))
-			s.WriteString("\n")
+			parts := strings.SplitN(log, "] ", 2)
+			if len(parts) == 2 {
+				timestamp := strings.TrimPrefix(parts[0], "[")
+				message := parts[1]
+				logsContent.WriteString(CreateLogEntry(timestamp, message))
+				logsContent.WriteString("\n")
+			} else {
+				logsContent.WriteString(LogEntryStyle.Render(log))
+				logsContent.WriteString("\n")
+			}
 		}
+
+		logsCard := CreateCard("📋 Logs récents", logsContent.String())
+		s.WriteString(LogContainerStyle.Render(logsCard))
 	}
 
 	// Footer
 	s.WriteString("\n")
+	var footerText string
 	if m.completed {
-		s.WriteString(lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#04B575")).
-			Render("• Appuyez sur Entrée ou Échap pour revenir au menu principal"))
+		footerText = "• Entrée/Échap Retour au menu • Installation terminée avec succès! 🎉"
 	} else {
-		s.WriteString(lipgloss.NewStyle().
-			Foreground(lipgloss.Color("#626262")).
-			Render("• Ctrl+C pour annuler l'installation"))
+		footerText = "• Ctrl+C Annuler l'installation • Installation en cours..."
 	}
+	s.WriteString(FooterStyle.Render(footerText))
 
-	return s.String()
+	return AppStyle.Render(s.String())
 }

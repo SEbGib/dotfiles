@@ -5,7 +5,6 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 type SecretsModel struct {
@@ -56,10 +55,13 @@ func (m SecretsModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m SecretsModel) View() string {
 	var s strings.Builder
-	s.WriteString(lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#7D56F4")).Render("🔐 Configuration des Secrets"))
+
+	s.WriteString(CreateBanner("🔐 Configuration des Secrets"))
 	s.WriteString("\n\n")
-	s.WriteString(m.list.View())
-	s.WriteString("\n")
-	s.WriteString(lipgloss.NewStyle().Foreground(lipgloss.Color("#626262")).Render("• Entrée pour sélectionner • Échap pour retour • Ctrl+C pour quitter"))
-	return s.String()
+	s.WriteString(SubtitleStyle.Render("Gérez vos secrets et intégration Bitwarden"))
+	s.WriteString("\n\n")
+	s.WriteString(CardStyle.Render(m.list.View()))
+	s.WriteString(FooterStyle.Render("• Entrée Sélectionner • Échap Retour • Ctrl+C Quitter"))
+
+	return AppStyle.Render(s.String())
 }

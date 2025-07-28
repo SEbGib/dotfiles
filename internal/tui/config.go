@@ -5,7 +5,6 @@ import (
 
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 type ConfigModel struct {
@@ -57,10 +56,22 @@ func (m ConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m ConfigModel) View() string {
 	var s strings.Builder
-	s.WriteString(lipgloss.NewStyle().Bold(true).Foreground(lipgloss.Color("#7D56F4")).Render("⚙️ Gestion de Configuration"))
+
+	// Beautiful header
+	s.WriteString(CreateBanner("⚙️ Gestion de Configuration"))
 	s.WriteString("\n\n")
-	s.WriteString(m.list.View())
-	s.WriteString("\n")
-	s.WriteString(lipgloss.NewStyle().Foreground(lipgloss.Color("#626262")).Render("• Entrée pour sélectionner • Échap pour retour • Ctrl+C pour quitter"))
-	return s.String()
+
+	// Subtitle
+	s.WriteString(SubtitleStyle.Render("Éditez et gérez vos fichiers de configuration"))
+	s.WriteString("\n\n")
+
+	// Main content in a card
+	listContent := m.list.View()
+	s.WriteString(CardStyle.Render(listContent))
+
+	// Footer
+	footerText := "• Entrée Sélectionner • Échap Retour • Ctrl+C Quitter"
+	s.WriteString(FooterStyle.Render(footerText))
+
+	return AppStyle.Render(s.String())
 }

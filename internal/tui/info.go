@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
-	"github.com/charmbracelet/lipgloss"
 )
 
 type InfoModel struct {
@@ -47,30 +46,21 @@ func (m InfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m InfoModel) View() string {
 	var s strings.Builder
 
-	// Header
-	s.WriteString(lipgloss.NewStyle().
-		Bold(true).
-		Foreground(lipgloss.Color("#7D56F4")).
-		Render("📊 Informations Système"))
+	// Beautiful header
+	s.WriteString(CreateBanner("📊 Informations Système"))
 	s.WriteString("\n\n")
 
-	// System info
+	// System info in a beautiful table
+	var systemContent strings.Builder
 	for key, value := range m.systemInfo {
-		s.WriteString(lipgloss.NewStyle().
-			Bold(true).
-			Foreground(lipgloss.Color("#FFAA00")).
-			Render(fmt.Sprintf("%-15s: ", key)))
-		s.WriteString(value)
-		s.WriteString("\n")
+		systemContent.WriteString(fmt.Sprintf("%-15s: %s\n", key, value))
 	}
 
-	s.WriteString("\n")
-	s.WriteString(lipgloss.NewStyle().
-		Bold(true).
-		Foreground(lipgloss.Color("#7D56F4")).
-		Render("📁 Chemins importants:"))
+	systemCard := CreateCard("🖥️ Informations Système", systemContent.String())
+	s.WriteString(systemCard)
 	s.WriteString("\n")
 
+	// Paths info
 	paths := map[string]string{
 		"Dotfiles":   "~/.local/share/chezmoi",
 		"Zsh Config": "~/.zshrc",
@@ -80,20 +70,18 @@ func (m InfoModel) View() string {
 		"Starship":   "~/.config/starship.toml",
 	}
 
+	var pathsContent strings.Builder
 	for key, path := range paths {
-		s.WriteString(lipgloss.NewStyle().
-			Bold(true).
-			Foreground(lipgloss.Color("#04B575")).
-			Render(fmt.Sprintf("%-15s: ", key)))
-		s.WriteString(path)
-		s.WriteString("\n")
+		pathsContent.WriteString(fmt.Sprintf("%-15s: %s\n", key, path))
 	}
+
+	pathsCard := CreateCard("📁 Chemins Importants", pathsContent.String())
+	s.WriteString(pathsCard)
 
 	// Footer
 	s.WriteString("\n")
-	s.WriteString(lipgloss.NewStyle().
-		Foreground(lipgloss.Color("#626262")).
-		Render("• Appuyez sur Entrée ou Échap pour revenir au menu principal"))
+	footerText := "• Entrée/Échap Retour au menu principal"
+	s.WriteString(FooterStyle.Render(footerText))
 
-	return s.String()
+	return AppStyle.Render(s.String())
 }
