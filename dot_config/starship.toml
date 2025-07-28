@@ -91,7 +91,7 @@ symbol = "🦀 "
 style = "bold red"
 format = "[$symbol($version )]($style)"
 
-[go]
+[golang]
 symbol = "🐹 "
 style = "bold cyan"
 format = "[$symbol($version )]($style)"
