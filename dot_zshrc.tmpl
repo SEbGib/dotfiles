@@ -43,21 +43,23 @@ ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#6c7086,italic"
 ZSH_AUTOSUGGEST_STRATEGY=(history completion)
 ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
 
-# Configuration fast-syntax-highlighting
-FAST_HIGHLIGHT_STYLES[default]='fg=#cdd6f4'
-FAST_HIGHLIGHT_STYLES[unknown-token]='fg=#f38ba8,bold'
-FAST_HIGHLIGHT_STYLES[reserved-word]='fg=#cba6f7,bold'
-FAST_HIGHLIGHT_STYLES[alias]='fg=#a6e3a1,bold'
-FAST_HIGHLIGHT_STYLES[builtin]='fg=#89b4fa,bold'
-FAST_HIGHLIGHT_STYLES[function]='fg=#94e2d5,bold'
-FAST_HIGHLIGHT_STYLES[command]='fg=#89b4fa,bold'
-FAST_HIGHLIGHT_STYLES[precommand]='fg=#cba6f7,italic'
-
-# Thème pour fast-syntax-highlighting
-fast-theme catppuccin-mocha 2>/dev/null || true
-
 # Chargement Oh My Zsh
 source $ZSH/oh-my-zsh.sh
+
+# Configuration fast-syntax-highlighting (après chargement du plugin)
+if [[ -n "${FAST_HIGHLIGHT_STYLES}" ]]; then
+    FAST_HIGHLIGHT_STYLES[default]='fg=#cdd6f4'
+    FAST_HIGHLIGHT_STYLES[unknown-token]='fg=#f38ba8,bold'
+    FAST_HIGHLIGHT_STYLES[reserved-word]='fg=#cba6f7,bold'
+    FAST_HIGHLIGHT_STYLES[alias]='fg=#a6e3a1,bold'
+    FAST_HIGHLIGHT_STYLES[builtin]='fg=#89b4fa,bold'
+    FAST_HIGHLIGHT_STYLES[function]='fg=#94e2d5,bold'
+    FAST_HIGHLIGHT_STYLES[command]='fg=#89b4fa,bold'
+    FAST_HIGHLIGHT_STYLES[precommand]='fg=#cba6f7,italic'
+    
+    # Thème pour fast-syntax-highlighting
+    fast-theme catppuccin-mocha 2>/dev/null || true
+fi
 
 # ===== CONFIGURATION STARSHIP =====
 if command -v starship &> /dev/null; then
