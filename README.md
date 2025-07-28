@@ -4,6 +4,7 @@ Configuration complète et moderne pour un environnement de développement PHP/S
 
 ## ✨ Fonctionnalités
 
+- **🎮 Interface TUI moderne** : Interface graphique terminal avec Bubble Tea
 - **🔥 Setup en une commande** : Installation complète automatisée
 - **🎨 Interface moderne** : Thème Catppuccin coordonné (Neovim + tmux + Starship)
 - **🔒 Gestion des secrets** : Intégration Bitwarden + chiffrement AGE
@@ -14,6 +15,17 @@ Configuration complète et moderne pour un environnement de développement PHP/S
 
 ## 🚀 Installation rapide
 
+### 🎮 Interface TUI (Recommandée)
+```bash
+# Cloner le repository
+git clone https://github.com/votreusername/dotfiles.git
+cd dotfiles
+
+# Lancer l'interface graphique moderne
+./demo-tui.sh
+```
+
+### 📟 Installation en ligne de commande
 ```bash
 # Remplacez 'votreusername' par votre nom d'utilisateur GitHub
 sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/votreusername/dotfiles.git
@@ -94,6 +106,13 @@ chezmoi apply --verbose
 
 Après l'installation, vérifiez que tout fonctionne correctement :
 
+#### 🎮 Via l'interface TUI (Recommandé)
+```bash
+# Lancer l'interface et sélectionner "Vérification du Système"
+./dotfiles-tui
+```
+
+#### 📟 Via ligne de commande
 ```bash
 # Télécharger et exécuter le script de vérification
 curl -fsSL https://raw.githubusercontent.com/votreusername/dotfiles/main/verify-installation.sh | bash
@@ -109,6 +128,41 @@ Le script vérifie :
 - ✅ Sauvegardes créées
 - ✅ Shell configuré correctement
 - 📊 Rapport détaillé avec taux de réussite
+
+## 🎮 Interface TUI - Gestion Moderne
+
+Une interface utilisateur terminal moderne construite avec [Bubble Tea](https://github.com/charmbracelet/bubbletea) pour une gestion intuitive de vos dotfiles.
+
+### 🚀 Lancement rapide
+```bash
+# Demo interactif avec toutes les options
+./demo-tui.sh
+
+# Lancement direct
+./launch-tui.sh
+
+# Ou construction manuelle
+make run
+```
+
+### ✨ Fonctionnalités TUI
+- **🚀 Installation Interactive** : Guide étape par étape avec progression en temps réel
+- **✅ Vérification Système** : Contrôle de santé complet avec rapport détaillé
+- **⚙️ Gestion Configuration** : Édition des fichiers de configuration
+- **💾 Sauvegarde/Restauration** : Gestion des backups avec interface graphique
+- **🔧 Gestion des Outils** : Installation et mise à jour des outils
+- **🔐 Configuration Secrets** : Interface pour Bitwarden et secrets
+- **📊 Informations Système** : Vue d'ensemble de votre environnement
+
+### 🎨 Interface Moderne
+- Thème **Catppuccin** coordonné avec le reste de l'environnement
+- Navigation intuitive au clavier (↑/↓, Entrée, Échap)
+- Indicateurs de progression en temps réel
+- Logs interactifs pendant les opérations
+- Messages d'erreur clairs avec suggestions
+
+### 📚 Documentation TUI
+Consultez [TUI_README.md](TUI_README.md) pour la documentation complète de l'interface.
 
 ## 📦 Ce qui est installé
 
