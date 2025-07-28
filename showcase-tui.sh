@@ -1,90 +1,62 @@
 #!/bin/bash
 
-# Showcase script for the enhanced Dotfiles TUI with Lip Gloss styling
-# Demonstrates the beautiful new interface
+# Simple showcase for the Dotfiles TUI
+# Clean and focused presentation
 
 set -euo pipefail
 
-# Couleurs Catppuccin
-MAUVE='\033[38;2;203;166;247m'
-BLUE='\033[38;2;137;180;250m'
-PINK='\033[38;2;243;139;168m'
-GREEN='\033[38;2;166;227;161m'
-YELLOW='\033[38;2;249;226;175m'
-SKY='\033[38;2;116;199;236m'
-TEXT='\033[38;2;205;214;244m'
-SUBTEXT='\033[38;2;186;194;222m'
+# Colors
+BLUE='\033[0;34m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+CYAN='\033[0;36m'
+PURPLE='\033[0;35m'
 NC='\033[0m'
 
 clear
 
-echo -e "${MAUVE}╭─────────────────────────────────────────────────────────────╮${NC}"
-echo -e "${MAUVE}│${NC}  ✨  ${SKY}Dotfiles TUI - Interface Magnifiée avec Lip Gloss${NC}  ✨   ${MAUVE}│${NC}"
-echo -e "${MAUVE}╰─────────────────────────────────────────────────────────────╯${NC}"
+echo -e "${PURPLE}╔══════════════════════════════════════════════════════════════╗${NC}"
+echo -e "${PURPLE}║${NC}     ${CYAN}Dotfiles TUI - Interface Élégante et Moderne${NC}     ${PURPLE}║${NC}"
+echo -e "${PURPLE}╚══════════════════════════════════════════════════════════════╝${NC}"
 echo ""
 
-echo -e "${BLUE}🎨 Votre TUI a été magnifiée avec Lip Gloss de Charm!${NC}"
+echo -e "${BLUE}🎨 Votre TUI a été améliorée avec un design moderne!${NC}"
 echo ""
 
-echo -e "${SKY}✨ Nouvelles fonctionnalités visuelles:${NC}"
+echo -e "${CYAN}✨ Améliorations visuelles:${NC}"
 echo ""
-echo -e "  ${GREEN}🎨 Thème Catppuccin Complet${NC}      - Couleurs coordonnées et harmonieuses"
-echo -e "  ${GREEN}🖼️ Bordures Élégantes${NC}            - Bordures arrondies et doubles"
-echo -e "  ${GREEN}📦 Cartes Stylisées${NC}              - Contenu organisé en cartes"
-echo -e "  ${GREEN}🌈 Badges de Status${NC}              - Indicateurs colorés et expressifs"
-echo -e "  ${GREEN}📊 Barres de Progression${NC}         - Indicateurs visuels améliorés"
-echo -e "  ${GREEN}📋 Logs Formatés${NC}                 - Affichage des logs avec timestamps"
-echo -e "  ${GREEN}🎯 Séparateurs Décoratifs${NC}        - Organisation visuelle claire"
-echo -e "  ${GREEN}💫 Animations Fluides${NC}            - Spinners et transitions"
+echo -e "  ${GREEN}🎨 Thème Catppuccin${NC}             - Couleurs harmonieuses"
+echo -e "  ${GREEN}📦 Interface Organisée${NC}          - Contenu structuré"
+echo -e "  ${GREEN}🌈 Indicateurs Colorés${NC}          - Status visuels clairs"
+echo -e "  ${GREEN}📊 Barres de Progression${NC}        - Suivi en temps réel"
+echo -e "  ${GREEN}💫 Navigation Fluide${NC}            - Expérience utilisateur optimisée"
 echo ""
 
-echo -e "${YELLOW}🎨 Palette de couleurs Catppuccin Mocha:${NC}"
+echo -e "${YELLOW}🎯 Fonctionnalités par écran:${NC}"
 echo ""
-echo -e "  ${MAUVE}● Mauve${NC}     - Couleur principale et accents"
-echo -e "  ${BLUE}● Bleu${NC}      - Éléments secondaires et bordures"
-echo -e "  ${PINK}● Rose${NC}      - Accents et éléments actifs"
-echo -e "  ${GREEN}● Vert${NC}      - Succès et éléments positifs"
-echo -e "  ${YELLOW}● Jaune${NC}     - Avertissements et informations"
-echo -e "  ${SKY}● Ciel${NC}      - Informations et éléments neutres"
+echo -e "  ${GREEN}🏠 Menu Principal${NC}        - Interface épurée et claire"
+echo -e "  ${GREEN}🚀 Installation${NC}          - Progression visuelle détaillée"
+echo -e "  ${GREEN}✅ Vérification${NC}          - Rapport de santé complet"
+echo -e "  ${GREEN}⚙️ Configuration${NC}         - Gestion simplifiée"
 echo ""
 
-echo -e "${PINK}🎭 Éléments de style ajoutés:${NC}"
+echo -e "${CYAN}🎮 Commandes de lancement:${NC}"
 echo ""
-echo -e "  ${TEXT}📦 ${SUBTEXT}CreateCard()${NC}           - Cartes avec bordures et padding"
-echo -e "  ${TEXT}🏷️ ${SUBTEXT}CreateStatusBadge()${NC}    - Badges colorés selon le status"
-echo -e "  ${TEXT}📊 ${SUBTEXT}CreateProgressBar()${NC}    - Barres de progression stylisées"
-echo -e "  ${TEXT}🎨 ${SUBTEXT}CreateBanner()${NC}         - Bannières décoratives"
-echo -e "  ${TEXT}📝 ${SUBTEXT}CreateLogEntry()${NC}       - Entrées de log formatées"
-echo -e "  ${TEXT}🔘 ${SUBTEXT}CreateButton()${NC}         - Boutons interactifs"
-echo -e "  ${TEXT}📋 ${SUBTEXT}CreateTable()${NC}          - Tableaux stylisés"
+echo -e "  ${YELLOW}./demo-tui.sh${NC}           - Demo simple et rapide"
+echo -e "  ${YELLOW}./launch-tui.sh${NC}         - Lancement avec vérifications"
+echo -e "  ${YELLOW}./dotfiles-tui${NC}          - Lancement direct"
+echo -e "  ${YELLOW}make run${NC}                - Construction et lancement"
 echo ""
 
-echo -e "${SKY}🖥️ Améliorations par écran:${NC}"
-echo ""
-echo -e "  ${GREEN}🏠 Menu Principal${NC}        - Bannière décorative + cartes"
-echo -e "  ${GREEN}🚀 Installation${NC}          - Progression visuelle + logs formatés"
-echo -e "  ${GREEN}✅ Vérification${NC}          - Sections organisées + badges status"
-echo -e "  ${GREEN}⚙️ Configuration${NC}         - Interface épurée + navigation claire"
-echo -e "  ${GREEN}💾 Sauvegarde${NC}            - Présentation structurée"
-echo -e "  ${GREEN}🔧 Outils${NC}                - Gestion visuelle améliorée"
-echo -e "  ${GREEN}🔐 Secrets${NC}               - Interface sécurisée et claire"
-echo -e "  ${GREEN}📊 Informations${NC}          - Données organisées en tableaux"
+echo -e "${BLUE}🚀 Découvrez votre interface moderne maintenant!${NC}"
 echo ""
 
-echo -e "${MAUVE}🎮 Prêt à découvrir la nouvelle interface?${NC}"
+# Simple prompt
+read -p "Appuyez sur Entrée pour lancer l'interface TUI..."
+
+echo ""
+echo -e "${GREEN}✨ Lancement de votre interface moderne...${NC}"
 echo ""
 
-# Animation de lancement
-echo -e "${YELLOW}🚀 Lancement de l'interface magnifiée...${NC}"
-for i in {1..3}; do
-    echo -n "."
-    sleep 0.5
-done
-echo ""
-echo ""
-
-echo -e "${GREEN}✨ Profitez de votre interface moderne et élégante!${NC}"
-echo ""
-
-# Lancer l'application
+# Launch
 exec ./dotfiles-tui

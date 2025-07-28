@@ -82,11 +82,11 @@ func NewInstallModel() InstallModel {
 	}
 
 	p := progress.New(progress.WithDefaultGradient())
-	p.Width = 60
+	p.Width = 50
 
 	s := spinner.New()
 	s.Spinner = spinner.Dot
-	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+	s.Style = SpinnerStyle
 
 	return InstallModel{
 		steps:    steps,
@@ -149,7 +149,6 @@ func (m InstallModel) detectSystem() error {
 
 func (m InstallModel) backupConfigs() error {
 	m.addLog("Recherche des configurations existantes...")
-	// Check for existing configs
 	configs := []string{".zshrc", ".gitconfig", ".vimrc", ".tmux.conf"}
 	for _, config := range configs {
 		m.addLog(fmt.Sprintf("Vérification de %s", config))
@@ -163,7 +162,6 @@ func (m InstallModel) installTools() error {
 
 	if runtime.GOOS == "darwin" {
 		m.addLog("Installation via Homebrew...")
-		// Simulate homebrew installation
 		tools := []string{"starship", "zsh", "neovim", "tmux", "fzf", "ripgrep"}
 		for _, tool := range tools {
 			m.addLog(fmt.Sprintf("Installation de %s", tool))
@@ -213,10 +211,8 @@ func (m InstallModel) applyConfigs() error {
 func (m InstallModel) verifyInstallation() error {
 	m.addLog("Vérification de l'installation...")
 
-	// Run actual verification script if it exists
 	if cmd := exec.Command("./verify-installation.sh"); cmd != nil {
 		m.addLog("Exécution du script de vérification...")
-		// Don't actually run it in this demo
 	}
 
 	m.addLog("✅ Installation vérifiée avec succès!")
@@ -225,7 +221,7 @@ func (m InstallModel) verifyInstallation() error {
 
 func (m *InstallModel) addLog(message string) {
 	m.logs = append(m.logs, fmt.Sprintf("[%s] %s", time.Now().Format("15:04:05"), message))
-	if len(m.logs) > 10 {
+	if len(m.logs) > 8 {
 		m.logs = m.logs[1:]
 	}
 }
@@ -266,7 +262,6 @@ func (m InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.status = fmt.Sprintf("Terminé: %s", m.steps[msg.step].name)
 			}
 
-			// Start next step
 			nextStep := msg.step + 1
 			if nextStep < len(m.steps) {
 				return m, func() tea.Msg {
@@ -294,16 +289,16 @@ func (m InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 func (m InstallModel) View() string {
 	if m.quitting {
-		return CreateStatusBadge("warning", "Installation interrompue")
+		return "Installation interrompue.\n"
 	}
 
 	var s strings.Builder
 
-	// Beautiful header
-	s.WriteString(CreateBanner("🚀 Installation Interactive des Dotfiles"))
+	// Clean header
+	s.WriteString(CreateBanner("🚀 Installation Interactive"))
 	s.WriteString("\n\n")
 
-	// Progress section in a card
+	// Progress bar
 	completedSteps := 0
 	for _, step := range m.steps {
 		if step.completed {
@@ -312,79 +307,67 @@ func (m InstallModel) View() string {
 	}
 
 	progressPercent := float64(completedSteps) / float64(len(m.steps))
-	progressBar := CreateProgressBar(progressPercent, 50)
-	progressText := fmt.Sprintf("%d/%d étapes terminées (%.0f%%)",
-		completedSteps, len(m.steps), progressPercent*100)
+	s.WriteString(m.progress.ViewAs(progressPercent))
+	s.WriteString(fmt.Sprintf(" %d/%d étapes terminées\n\n", completedSteps, len(m.steps)))
 
-	progressCard := CreateCard("📊 Progression",
-		progressBar+"\n"+progressText)
-	s.WriteString(progressCard)
-	s.WriteString("\n")
-
-	// Steps list in a beautiful card
-	var stepsContent strings.Builder
+	// Steps list
 	for i, step := range m.steps {
-		var statusText string
+		var status string
+		var style lipgloss.Style
 
 		if step.completed {
-			statusText = CreateStatusBadge("success", step.name)
+			status = "✅"
+			style = lipgloss.NewStyle().Foreground(ColorSuccess)
 		} else if step.running {
-			statusText = SpinnerStyle.Render(m.spinner.View()) + " " +
-				MenuItemStyle.Render(step.name)
+			status = m.spinner.View()
+			style = lipgloss.NewStyle().Foreground(ColorWarning)
 		} else if step.error != "" {
-			statusText = CreateStatusBadge("error", step.name+" - "+step.error)
+			status = "❌"
+			style = lipgloss.NewStyle().Foreground(ColorError)
 		} else {
-			statusText = CreateStatusBadge("pending", step.name)
+			status = "⏳"
+			style = lipgloss.NewStyle().Foreground(ColorTextMuted)
 		}
 
-		stepsContent.WriteString(statusText)
-		stepsContent.WriteString("\n")
+		stepText := fmt.Sprintf("%s %s", status, step.name)
+		if step.error != "" {
+			stepText += fmt.Sprintf(" - Erreur: %s", step.error)
+		}
+
+		s.WriteString(style.Render(stepText))
+		s.WriteString("\n")
 
 		if i == m.currentStep && step.running {
-			stepsContent.WriteString(SubtitleStyle.Render("   " + step.description))
-			stepsContent.WriteString("\n")
+			s.WriteString(SubtitleStyle.Render("   " + step.description))
+			s.WriteString("\n")
 		}
 	}
 
-	stepsCard := CreateCard("📋 Étapes d'installation", stepsContent.String())
-	s.WriteString(stepsCard)
-
-	// Status section
+	// Status
 	s.WriteString("\n")
-	statusCard := CreateCard("📊 Status",
-		CreateStatusBadge("info", m.status))
-	s.WriteString(statusCard)
+	s.WriteString(lipgloss.NewStyle().Bold(true).Foreground(ColorInfo).Render("Status: "))
+	s.WriteString(m.status)
+	s.WriteString("\n")
 
-	// Logs section
+	// Logs
 	if len(m.logs) > 0 {
 		s.WriteString("\n")
-		var logsContent strings.Builder
-		for _, log := range m.logs {
-			parts := strings.SplitN(log, "] ", 2)
-			if len(parts) == 2 {
-				timestamp := strings.TrimPrefix(parts[0], "[")
-				message := parts[1]
-				logsContent.WriteString(CreateLogEntry(timestamp, message))
-				logsContent.WriteString("\n")
-			} else {
-				logsContent.WriteString(LogEntryStyle.Render(log))
-				logsContent.WriteString("\n")
-			}
-		}
+		s.WriteString(lipgloss.NewStyle().Bold(true).Foreground(ColorPrimary).Render("📋 Logs récents:"))
+		s.WriteString("\n")
 
-		logsCard := CreateCard("📋 Logs récents", logsContent.String())
-		s.WriteString(LogContainerStyle.Render(logsCard))
+		for _, log := range m.logs {
+			s.WriteString(LogEntryStyle.Render("  " + log))
+			s.WriteString("\n")
+		}
 	}
 
 	// Footer
 	s.WriteString("\n")
-	var footerText string
 	if m.completed {
-		footerText = "• Entrée/Échap Retour au menu • Installation terminée avec succès! 🎉"
+		s.WriteString(FooterStyle.Render("Entrée/Échap pour retour au menu • Installation terminée! 🎉"))
 	} else {
-		footerText = "• Ctrl+C Annuler l'installation • Installation en cours..."
+		s.WriteString(FooterStyle.Render("Ctrl+C pour annuler l'installation"))
 	}
-	s.WriteString(FooterStyle.Render(footerText))
 
-	return AppStyle.Render(s.String())
+	return s.String()
 }

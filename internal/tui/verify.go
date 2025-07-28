@@ -241,134 +241,86 @@ func (m VerifyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 func (m VerifyModel) View() string {
 	var s strings.Builder
 
-	// Beautiful header
+	// Clean header
 	s.WriteString(CreateBanner("✅ Vérification du Système"))
 	s.WriteString("\n\n")
 
-	// Progress section
+	// Progress
 	if m.running {
-		progressText := fmt.Sprintf("Vérification en cours... %s (%d/%d)",
-			m.spinner.View(), m.current, len(m.checks))
-		progressCard := CreateCard("🔄 Progression", progressText)
-		s.WriteString(progressCard)
-		s.WriteString("\n")
+		s.WriteString(fmt.Sprintf("Vérification en cours... %s (%d/%d)\n\n",
+			m.spinner.View(), m.current, len(m.checks)))
 	} else if m.complete {
-		completionCard := CreateCard("✅ Status", "Vérification terminée!")
-		s.WriteString(completionCard)
-		s.WriteString("\n")
+		s.WriteString("Vérification terminée!\n\n")
 	}
 
-	// Checks list in organized sections
-	toolsChecks := []VerifyCheck{}
-	configChecks := []VerifyCheck{}
+	// Checks list
+	for i, check := range m.checks {
+		var status string
+		var style lipgloss.Style
 
-	for _, check := range m.checks {
-		if strings.Contains(check.name, "Configuration") || strings.Contains(check.name, "Oh My Zsh") || strings.Contains(check.name, "Plugins") {
-			configChecks = append(configChecks, check)
-		} else {
-			toolsChecks = append(toolsChecks, check)
+		switch check.status {
+		case "passed":
+			status = "✅"
+			style = lipgloss.NewStyle().Foreground(ColorSuccess)
+		case "failed":
+			status = "❌"
+			style = lipgloss.NewStyle().Foreground(ColorError)
+		case "warning":
+			status = "⚠️"
+			style = lipgloss.NewStyle().Foreground(ColorWarning)
+		case "running":
+			status = m.spinner.View()
+			style = lipgloss.NewStyle().Foreground(ColorWarning)
+		default:
+			status = "⏳"
+			style = lipgloss.NewStyle().Foreground(ColorTextMuted)
 		}
-	}
-
-	// Tools section
-	var toolsContent strings.Builder
-	for i, check := range toolsChecks {
-		var statusText string
 
 		if i == m.current && m.running {
-			statusText = SpinnerStyle.Render(m.spinner.View()) + " " + check.name
-		} else {
-			switch check.status {
-			case "passed":
-				statusText = CreateStatusBadge("success", check.name)
-			case "failed":
-				statusText = CreateStatusBadge("error", check.name)
-			case "warning":
-				statusText = CreateStatusBadge("warning", check.name)
-			default:
-				statusText = CreateStatusBadge("pending", check.name)
-			}
+			status = m.spinner.View()
+			style = lipgloss.NewStyle().Foreground(ColorWarning)
 		}
 
+		checkText := fmt.Sprintf("%s %s", status, check.name)
 		if check.message != "" {
-			statusText += " - " + check.message
+			checkText += fmt.Sprintf(" - %s", check.message)
 		}
 
-		toolsContent.WriteString(statusText)
-		toolsContent.WriteString("\n")
-	}
-
-	toolsCard := CreateCard("🔧 Outils Installés", toolsContent.String())
-	s.WriteString(toolsCard)
-	s.WriteString("\n")
-
-	// Configuration section
-	if len(configChecks) > 0 {
-		var configContent strings.Builder
-		for i, check := range configChecks {
-			var statusText string
-
-			if i == m.current && m.running {
-				statusText = SpinnerStyle.Render(m.spinner.View()) + " " + check.name
-			} else {
-				switch check.status {
-				case "passed":
-					statusText = CreateStatusBadge("success", check.name)
-				case "failed":
-					statusText = CreateStatusBadge("error", check.name)
-				case "warning":
-					statusText = CreateStatusBadge("warning", check.name)
-				default:
-					statusText = CreateStatusBadge("pending", check.name)
-				}
-			}
-
-			if check.message != "" {
-				statusText += " - " + check.message
-			}
-
-			configContent.WriteString(statusText)
-			configContent.WriteString("\n")
-		}
-
-		configCard := CreateCard("⚙️ Configurations", configContent.String())
-		s.WriteString(configCard)
+		s.WriteString(style.Render(checkText))
 		s.WriteString("\n")
 	}
 
-	// Summary section
+	// Summary
 	if m.complete {
+		s.WriteString("\n")
+		s.WriteString(lipgloss.NewStyle().Bold(true).Foreground(ColorPrimary).Render("📊 Résumé:"))
+		s.WriteString("\n")
+
 		successRate := float64(m.summary.passed) / float64(m.summary.total) * 100
 
-		var summaryContent strings.Builder
-		summaryContent.WriteString(fmt.Sprintf("📊 Total: %d vérifications\n", m.summary.total))
-		summaryContent.WriteString(CreateStatusBadge("success", fmt.Sprintf("Réussies: %d", m.summary.passed)) + "\n")
-		summaryContent.WriteString(CreateStatusBadge("error", fmt.Sprintf("Échouées: %d", m.summary.failed)) + "\n")
-		summaryContent.WriteString(CreateStatusBadge("warning", fmt.Sprintf("Avertissements: %d", m.summary.warning)) + "\n")
-		summaryContent.WriteString(fmt.Sprintf("🎯 Taux de réussite: %.1f%%\n\n", successRate))
+		s.WriteString(fmt.Sprintf("• Total: %d vérifications\n", m.summary.total))
+		s.WriteString(lipgloss.NewStyle().Foreground(ColorSuccess).Render(fmt.Sprintf("• Réussies: %d\n", m.summary.passed)))
+		s.WriteString(lipgloss.NewStyle().Foreground(ColorError).Render(fmt.Sprintf("• Échouées: %d\n", m.summary.failed)))
+		s.WriteString(lipgloss.NewStyle().Foreground(ColorWarning).Render(fmt.Sprintf("• Avertissements: %d\n", m.summary.warning)))
+		s.WriteString(fmt.Sprintf("• Taux de réussite: %.1f%%\n", successRate))
 
-		// Overall status
-		if m.summary.failed == 0 {
-			summaryContent.WriteString(CreateStatusBadge("success", "🎉 Système parfaitement configuré!"))
-		} else if successRate >= 80 {
-			summaryContent.WriteString(CreateStatusBadge("warning", "⚠️ Système majoritairement configuré"))
-		} else {
-			summaryContent.WriteString(CreateStatusBadge("error", "❌ Système nécessite une attention"))
-		}
-
-		summaryCard := CreateCard("📊 Résumé Final", summaryContent.String())
-		s.WriteString(summaryCard)
 		s.WriteString("\n")
+		if m.summary.failed == 0 {
+			s.WriteString(lipgloss.NewStyle().Foreground(ColorSuccess).Render("🎉 Système parfaitement configuré!"))
+		} else if successRate >= 80 {
+			s.WriteString(lipgloss.NewStyle().Foreground(ColorWarning).Render("⚠️ Système majoritairement configuré"))
+		} else {
+			s.WriteString(lipgloss.NewStyle().Foreground(ColorError).Render("❌ Système nécessite une attention"))
+		}
 	}
 
 	// Footer
-	var footerText string
+	s.WriteString("\n\n")
 	if m.complete {
-		footerText = "• Entrée/Échap Retour au menu • Vérification terminée"
+		s.WriteString(FooterStyle.Render("Entrée/Échap pour retour au menu"))
 	} else {
-		footerText = "• Ctrl+C Annuler • Vérification en cours..."
+		s.WriteString(FooterStyle.Render("Ctrl+C pour annuler"))
 	}
-	s.WriteString(FooterStyle.Render(footerText))
 
-	return AppStyle.Render(s.String())
+	return s.String()
 }

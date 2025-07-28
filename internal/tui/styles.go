@@ -31,34 +31,24 @@ var (
 
 // Base styles
 var (
-	// Main container style
+	// Main container style - minimal padding
 	AppStyle = lipgloss.NewStyle().
-			Padding(1, 2).
-			Background(ColorBgPrimary).
-			Foreground(ColorTextPrimary)
+			Padding(0, 1)
 
-	// Header styles
+	// Header styles - simple and clean
 	HeaderStyle = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(ColorPrimary).
-			Background(ColorBgSecondary).
-			Padding(0, 2).
-			Margin(0, 0, 1, 0).
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(ColorPrimary).
-			Align(lipgloss.Center)
+			Padding(0, 1).
+			Margin(0, 0, 1, 0)
 
-	// Title with gradient effect
+	// Title - clean without overwhelming borders
 	TitleStyle = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(ColorPrimary).
-			Background(lipgloss.AdaptiveColor{Light: "#f7f7f7", Dark: "#313244"}).
-			Padding(1, 4).
-			Margin(0, 0, 2, 0).
-			Border(lipgloss.DoubleBorder()).
-			BorderForeground(ColorPrimary).
-			Align(lipgloss.Center)
-	// Subtitle style
+			Padding(1, 2).
+			Margin(0, 0, 1, 0).
+			Align(lipgloss.Center) // Subtitle style
 	SubtitleStyle = lipgloss.NewStyle().
 			Foreground(ColorTextSecondary).
 			Italic(true).
@@ -117,14 +107,12 @@ var (
 				Background(ColorSuccess).
 				Foreground(ColorBgPrimary)
 
-	// Card styles
+	// Card styles - simplified
 	CardStyle = lipgloss.NewStyle().
 			Border(lipgloss.RoundedBorder()).
-			BorderForeground(ColorSecondary).
+			BorderForeground(ColorTextDim).
 			Padding(1, 2).
-			Margin(1, 0).
-			Background(ColorBgSecondary)
-
+			Margin(1, 0)
 	CardHeaderStyle = lipgloss.NewStyle().
 			Bold(true).
 			Foreground(ColorPrimary).
@@ -187,16 +175,12 @@ var (
 			BorderForeground(ColorTextDim).
 			Background(ColorBgSecondary)
 
-	// Footer style
+	// Footer style - minimal
 	FooterStyle = lipgloss.NewStyle().
 			Foreground(ColorTextMuted).
-			Background(ColorBgSecondary).
-			Padding(1, 2).
-			Margin(2, 0, 0, 0).
-			Border(lipgloss.RoundedBorder()).
-			BorderForeground(ColorTextDim).
+			Padding(1, 0).
+			Margin(1, 0, 0, 0).
 			Align(lipgloss.Center)
-
 	// Spinner styles
 	SpinnerStyle = lipgloss.NewStyle().
 			Foreground(ColorAccent).
@@ -317,15 +301,13 @@ func CreateTable(headers []string, rows [][]string) string {
 	return table.String()
 }
 
-// CreateBanner creates a decorative banner
+// CreateBanner creates a simple banner
 func CreateBanner(text string) string {
 	banner := lipgloss.NewStyle().
 		Foreground(ColorPrimary).
 		Bold(true).
 		Align(lipgloss.Center).
-		Border(lipgloss.DoubleBorder()).
-		BorderForeground(ColorPrimary).
-		Padding(1, 2).
+		Padding(0, 2).
 		Render(text)
 
 	return banner

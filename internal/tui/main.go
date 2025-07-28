@@ -144,26 +144,23 @@ func (m MainModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 // View renders the model
 func (m MainModel) View() string {
 	if m.quitting {
-		return CreateStatusBadge("info", "Au revoir! 👋")
+		return "Au revoir! 👋\n"
 	}
 
 	var s strings.Builder
 
-	// Beautiful header with banner
-	s.WriteString(CreateBanner("🚀 Dotfiles Manager - Configuration Moderne"))
-	s.WriteString("\n\n")
-
-	// Subtitle
+	// Clean header
+	s.WriteString(CreateBanner("🚀 Dotfiles Manager"))
+	s.WriteString("\n")
 	s.WriteString(SubtitleStyle.Render("Interface moderne pour la gestion de vos dotfiles"))
 	s.WriteString("\n\n")
 
-	// Main content in a card
-	listContent := m.list.View()
-	s.WriteString(CardStyle.Render(listContent))
+	// Main content
+	s.WriteString(m.list.View())
 
-	// Beautiful footer
-	footerText := "• ↑/↓ Navigation • Entrée Sélectionner • Ctrl+C Quitter"
-	s.WriteString(FooterStyle.Render(footerText))
+	// Simple footer
+	s.WriteString("\n")
+	s.WriteString(FooterStyle.Render("↑/↓ Navigation • Entrée Sélectionner • Ctrl+C Quitter"))
 
 	// Status message if present
 	if m.statusMsg != "" {
@@ -171,7 +168,7 @@ func (m MainModel) View() string {
 		s.WriteString(CreateStatusBadge("info", m.statusMsg))
 	}
 
-	return AppStyle.Render(s.String())
+	return s.String()
 }
 
 // Key bindings
