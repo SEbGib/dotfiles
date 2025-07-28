@@ -90,8 +90,8 @@ opt.listchars = {
   precedes = "⟨",
 }
 opt.fillchars = {
-  foldopen = "",
-  foldclose = "",
+  foldopen = "▼",
+  foldclose = "▶",
   fold = " ",
   foldsep = " ",
   diff = "╱",
