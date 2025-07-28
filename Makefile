@@ -23,7 +23,30 @@ install: build
 
 # Run tests
 test:
-	go test ./...
+	go test -v -race ./...
+
+# Run tests with coverage
+test-coverage:
+	go test -v -race -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out -o coverage.html
+	go tool cover -func=coverage.out
+
+# Run benchmarks
+bench:
+	go test -bench=. -benchmem ./...
+
+# Run integration tests
+test-integration:
+	go test -v -tags=integration ./...
+
+# Run all tests (unit + integration + benchmarks)
+test-all: test test-integration bench
+
+# Test with verbose output and race detection
+test-verbose:
+	go test -v -race -coverprofile=coverage.out ./...
+	@echo "Coverage report:"
+	@go tool cover -func=coverage.out | tail -1
 
 # Development mode with hot reload (requires air)
 dev:
