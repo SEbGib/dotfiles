@@ -1,0 +1,212 @@
+#!/bin/bash
+
+set -eufo pipefail
+
+echo "🐚 Configuration des plugins Zsh modernes..."
+
+# Vérification que Zsh est installé
+if ! command -v zsh &> /dev/null; then
+    echo "❌ Zsh non installé. Exécutez d'abord le script d'installation des outils."
+    exit 1
+fi
+
+# Installation Oh My Zsh si absent
+ZSH_DIR="$HOME/.oh-my-zsh"
+if [[ ! -d "$ZSH_DIR" ]]; then
+    echo "📦 Installation Oh My Zsh..."
+    sh -c "$(curl -fsSL https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
+    echo "✅ Oh My Zsh installé"
+fi
+
+# Définition du répertoire des plugins personnalisés
+ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+PLUGINS_DIR="$ZSH_CUSTOM/plugins"
+
+# Création du répertoire des plugins si nécessaire
+mkdir -p "$PLUGINS_DIR"
+
+echo "📦 Installation des plugins Zsh essentiels..."
+
+# Plugin zsh-autosuggestions (suggestions basées sur l'historique)
+if [[ ! -d "$PLUGINS_DIR/zsh-autosuggestions" ]]; then
+    echo "  • zsh-autosuggestions..."
+    git clone https://github.com/zsh-users/zsh-autosuggestions "$PLUGINS_DIR/zsh-autosuggestions"
+else
+    echo "  ✓ zsh-autosuggestions déjà installé"
+fi
+
+# Plugin fast-syntax-highlighting (coloration syntaxique rapide)
+if [[ ! -d "$PLUGINS_DIR/fast-syntax-highlighting" ]]; then
+    echo "  • fast-syntax-highlighting..."
+    git clone https://github.com/zdharma-continuum/fast-syntax-highlighting "$PLUGINS_DIR/fast-syntax-highlighting"
+else
+    echo "  ✓ fast-syntax-highlighting déjà installé"
+fi
+
+# Plugin zsh-completions (complétion avancée)
+if [[ ! -d "$PLUGINS_DIR/zsh-completions" ]]; then
+    echo "  • zsh-completions..."
+    git clone https://github.com/zsh-users/zsh-completions "$PLUGINS_DIR/zsh-completions"
+else
+    echo "  ✓ zsh-completions déjà installé"
+fi
+
+# Plugin zsh-history-substring-search (recherche dans l'historique)
+if [[ ! -d "$PLUGINS_DIR/zsh-history-substring-search" ]]; then
+    echo "  • zsh-history-substring-search..."
+    git clone https://github.com/zsh-users/zsh-history-substring-search "$PLUGINS_DIR/zsh-history-substring-search"
+else
+    echo "  ✓ zsh-history-substring-search déjà installé"
+fi
+
+# Plugin zsh-z (navigation rapide avec z)
+if [[ ! -d "$PLUGINS_DIR/zsh-z" ]]; then
+    echo "  • zsh-z..."
+    git clone https://github.com/agkozak/zsh-z "$PLUGINS_DIR/zsh-z"
+else
+    echo "  ✓ zsh-z déjà installé"
+fi
+
+# Plugin zsh-bat (intégration bat pour cat)
+if [[ ! -d "$PLUGINS_DIR/zsh-bat" ]] && command -v bat &> /dev/null; then
+    echo "  • zsh-bat..."
+    git clone https://github.com/fdellwing/zsh-bat "$PLUGINS_DIR/zsh-bat"
+else
+    echo "  ✓ zsh-bat déjà installé ou bat non disponible"
+fi
+
+# Configuration des thèmes pour fast-syntax-highlighting
+echo "🎨 Configuration des thèmes de coloration..."
+FSH_THEMES_DIR="$PLUGINS_DIR/fast-syntax-highlighting/themes"
+if [[ -d "$FSH_THEMES_DIR" ]]; then
+    # Créer un thème Catppuccin personnalisé
+    cat > "$FSH_THEMES_DIR/catppuccin-mocha.ini" << 'EOF'
+; Thème Catppuccin Mocha pour fast-syntax-highlighting
+; Coordonné avec la configuration Starship et Neovim
+
+[base]
+default          = fg=#cdd6f4
+unknown-token    = fg=#f38ba8,bold
+commandseparator = fg=#89dceb
+redirection      = fg=#f9e2af
+here-string-tri  = fg=#fab387
+here-string-text = fg=#a6e3a1
+here-string-var  = fg=#89b4fa,bold
+exec-descriptor  = fg=#f9e2af,bold
+comment          = fg=#6c7086,italic
+correct-subtle   = fg=#313244,bg=#f38ba8
+incorrect-subtle = fg=#f38ba8,bg=#313244
+subtle-separator = fg=#585b70
+subtle-bg        = bg=#313244
+
+[command-point]
+reserved-word     = fg=#cba6f7,bold
+alias             = fg=#a6e3a1,bold
+suffix-alias      = fg=#a6e3a1,bold
+global-alias      = fg=#fab387,bold
+builtin           = fg=#89b4fa,bold
+function          = fg=#94e2d5,bold
+command           = fg=#89b4fa,bold
+precommand        = fg=#cba6f7,italic
+commandseparator  = fg=#f38ba8
+hashed-command    = fg=#89b4fa
+single-sq-bracket = fg=#f9e2af
+double-sq-bracket = fg=#f9e2af
+double-paren      = fg=#f9e2af
+
+[paths]
+path              = fg=#89dceb,underline
+pathseparator     = fg=#f38ba8
+path-to-dir       = fg=#89dceb,underline,bold
+globbing          = fg=#fab387,bold
+globbing-ext      = fg=#f38ba8,bold
+
+[brackets]
+paired-bracket    = fg=#f9e2af,bold
+bracket-level-1   = fg=#89b4fa,bold
+bracket-level-2   = fg=#a6e3a1,bold
+bracket-level-3   = fg=#f38ba8,bold
+
+[arguments]
+single-hyphen-option   = fg=#fab387
+double-hyphen-option   = fg=#fab387,bold
+back-quoted-argument   = fg=#cba6f7
+single-quoted-argument = fg=#a6e3a1
+double-quoted-argument = fg=#a6e3a1
+dollar-quoted-argument = fg=#a6e3a1
+
+[in-string]
+back-dollar-quoted-argument      = fg=#89b4fa
+back-quoted-argument-unclosed    = fg=#f38ba8
+single-quoted-argument-unclosed  = fg=#f38ba8
+double-quoted-argument-unclosed  = fg=#f38ba8
+dollar-quoted-argument-unclosed  = fg=#f38ba8
+
+[variables]
+assign                    = fg=#cdd6f4
+assign-array-bracket      = fg=#f9e2af
+history-expansion         = fg=#cba6f7,bold
+EOF
+
+    echo "✅ Thème Catppuccin Mocha créé pour fast-syntax-highlighting"
+fi
+
+# Mise à jour des plugins existants
+echo "🔄 Mise à jour des plugins existants..."
+for plugin in zsh-autosuggestions fast-syntax-highlighting zsh-completions zsh-history-substring-search zsh-z zsh-bat; do
+    plugin_dir="$PLUGINS_DIR/$plugin"
+    if [[ -d "$plugin_dir" ]]; then
+        echo "  • Mise à jour $plugin..."
+        (cd "$plugin_dir" && git pull --quiet)
+    fi
+done
+
+# Validation de l'installation
+echo ""
+echo "🔍 Validation de l'installation..."
+validation_passed=true
+
+required_plugins=(
+    "zsh-autosuggestions"
+    "fast-syntax-highlighting" 
+    "zsh-completions"
+    "zsh-history-substring-search"
+)
+
+for plugin in "${required_plugins[@]}"; do
+    if [[ -d "$PLUGINS_DIR/$plugin" ]]; then
+        echo "  ✅ $plugin"
+    else
+        echo "  ❌ $plugin"
+        validation_passed=false
+    fi
+done
+
+# Vérification que Starship est installé
+if command -v starship &> /dev/null; then
+    echo "  ✅ starship"
+else
+    echo "  ❌ starship (requis pour le prompt)"
+    validation_passed=false
+fi
+
+if [[ "$validation_passed" == true ]]; then
+    echo ""
+    echo "🎉 Configuration Zsh terminée avec succès!"
+    echo ""
+    echo "📋 Plugins installés :"
+    echo "   • zsh-autosuggestions : Suggestions intelligentes basées sur l'historique"
+    echo "   • fast-syntax-highlighting : Coloration syntaxique en temps réel"
+    echo "   • zsh-completions : Complétion avancée pour de nombreux outils"
+    echo "   • zsh-history-substring-search : Recherche dans l'historique avec ↑/↓"
+    echo "   • zsh-z : Navigation rapide avec la commande 'z'"
+    echo ""
+    echo "🎨 Thème Catppuccin Mocha configuré pour coordination avec Neovim et tmux"
+    echo ""
+    echo "🔄 Redémarrez votre terminal ou exécutez 'exec zsh' pour activer les changements."
+else
+    echo ""
+    echo "⚠️ Certains plugins n'ont pas pu être installés. Vérifiez votre connexion internet."
+    echo "💡 Vous pouvez ré-exécuter ce script plus tard."
+    exit 1
+fi

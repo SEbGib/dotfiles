@@ -1,0 +1,155 @@
+#!/usr/bin/env bash
+
+# Script de détection automatique du type de projet
+# Utilisé par tmux pour configurer automatiquement l'environnement
+
+set -euo pipefail
+
+project_path="${1:-$(pwd)}"
+
+# Fonction pour détecter le type de projet
+detect_project_type() {
+    local path="$1"
+    
+    # Symfony
+    if [[ -f "$path/bin/console" ]] || [[ -f "$path/symfony.lock" ]]; then
+        echo "symfony"
+        return 0
+    fi
+    
+    # Laravel
+    if [[ -f "$path/artisan" ]]; then
+        echo "laravel"
+        return 0
+    fi
+    
+    # Next.js
+    if [[ -f "$path/next.config.js" ]] || [[ -f "$path/next.config.ts" ]]; then
+        echo "nextjs"
+        return 0
+    fi
+    
+    # Nuxt.js
+    if [[ -f "$path/nuxt.config.js" ]] || [[ -f "$path/nuxt.config.ts" ]]; then
+        echo "nuxtjs"
+        return 0
+    fi
+    
+    # Vue.js
+    if [[ -f "$path/vue.config.js" ]] || [[ -f "$path/vite.config.js" ]] && grep -q "vue" "$path/package.json" 2>/dev/null; then
+        echo "vue"
+        return 0
+    fi
+    
+    # React (générique)
+    if [[ -f "$path/package.json" ]] && grep -q "react" "$path/package.json"; then
+        echo "react"
+        return 0
+    fi
+    
+    # TypeScript/Node.js
+    if [[ -f "$path/tsconfig.json" ]] || [[ -f "$path/package.json" ]]; then
+        echo "typescript"
+        return 0
+    fi
+    
+    # Python
+    if [[ -f "$path/requirements.txt" ]] || [[ -f "$path/pyproject.toml" ]] || [[ -f "$path/setup.py" ]]; then
+        echo "python"
+        return 0
+    fi
+    
+    # Rust
+    if [[ -f "$path/Cargo.toml" ]]; then
+        echo "rust"
+        return 0
+    fi
+    
+    # Go
+    if [[ -f "$path/go.mod" ]]; then
+        echo "go"
+        return 0
+    fi
+    
+    # Docker
+    if [[ -f "$path/Dockerfile" ]] || [[ -f "$path/docker-compose.yml" ]]; then
+        echo "docker"
+        return 0
+    fi
+    
+    # Git repository générique
+    if [[ -d "$path/.git" ]]; then
+        echo "git"
+        return 0
+    fi
+    
+    echo "generic"
+}
+
+# Fonction pour configurer l'environnement selon le type
+configure_environment() {
+    local project_type="$1"
+    local path="$2"
+    
+    case "$project_type" in
+        "symfony")
+            echo "🎼 Projet Symfony détecté"
+            echo "💡 Utilisez 'dev-symfony' pour un environnement complet"
+            ;;
+        "laravel")
+            echo "🔥 Projet Laravel détecté"
+            echo "💡 Commandes utiles: php artisan serve, php artisan tinker"
+            ;;
+        "nextjs")
+            echo "▲ Projet Next.js détecté"
+            echo "💡 Utilisez 'dev-ts' pour un environnement complet"
+            ;;
+        "nuxtjs")
+            echo "💚 Projet Nuxt.js détecté"
+            echo "💡 Utilisez 'dev-ts' pour un environnement complet"
+            ;;
+        "vue")
+            echo "💚 Projet Vue.js détecté"
+            echo "💡 Utilisez 'dev-ts' pour un environnement complet"
+            ;;
+        "react")
+            echo "⚛️ Projet React détecté"
+            echo "💡 Utilisez 'dev-ts' pour un environnement complet"
+            ;;
+        "typescript")
+            echo "⚡ Projet TypeScript/Node.js détecté"
+            echo "💡 Utilisez 'dev-ts' pour un environnement complet"
+            ;;
+        "python")
+            echo "🐍 Projet Python détecté"
+            echo "💡 Activez votre environnement virtuel si nécessaire"
+            ;;
+        "rust")
+            echo "🦀 Projet Rust détecté"
+            echo "💡 Commandes utiles: cargo run, cargo test, cargo build"
+            ;;
+        "go")
+            echo "🐹 Projet Go détecté"
+            echo "💡 Commandes utiles: go run, go test, go build"
+            ;;
+        "docker")
+            echo "🐳 Projet Docker détecté"
+            echo "💡 Commandes utiles: docker-compose up, docker build"
+            ;;
+        "git")
+            echo "📁 Repository Git détecté"
+            echo "💡 Utilisez 'lg' pour Lazygit"
+            ;;
+        *)
+            echo "📁 Projet générique"
+            echo "💡 Utilisez 'ts' pour le sessionizer tmux"
+            ;;
+    esac
+}
+
+# Exécution principale
+project_type=$(detect_project_type "$project_path")
+configure_environment "$project_type" "$project_path"
+
+# Retourner le type pour utilisation par d'autres scripts
+echo "$project_type"

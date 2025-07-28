@@ -1,0 +1,226 @@
+#!/bin/bash
+
+set -eufo pipefail
+
+echo "🔧 Installation des outils essentiels et configuration moderne..."
+
+{{- if eq .chezmoi.os "darwin" }}
+# macOS - Homebrew
+if ! command -v brew &> /dev/null; then
+    echo "📦 Installation Homebrew..."
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
+echo "📦 Installation des packages via Homebrew..."
+brew bundle --no-lock <<EOF
+# Shells et outils de base
+brew "zsh"
+brew "starship"
+
+# Outils essentiels
+brew "chezmoi"
+brew "neovim"
+brew "tmux"
+brew "git"
+brew "git-delta"
+brew "gh"
+
+# Outils modernes de ligne de commande
+brew "fzf"
+brew "ripgrep"
+brew "fd"
+brew "bat"
+brew "eza"
+brew "zoxide"
+brew "dust"
+brew "duf"
+brew "procs"
+
+# Développement
+brew "lazygit"
+brew "node"
+brew "php"
+brew "composer"
+brew "symfony-cli/tap/symfony-cli"
+
+# Sécurité et secrets
+brew "age"
+brew "bitwarden-cli"
+brew "gnupg"
+
+# Fonts Nerd
+cask "font-fira-code-nerd-font"
+cask "font-jetbrains-mono-nerd-font"
+cask "font-hack-nerd-font"
+cask "font-meslo-lg-nerd-font"
+
+# Applications utiles
+{{- if .personal }}
+cask "iterm2"
+cask "raycast"
+cask "visual-studio-code"
+{{- end }}
+EOF
+
+{{- else if eq .chezmoi.os "linux" }}
+# Linux - Détection distribution
+if command -v apt &> /dev/null; then
+    echo "📦 Installation via apt (Ubuntu/Debian)..."
+    sudo apt update
+    
+    # Repositories externes
+    curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | sudo dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null
+    
+    sudo apt update
+    sudo apt install -y \
+        zsh \
+        neovim \
+        tmux \
+        git \
+        git-delta \
+        fzf \
+        ripgrep \
+        fd-find \
+        bat \
+        curl \
+        wget \
+        unzip \
+        build-essential \
+        gh \
+        age \
+        gnupg2 \
+        python3-pip \
+        software-properties-common \
+        apt-transport-https \
+        ca-certificates
+        
+    # Créer liens symboliques pour fd et bat si nécessaire
+    if [[ ! -f /usr/local/bin/fd ]] && [[ -f /usr/bin/fdfind ]]; then
+        sudo ln -sf /usr/bin/fdfind /usr/local/bin/fd
+    fi
+    
+    if [[ ! -f /usr/local/bin/bat ]] && [[ -f /usr/bin/batcat ]]; then
+        sudo ln -sf /usr/bin/batcat /usr/local/bin/bat
+    fi
+    
+    # Node.js via NodeSource
+    if ! command -v node &> /dev/null; then
+        curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+        sudo apt install -y nodejs
+    fi
+    
+    # PHP si pas installé
+    if ! command -v php &> /dev/null; then
+        sudo apt install -y php php-cli php-mbstring php-xml php-zip php-curl composer
+    fi
+    
+    # Installation des outils modernes via cargo/scripts
+    if ! command -v eza &> /dev/null; then
+        wget -qO- https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz | tar xz -C /tmp
+        sudo mv /tmp/eza /usr/local/bin/
+    fi
+    
+    if ! command -v dust &> /dev/null; then
+        wget -qO- https://github.com/bootandy/dust/releases/latest/download/dust-v0.8.6-x86_64-unknown-linux-gnu.tar.gz | tar xz -C /tmp
+        sudo mv /tmp/dust-*/dust /usr/local/bin/
+    fi
+    
+elif command -v pacman &> /dev/null; then
+    echo "📦 Installation via pacman (Arch Linux)..."
+    sudo pacman -Syu --noconfirm
+    sudo pacman -S --noconfirm \
+        zsh \
+        neovim \
+        tmux \
+        git \
+        git-delta \
+        fzf \
+        ripgrep \
+        fd \
+        bat \
+        eza \
+        github-cli \
+        nodejs \
+        npm \
+        php \
+        composer \
+        age \
+        gnupg \
+        dust \
+        duf \
+        procs
+        
+    # AUR packages avec yay si disponible
+    if command -v yay &> /dev/null; then
+        yay -S --noconfirm bitwarden-cli starship
+    fi
+fi
+
+# Installation manuelle des outils manquants
+
+# Starship
+if ! command -v starship &> /dev/null; then
+    echo "📦 Installation Starship..."
+    curl -sS https://starship.rs/install.sh | sh -s -- -y
+fi
+
+# Zoxide
+if ! command -v zoxide &> /dev/null; then
+    echo "📦 Installation Zoxide..."
+    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+fi
+{{- end }}
+
+# Installation Chezmoi si pas déjà fait
+if ! command -v chezmoi &> /dev/null; then
+    echo "📦 Installation Chezmoi..."
+    sh -c "$(curl -fsLS get.chezmoi.io)"
+fi
+
+# Installation Symfony CLI (si PHP installé)
+{{- if lookPath "php" }}
+if ! command -v symfony &> /dev/null; then
+    echo "📦 Installation Symfony CLI..."
+    curl -sS https://get.symfony.com/cli/installer | bash
+    sudo mv ~/.symfony*/bin/symfony /usr/local/bin/symfony 2>/dev/null || true
+fi
+{{- end }}
+
+# Installation Lazygit (si pas disponible via package manager)
+if ! command -v lazygit &> /dev/null; then
+    echo "📦 Installation Lazygit..."
+    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+    curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_{{ .chezmoi.os }}_{{ .chezmoi.arch }}.tar.gz"
+    tar xf lazygit.tar.gz lazygit
+    sudo install lazygit /usr/local/bin
+    rm lazygit lazygit.tar.gz
+fi
+
+# Configuration Zsh comme shell par défaut
+if [[ "$SHELL" != */zsh ]]; then
+    echo "🐚 Configuration Zsh comme shell par défaut..."
+    if ! grep -q "$(which zsh)" /etc/shells; then
+        which zsh | sudo tee -a /etc/shells
+    fi
+    chsh -s "$(which zsh)"
+    echo "✅ Zsh configuré. Redémarrez votre terminal."
+fi
+
+echo "✅ Installation des outils terminée!"
+echo ""
+echo "📋 Outils installés :"
+echo "   • Starship (prompt moderne)"
+echo "   • Zsh + Oh My Zsh (shell avancé)"
+echo "   • Neovim + tmux (éditeur et multiplexeur)"
+echo "   • FZF + Ripgrep + fd + bat + eza (outils modernes)"
+echo "   • Git + Lazygit + GitHub CLI (contrôle de version)"
+echo "   • Node.js + PHP + Composer (développement)"
+echo "   • Bitwarden CLI + AGE (gestion des secrets)"
+echo ""
+echo "🎯 Prochaines étapes :"
+echo "   1. Redémarrez votre terminal"
+echo "   2. Lancez: bw login && export BW_SESSION=\$(bw unlock --raw)"
+echo "   3. Exécutez: chezmoi apply"
+echo "   4. Profitez de votre terminal moderne ! 🚀"

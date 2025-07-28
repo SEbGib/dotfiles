@@ -1,0 +1,616 @@
+# Configuration Zsh moderne - Générée par Chezmoi
+# Hostname: {{ .chezmoi.hostname }}
+# OS: {{ .chezmoi.os }}
+# User: {{ .username }}
+
+# ===== PERFORMANCE PROFILING =====
+# Décommenter pour mesurer temps de démarrage
+# zmodload zsh/zprof
+
+# ===== CONFIGURATION OH MY ZSH =====
+export ZSH="$HOME/.oh-my-zsh"
+
+# Thème (désactivé car on utilise Starship)
+ZSH_THEME=""
+
+# Plugins Oh My Zsh (essentiels uniquement pour performance)
+plugins=(
+    git
+    docker
+    {{- if lookPath "node" }}
+    npm
+    node
+    {{- end }}
+    {{- if lookPath "composer" }}
+    composer
+    {{- end }}
+    {{- if lookPath "symfony" }}
+    symfony
+    {{- end }}
+    # Plugins personnalisés (installés par script)
+    zsh-autosuggestions
+    fast-syntax-highlighting
+    zsh-completions
+    zsh-history-substring-search
+    zsh-z
+    {{- if lookPath "bat" }}
+    zsh-bat
+    {{- end }}
+)
+
+# Configuration des plugins
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#6c7086,italic"
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+
+# Configuration fast-syntax-highlighting
+FAST_HIGHLIGHT_STYLES[default]='fg=#cdd6f4'
+FAST_HIGHLIGHT_STYLES[unknown-token]='fg=#f38ba8,bold'
+FAST_HIGHLIGHT_STYLES[reserved-word]='fg=#cba6f7,bold'
+FAST_HIGHLIGHT_STYLES[alias]='fg=#a6e3a1,bold'
+FAST_HIGHLIGHT_STYLES[builtin]='fg=#89b4fa,bold'
+FAST_HIGHLIGHT_STYLES[function]='fg=#94e2d5,bold'
+FAST_HIGHLIGHT_STYLES[command]='fg=#89b4fa,bold'
+FAST_HIGHLIGHT_STYLES[precommand]='fg=#cba6f7,italic'
+
+# Thème pour fast-syntax-highlighting
+fast-theme catppuccin-mocha 2>/dev/null || true
+
+# Chargement Oh My Zsh
+source $ZSH/oh-my-zsh.sh
+
+# ===== CONFIGURATION STARSHIP =====
+if command -v starship &> /dev/null; then
+    eval "$(starship init zsh)"
+else
+    echo "⚠️ Starship non installé. Utilisez le prompt par défaut."
+fi
+
+# ===== HISTORIQUE OPTIMISÉ =====
+HISTFILE=~/.zsh_history
+HISTSIZE=50000
+SAVEHIST=50000
+
+# Options d'historique
+setopt EXTENDED_HISTORY          # Enregistre timestamp
+setopt HIST_EXPIRE_DUPS_FIRST    # Expire les doublons en premier
+setopt HIST_IGNORE_DUPS          # Ignore les doublons consécutifs
+setopt HIST_IGNORE_ALL_DUPS      # Ignore tous les doublons
+setopt HIST_IGNORE_SPACE         # Ignore les commandes commençant par espace
+setopt HIST_FIND_NO_DUPS         # Pas de doublons dans la recherche
+setopt HIST_SAVE_NO_DUPS         # Pas de doublons dans la sauvegarde
+setopt HIST_VERIFY               # Vérifie avant d'exécuter depuis l'historique
+setopt SHARE_HISTORY             # Partage l'historique entre sessions
+
+# ===== OPTIONS ZSH MODERNES =====
+# Navigation
+setopt AUTO_CD                   # cd automatique
+setopt AUTO_PUSHD                # pushd automatique
+setopt PUSHD_IGNORE_DUPS         # Ignore les doublons dans pushd
+setopt PUSHD_SILENT              # pushd silencieux
+
+# Complétion
+setopt AUTO_MENU                 # Menu de complétion automatique
+setopt ALWAYS_TO_END             # Curseur à la fin après complétion
+setopt COMPLETE_IN_WORD          # Complétion au milieu des mots
+setopt FLOW_CONTROL              # Désactive Ctrl+S/Ctrl+Q
+unsetopt MENU_COMPLETE           # Pas de complétion automatique du premier match
+
+# Globbing
+setopt EXTENDED_GLOB             # Globbing étendu
+setopt GLOB_DOTS                 # Inclut les fichiers cachés dans globbing
+
+# Correction
+setopt CORRECT                   # Correction des commandes
+setopt CORRECT_ALL               # Correction des arguments
+
+# ===== KEYBINDINGS MODERNES =====
+# Mode Emacs (plus familier)
+bindkey -e
+
+# Navigation améliorée
+bindkey '^[[1;5C' forward-word                  # Ctrl+Right
+bindkey '^[[1;5D' backward-word                 # Ctrl+Left
+bindkey '^[[H' beginning-of-line                # Home
+bindkey '^[[F' end-of-line                      # End
+bindkey '^[[3~' delete-char                     # Delete
+
+# Historique avec zsh-history-substring-search
+bindkey '^[[A' history-substring-search-up      # Flèche haut
+bindkey '^[[B' history-substring-search-down    # Flèche bas
+bindkey '^P' history-substring-search-up        # Ctrl+P
+bindkey '^N' history-substring-search-down      # Ctrl+N
+
+# Autosuggestions
+bindkey '^ ' autosuggest-accept                 # Ctrl+Space pour accepter suggestion
+bindkey '^I' complete-word                      # Tab pour complétion
+
+# Édition rapide
+bindkey '^X^E' edit-command-line                # Ctrl+X Ctrl+E pour éditer dans $EDITOR
+
+# Recherche dans l'historique
+bindkey '^R' history-incremental-search-backward
+bindkey '^S' history-incremental-search-forward
+
+# ===== COMPLÉTION AVANCÉE =====
+# Chargement du système de complétion
+autoload -Uz compinit
+
+# Optimisation compinit (vérification quotidienne seulement)
+if [[ -n ~/.zcompdump(#qN.mh+24) ]]; then
+    compinit
+else
+    compinit -C
+fi
+
+# Configuration de la complétion
+zstyle ':completion:*' menu select
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' verbose yes
+zstyle ':completion:*:descriptions' format '%B%d%b'
+zstyle ':completion:*:messages' format '%d'
+zstyle ':completion:*:warnings' format 'Aucune correspondance pour: %d'
+zstyle ':completion:*' completer _complete _match _approximate
+zstyle ':completion:*:match:*' original only
+zstyle ':completion:*:approximate:*' max-errors 1 numeric
+
+# Complétion case-insensitive
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 'l:|=* r:|=*'
+
+# Couleurs dans la complétion
+zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+
+# Cache de complétion
+zstyle ':completion:*' use-cache yes
+zstyle ':completion:*' cache-path ~/.cache/zsh
+
+# ===== OUTILS MODERNES =====
+# FZF avec intégration moderne
+if command -v fzf &> /dev/null; then
+    source <(fzf --zsh)
+    export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+    export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+    
+    # Thème Catppuccin Mocha pour FZF
+    export FZF_DEFAULT_OPTS="
+        --color=bg+:#363a4f,bg:#24273a,spinner:#f4dbd6,hl:#ed8796
+        --color=fg:#cad3f5,header:#ed8796,info:#c6a0f6,pointer:#f4dbd6
+        --color=marker:#f4dbd6,fg+:#cad3f5,prompt:#c6a0f6,hl+:#ed8796
+        --height 40% --layout=reverse --border rounded --preview-window=right:60%
+        --bind='ctrl-u:preview-page-up,ctrl-d:preview-page-down'
+        --bind='ctrl-/:toggle-preview'
+    "
+    
+    # Preview pour différents types de fichiers
+    export FZF_CTRL_T_OPTS="
+        --preview 'bat --color=always --style=numbers --line-range=:500 {} 2>/dev/null || ls -la {}'
+        --bind 'ctrl-/:toggle-preview'
+    "
+    
+    export FZF_ALT_C_OPTS="
+        --preview 'eza --tree --level=2 --color=always {} 2>/dev/null || ls -la {}'
+    "
+fi
+
+# Zoxide (cd amélioré) avec intégration FZF
+if command -v zoxide &> /dev/null; then
+    eval "$(zoxide init zsh)"
+    # Alias z avec fzf si disponible
+    if command -v fzf &> /dev/null; then
+        alias zi='z -i'  # Interactive avec fzf
+    fi
+fi
+
+# ===== VARIABLES D'ENVIRONNEMENT =====
+export EDITOR=nvim
+export VISUAL=nvim
+export BROWSER={{ if eq .chezmoi.os "darwin" }}open{{ else }}xdg-open{{ end }}
+export LANG=fr_FR.UTF-8
+export LC_ALL=fr_FR.UTF-8
+
+# Développement
+export NODE_ENV=development
+{{- if lookPath "php" }}
+export COMPOSER_MEMORY_LIMIT=-1
+export PHP_IDE_CONFIG="serverName=localhost"
+{{- end }}
+
+# Couleurs pour ls et autres
+export CLICOLOR=1
+export LS_COLORS="di=34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
+
+# Chemin personnalisé
+typeset -U path PATH
+path=(
+    $HOME/.local/bin
+    $HOME/bin
+    {{- if eq .chezmoi.os "darwin" }}
+    /opt/homebrew/bin
+    /opt/homebrew/sbin
+    {{- end }}
+    {{- if lookPath "composer" }}
+    $HOME/.composer/vendor/bin
+    {{- end }}
+    {{- if lookPath "node" }}
+    $HOME/.npm-global/bin
+    {{- end }}
+    $path
+)
+
+# ===== ALIAS MODERNES =====
+# Chargement alias depuis fichier séparé
+[[ -f ~/.aliases ]] && source ~/.aliases
+
+# Outils modernes en remplacement des classiques
+{{- if lookPath "eza" }}
+alias ls='eza --icons --group-directories-first'
+alias ll='eza -la --icons --git --group-directories-first'
+alias la='eza -la --icons --group-directories-first'
+alias lt='eza --tree --icons --level=3'
+alias lta='eza --tree --icons --level=3 -a'
+{{- else }}
+alias ll='ls -la'
+alias la='ls -la'
+{{- end }}
+
+{{- if lookPath "bat" }}
+alias cat='bat --style=auto'
+alias catp='bat --style=plain'  # Sans numéros de ligne
+{{- end }}
+
+{{- if lookPath "fd" }}
+alias find='fd'
+{{- end }}
+
+# Git (améliorations)
+alias g='git'
+alias ga='git add'
+alias gaa='git add --all'
+alias gc='git commit'
+alias gcm='git commit -m'
+alias gco='git checkout'
+alias gp='git push'
+alias gpl='git pull'
+alias gs='git status'
+alias gd='git diff'
+alias gds='git diff --staged'
+alias gl='git log --oneline --graph --decorate --all'
+alias lg='lazygit'
+alias gclean='git branch --merged | grep -v "\\*\\|main\\|master" | xargs -n 1 git branch -d'
+
+# Tmux (améliorations)
+alias t='tmux'
+alias ta='tmux attach'
+alias tl='tmux list-sessions'
+alias tn='tmux new-session'
+alias tk='tmux kill-session'
+
+# Développement moderne
+{{- if lookPath "php" }}
+alias sf='symfony'
+alias sfc='symfony console'
+alias sfcc='symfony console cache:clear'
+alias sfserve='symfony serve'
+alias sftest='symfony run bin/phpunit'
+{{- end }}
+
+{{- if lookPath "node" }}
+alias nr='npm run'
+alias ni='npm install'
+alias nid='npm install --save-dev'
+alias nig='npm install -g'
+alias nu='npm uninstall'
+alias nup='npm update'
+alias nlg='npm list -g --depth=0'
+{{- end }}
+
+# Utilitaires modernes
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias ~='cd ~'
+alias h='history'
+alias c='clear'
+alias e='$EDITOR'
+alias v='nvim'
+alias reload='exec $SHELL'
+
+# Raccourcis système
+{{- if eq .chezmoi.os "darwin" }}
+alias finder='open -a Finder'
+alias brewup='brew update && brew upgrade && brew cleanup'
+alias flushdns='sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder'
+{{- else }}
+alias aptup='sudo apt update && sudo apt upgrade && sudo apt autoremove'
+alias ports='netstat -tulanp'
+{{- end }}
+
+# Raccourcis réseau et système
+alias myip='curl -s https://ipinfo.io/ip'
+alias localip='ipconfig getifaddr en0 2>/dev/null || hostname -I | cut -d" " -f1'
+alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -'
+alias weather='curl wttr.in/{{ if .personal }}Paris{{ else }}{{ .chezmoi.username }}{{ end }}'
+
+# ===== FONCTIONS AVANCÉES =====
+# Création et navigation dans dossier
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
+
+# Recherche et remplacement intelligent
+replace_in_files() {
+    if [[ $# -ne 2 ]]; then
+        echo "Usage: replace_in_files 'ancien_texte' 'nouveau_texte'"
+        return 1
+    fi
+    rg -l "$1" | xargs sed -i "s/$1/$2/g"
+}
+
+# Extraction archives universelle
+extract() {
+    if [[ -f $1 ]]; then
+        case $1 in
+            *.tar.bz2)   tar xjf $1     ;;
+            *.tar.gz)    tar xzf $1     ;;
+            *.tar.xz)    tar xJf $1     ;;
+            *.bz2)       bunzip2 $1     ;;
+            *.rar)       unrar x $1     ;;
+            *.gz)        gunzip $1      ;;
+            *.tar)       tar xf $1      ;;
+            *.tbz2)      tar xjf $1     ;;
+            *.tgz)       tar xzf $1     ;;
+            *.zip)       unzip $1       ;;
+            *.Z)         uncompress $1  ;;
+            *.7z)        7z x $1        ;;
+            *.deb)       ar x $1        ;;
+            *.tar.zst)   tar --use-compress-program=unzstd -xf $1 ;;
+            *)           echo "'$1' ne peut pas être extrait avec extract()" ;;
+        esac
+    else
+        echo "'$1' n'est pas un fichier valide"
+    fi
+}
+
+# Backup intelligent avec timestamp
+backup() {
+    local file="$1"
+    if [[ -f "$file" ]] || [[ -d "$file" ]]; then
+        cp -r "$file" "${file}.backup.$(date +%Y%m%d_%H%M%S)"
+        echo "✅ Backup créé: ${file}.backup.$(date +%Y%m%d_%H%M%S)"
+    else
+        echo "❌ Fichier/dossier '$file' non trouvé"
+    fi
+}
+
+# Tmux sessionizer avec fzf intégré
+ts() {
+    local session_name
+    if [[ $# -eq 1 ]]; then
+        session_name="$1"
+    else
+        local search_dirs=(
+            ~/projects
+            ~/work
+            {{- if .personal }}
+            ~/personal
+            {{- end }}
+            {{- if .work }}
+            ~/company
+            {{- end }}
+            ~/.config
+        )
+        
+        local selected_path
+        selected_path=$(find "${search_dirs[@]}" -mindepth 1 -maxdepth 2 -type d 2>/dev/null | \
+            sed "s|$HOME/||" | \
+            fzf --prompt="📁 Projet: " \
+                --height=40% \
+                --layout=reverse \
+                --border=rounded \
+                --preview="eza --tree --level=2 --color=always $HOME/{} 2>/dev/null || ls -la $HOME/{}" \
+                --bind='ctrl-/:toggle-preview')
+        
+        [[ -z "$selected_path" ]] && return 0
+        session_name="$selected_path"
+    fi
+    
+    local full_path="$HOME/$session_name"
+    local clean_name=$(basename "$session_name" | tr . _)
+    
+    if [[ -z $TMUX ]] && [[ -z $(pgrep tmux) ]]; then
+        tmux new-session -s "$clean_name" -c "$full_path"
+        return 0
+    fi
+    
+    if ! tmux has-session -t="$clean_name" 2> /dev/null; then
+        tmux new-session -ds "$clean_name" -c "$full_path"
+    fi
+    
+    if [[ -z $TMUX ]]; then
+        tmux attach -t "$clean_name"
+    else
+        tmux switch-client -t "$clean_name"
+    fi
+}
+
+# Workflow développement Symfony amélioré
+dev-symfony() {
+    local project_name="${1:-$(basename $(pwd))}"
+    local project_path="${2:-$(pwd)}"
+    
+    if [[ ! -f "$project_path/bin/console" ]] && [[ ! -f "$project_path/symfony.lock" ]]; then
+        echo "❌ Projet Symfony non détecté dans $project_path"
+        return 1
+    fi
+    
+    ~/.config/tmux/scripts/symfony-dev "$project_name" "$project_path"
+}
+
+# Workflow développement TypeScript amélioré
+dev-ts() {
+    local project_name="${1:-$(basename $(pwd))}"
+    local project_path="${2:-$(pwd)}"
+    
+    if [[ ! -f "$project_path/package.json" ]]; then
+        echo "❌ package.json non trouvé dans $project_path"
+        return 1
+    fi
+    
+    ~/.config/tmux/scripts/typescript-dev "$project_name" "$project_path"
+}
+
+# Fonction pour changer de version Node avec gestion automatique
+nvm_auto() {
+    if [[ -f .nvmrc ]]; then
+        local node_version=$(cat .nvmrc)
+        echo "📦 Utilisation Node.js version: $node_version"
+        nvm use "$node_version"
+    elif command -v node &> /dev/null; then
+        echo "📦 Node.js version actuelle: $(node --version)"
+    else
+        echo "⚠️ Node.js non installé"
+    fi
+}
+
+# Auto-switch Node version si .nvmrc existe
+cd() {
+    builtin cd "$@"
+    if [[ -f .nvmrc ]] && command -v nvm &> /dev/null; then
+        nvm_auto
+    fi
+}
+
+# Git helpers avancés
+git_clean_branches() {
+    echo "🧹 Nettoyage des branches Git..."
+    git fetch --prune
+    git branch --merged main | grep -v "main\|master" | xargs -n 1 git branch -d
+    git branch -r --merged main | grep -v "main\|master" | sed 's/origin\///' | xargs -n 1 git push --delete origin
+    echo "✅ Nettoyage terminé"
+}
+
+git_sync() {
+    echo "🔄 Synchronisation avec origin..."
+    git fetch --all --prune
+    git pull --rebase
+    git push
+    echo "✅ Synchronisation terminée"
+}
+
+# ===== SECRETS ET TOKENS =====
+# Chargement variables d'environnement privées
+[[ -f ~/.env ]] && source ~/.env
+
+# Fonction Bitwarden améliorée
+bw_unlock() {
+    if command -v bw &> /dev/null; then
+        if bw status | grep -q "unauthenticated"; then
+            echo "🔐 Connexion Bitwarden requise..."
+            bw login
+        fi
+        
+        if bw status | grep -q "locked"; then
+            export BW_SESSION="$(bw unlock --raw)"
+            echo "🔓 Bitwarden déverrouillé"
+        else
+            echo "✅ Bitwarden déjà déverrouillé"
+        fi
+    else
+        echo "⚠️ Bitwarden CLI non installé"
+    fi
+}
+
+# Auto-déverrouillage Bitwarden si session expirée
+bw_auto() {
+    if command -v bw &> /dev/null && [[ -z "$BW_SESSION" ]]; then
+        echo "🔓 Auto-déverrouillage Bitwarden..."
+        bw_unlock
+    fi
+}
+
+# ===== INTÉGRATIONS SPÉCIFIQUES =====
+{{- if .work }}
+# Configuration entreprise
+[[ -f ~/.work_profile ]] && source ~/.work_profile
+
+# Aliases entreprise
+alias vpn='sudo openconnect --config=~/.openconnect/company.conf'
+alias k='kubectl'
+alias kctx='kubectx'
+alias kns='kubens'
+{{- end }}
+
+{{- if .personal }}
+# Configuration personnelle
+[[ -f ~/.personal_profile ]] && source ~/.personal_profile
+
+# Aliases personnels
+alias blog='cd ~/projects/blog && code .'
+alias dotfiles='cd ~/.local/share/chezmoi && nvim'
+{{- end }}
+
+# ===== HOOKS ET INTEGRATIONS =====
+# Hook pour mise à jour automatique des repos Git
+update_git_repos() {
+    local base_dirs=(~/projects ~/work ~/.config)
+    for base_dir in "${base_dirs[@]}"; do
+        [[ -d "$base_dir" ]] || continue
+        find "$base_dir" -name ".git" -type d | while read -r git_dir; do
+            local repo_dir=$(dirname "$git_dir")
+            echo "🔄 Mise à jour: $repo_dir"
+            (cd "$repo_dir" && git fetch --prune &>/dev/null)
+        done
+    done
+    echo "✅ Mise à jour des repos terminée"
+}
+
+# Alias pour mise à jour complète du système
+update_all() {
+    echo "🚀 Mise à jour complète du système..."
+    
+    {{- if eq .chezmoi.os "darwin" }}
+    echo "📦 Mise à jour Homebrew..."
+    brew update && brew upgrade && brew cleanup
+    {{- else }}
+    echo "📦 Mise à jour des packages système..."
+    sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
+    {{- end }}
+    
+    if command -v chezmoi &> /dev/null; then
+        echo "⚙️ Mise à jour dotfiles..."
+        chezmoi update
+    fi
+    
+    if [[ -d "$ZSH" ]]; then
+        echo "🐚 Mise à jour Oh My Zsh..."
+        omz update
+    fi
+    
+    if command -v npm &> /dev/null; then
+        echo "📦 Mise à jour packages npm globaux..."
+        npm update -g
+    fi
+    
+    update_git_repos
+    
+    echo "✅ Mise à jour complète terminée!"
+}
+
+# ===== CONFIGURATION LOCALE =====
+# Inclusion configuration spécifique machine
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
+# ===== PERFORMANCE DEBUG =====
+# Décommenter pour mesurer temps de démarrage
+# zprof
+
+# Message de bienvenue personnalisé
+if [[ -o interactive ]] && [[ -z "$TMUX" ]]; then
+    echo "🚀 Terminal $(tput setaf 6){{ .username }}$(tput sgr0) sur $(tput setaf 3){{ .chezmoi.hostname }}$(tput sgr0) ({{ .chezmoi.os }}/{{ .chezmoi.arch }})"
+    {{- if .personal }}
+    echo "💼 Mode: $(tput setaf 2)Personnel$(tput sgr0)"
+    {{- else if .work }}
+    echo "💼 Mode: $(tput setaf 1)Entreprise$(tput sgr0)"
+    {{- end }}
+fi

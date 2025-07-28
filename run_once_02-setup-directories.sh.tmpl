@@ -1,0 +1,196 @@
+#!/bin/bash
+
+set -eufo pipefail
+
+echo "📁 Configuration des dossiers de développement..."
+
+# Création des dossiers principaux
+echo "📦 Création des dossiers de base..."
+
+# Dossiers essentiels
+mkdir -p "$HOME/.local/bin"
+mkdir -p "$HOME/.config"
+mkdir -p "$HOME/.cache"
+mkdir -p "$HOME/projects"
+
+{{- if .personal }}
+mkdir -p "$HOME/personal"
+echo "  ✅ Dossier personnel créé"
+{{- end }}
+
+{{- if .work }}
+mkdir -p "$HOME/work"
+mkdir -p "$HOME/company"
+echo "  ✅ Dossiers professionnels créés"
+{{- end }}
+
+# Dossiers de développement spécialisés
+echo "📦 Création des dossiers de développement..."
+
+# Dossiers par langage/framework
+mkdir -p "$HOME/projects/php"
+mkdir -p "$HOME/projects/symfony"
+mkdir -p "$HOME/projects/typescript"
+mkdir -p "$HOME/projects/javascript"
+mkdir -p "$HOME/projects/vue"
+mkdir -p "$HOME/projects/react"
+mkdir -p "$HOME/projects/python"
+mkdir -p "$HOME/projects/go"
+
+# Dossiers utilitaires
+mkdir -p "$HOME/projects/scripts"
+mkdir -p "$HOME/projects/dotfiles"
+mkdir -p "$HOME/projects/learning"
+mkdir -p "$HOME/projects/sandbox"
+
+echo "  ✅ Dossiers de développement créés"
+
+# Configuration des dossiers tmux
+echo "📦 Configuration tmux..."
+mkdir -p "$HOME/.config/tmux/scripts"
+mkdir -p "$HOME/.config/tmux/themes"
+
+# Configuration des dossiers Neovim
+echo "📦 Configuration Neovim..."
+mkdir -p "$HOME/.config/nvim/lua"
+mkdir -p "$HOME/.config/nvim/after/plugin"
+
+# Dossiers SSH et GPG
+echo "🔐 Configuration sécurité..."
+mkdir -p "$HOME/.ssh"
+chmod 700 "$HOME/.ssh"
+
+mkdir -p "$HOME/.gnupg"
+chmod 700 "$HOME/.gnupg"
+
+# Dossiers de cache et données
+echo "💾 Configuration cache et données..."
+mkdir -p "$HOME/.cache/zsh"
+mkdir -p "$HOME/.cache/nvim"
+mkdir -p "$HOME/.cache/tmux"
+
+# Dossiers spécifiques aux outils
+{{- if lookPath "node" }}
+mkdir -p "$HOME/.npm-global"
+echo "  ✅ Dossier npm global créé"
+{{- end }}
+
+{{- if lookPath "composer" }}
+mkdir -p "$HOME/.composer"
+echo "  ✅ Dossier Composer créé"
+{{- end }}
+
+# Configuration des permissions
+echo "🔒 Configuration des permissions..."
+chmod 755 "$HOME/.local/bin"
+chmod 755 "$HOME/projects"
+
+# Création de fichiers de configuration vides si nécessaires
+echo "📄 Création des fichiers de configuration..."
+
+# Fichier d'environnement local
+touch "$HOME/.env"
+chmod 600 "$HOME/.env"
+
+# Fichiers de configuration locale
+touch "$HOME/.zshrc.local"
+touch "$HOME/.gitconfig.local"
+touch "$HOME/.tmux.conf.local"
+
+# Fichier d'historique Zsh
+touch "$HOME/.zsh_history"
+chmod 600 "$HOME/.zsh_history"
+
+{{- if eq .chezmoi.os "darwin" }}
+# Configuration spécifique macOS
+echo "🍎 Configuration spécifique macOS..."
+
+# Dossiers Applications
+mkdir -p "$HOME/Applications"
+
+# Configuration Homebrew
+if [[ -d "/opt/homebrew" ]]; then
+    mkdir -p "$HOME/.config/homebrew"
+fi
+{{- end }}
+
+{{- if eq .chezmoi.os "linux" }}
+# Configuration spécifique Linux
+echo "🐧 Configuration spécifique Linux..."
+
+# Dossiers XDG
+mkdir -p "$HOME/.local/share"
+mkdir -p "$HOME/.local/state"
+
+# Configuration systemd utilisateur
+mkdir -p "$HOME/.config/systemd/user"
+{{- end }}
+
+# Création d'un fichier de bienvenue dans projects
+cat > "$HOME/projects/README.md" << 'EOF'
+# 📁 Dossier Projects
+
+Ce dossier contient vos projets de développement organisés par technologie.
+
+## 📋 Structure
+
+- `php/` - Projets PHP génériques
+- `symfony/` - Projets Symfony
+- `typescript/` - Projets TypeScript
+- `javascript/` - Projets JavaScript
+- `vue/` - Projets Vue.js
+- `react/` - Projets React
+- `python/` - Projets Python
+- `go/` - Projets Go
+- `scripts/` - Scripts utilitaires
+- `dotfiles/` - Configurations système
+- `learning/` - Projets d'apprentissage
+- `sandbox/` - Tests et expérimentations
+
+## 🚀 Utilisation
+
+Utilisez les commandes suivantes pour naviguer rapidement :
+
+```bash
+# Navigation rapide avec z
+z symfony    # Va dans le dossier symfony le plus utilisé
+z react      # Va dans le dossier react le plus utilisé
+
+# Tmux sessionizer
+ts           # Sélectionne un projet avec fzf
+dev-symfony  # Lance un workflow Symfony
+dev-ts       # Lance un workflow TypeScript
+```
+
+## 📚 Workflows
+
+- `dev-symfony <nom>` : Crée une session tmux complète pour Symfony
+- `dev-ts <nom>` : Crée une session tmux complète pour TypeScript
+- `ts` : Sélecteur de projet interactif avec fzf
+EOF
+
+echo ""
+echo "✅ Configuration des dossiers terminée!"
+echo ""
+echo "📋 Dossiers créés :"
+echo "   • ~/.local/bin (binaires personnels)"
+echo "   • ~/projects/* (projets de développement)"
+{{- if .personal }}
+echo "   • ~/personal (projets personnels)"
+{{- end }}
+{{- if .work }}
+echo "   • ~/work et ~/company (projets professionnels)"
+{{- end }}
+echo "   • ~/.config/* (configurations)"
+echo "   • ~/.cache/* (cache applications)"
+echo ""
+echo "🔐 Sécurité :"
+echo "   • Permissions SSH et GPG configurées (700)"
+echo "   • Fichier .env créé avec permissions restrictives (600)"
+echo ""
+echo "📄 Fichiers de configuration locale créés :"
+echo "   • ~/.zshrc.local"
+echo "   • ~/.gitconfig.local" 
+echo "   • ~/.tmux.conf.local"
+echo ""
+echo "💡 Consultez ~/projects/README.md pour les workflows de développement"

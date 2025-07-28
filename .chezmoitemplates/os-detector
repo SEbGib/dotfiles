@@ -1,0 +1,32 @@
+{{/* Template helper pour détection OS et environnement */}}
+{{- define "is_macos" -}}
+{{- eq .chezmoi.os "darwin" -}}
+{{- end -}}
+
+{{- define "is_linux" -}}
+{{- eq .chezmoi.os "linux" -}}
+{{- end -}}
+
+{{- define "is_wsl" -}}
+{{- and (eq .chezmoi.os "linux") (env "WSL_DISTRO_NAME") -}}
+{{- end -}}
+
+{{- define "has_gui" -}}
+{{- or (eq .chezmoi.os "darwin") (and (eq .chezmoi.os "linux") (env "DISPLAY")) -}}
+{{- end -}}
+
+{{- define "package_manager" -}}
+{{- if eq .chezmoi.os "darwin" -}}
+brew
+{{- else if lookPath "apt" -}}
+apt
+{{- else if lookPath "pacman" -}}
+pacman
+{{- else if lookPath "dnf" -}}
+dnf
+{{- else if lookPath "zypper" -}}
+zypper
+{{- else -}}
+unknown
+{{- end -}}
+{{- end -}}

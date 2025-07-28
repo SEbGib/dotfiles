@@ -1,0 +1,100 @@
+# Fichiers à ignorer lors de l'application des dotfiles
+
+# Documentation et métadonnées
+README.md
+LICENSE
+.git/
+.gitignore
+.github/
+
+# Fichiers de développement
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Fichiers de sauvegarde
+*.bak
+*.backup
+*~
+.#*
+
+# Fichiers spécifiques à l'éditeur
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Fichiers de configuration locale (ne pas synchroniser)
+.env.local
+.zshrc.local
+.gitconfig.local
+.tmux.conf.local
+
+# Secrets et clés (sécurité)
+*.key
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+
+# Cache et données temporaires
+.cache/
+.npm/
+.yarn/
+node_modules/
+vendor/
+
+# Fichiers spécifiques au système
+{{- if ne .chezmoi.os "darwin" }}
+# Ignorer les fichiers macOS sur les autres systèmes
+.DS_Store
+.AppleDouble
+.LSOverride
+{{- end }}
+
+{{- if ne .chezmoi.os "linux" }}
+# Ignorer les fichiers Linux sur les autres systèmes
+.directory
+{{- end }}
+
+{{- if ne .chezmoi.os "windows" }}
+# Ignorer les fichiers Windows sur les autres systèmes
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+{{- end }}
+
+# Configuration conditionnelle selon le contexte
+{{- if not .personal }}
+# Ignorer les configurations personnelles en contexte professionnel
+*personal*
+.personal_*
+{{- end }}
+
+{{- if not .work }}
+# Ignorer les configurations professionnelles en contexte personnel
+*work*
+*company*
+.work_*
+{{- end }}
+
+# Outils non installés
+{{- if not (lookPath "docker") }}
+.docker/
+{{- end }}
+
+{{- if not (lookPath "kubectl") }}
+.kube/
+{{- end }}
+
+{{- if not (lookPath "aws") }}
+.aws/
+{{- end }}
+
+# Fichiers de test et développement
+test_*
+debug_*
+*.test
+*.spec

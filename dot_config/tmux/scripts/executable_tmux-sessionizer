@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+
+# Tmux Sessionizer - Sélecteur de projet avec fzf
+# Inspiré par ThePrimeagen mais adapté pour notre structure
+
+set -euo pipefail
+
+# Répertoires de recherche
+search_dirs=(
+    ~/projects
+    ~/work
+    {{- if .personal }}
+    ~/personal
+    {{- end }}
+    {{- if .work }}
+    ~/company
+    {{- end }}
+    ~/.config
+    ~/
+)
+
+# Si un argument est fourni, l'utiliser directement
+if [[ $# -eq 1 ]]; then
+    selected="$1"
+else
+    # Recherche des projets avec fd et sélection avec fzf
+    selected=$(find "${search_dirs[@]}" -mindepth 1 -maxdepth 3 -type d 2>/dev/null | \
+        grep -E '\.(git|svn)$|package\.json$|composer\.json$|Cargo\.toml$|go\.mod$|requirements\.txt$' -l 2>/dev/null | \
+        xargs -I {} dirname {} | \
+        sort -u | \
+        fzf --prompt="📁 Sélectionner un projet: " \
+            --height=60% \
+            --layout=reverse \
+            --border=rounded \
+            --preview-window=right:50% \
+            --preview='
+                if [[ -f {}/README.md ]]; then
+                    bat --color=always --style=header,grid --line-range=:30 {}/README.md
+                elif [[ -f {}/package.json ]]; then
+                    echo "📦 Projet Node.js/TypeScript"
+                    echo ""
+                    jq -r ".name // \"Nom non défini\", .description // \"Description non définie\", .version // \"Version non définie\"" {}/package.json 2>/dev/null | head -3
+                    echo ""
+                    echo "🔧 Scripts disponibles:"
+                    jq -r ".scripts | keys[]" {}/package.json 2>/dev/null | head -5
+                elif [[ -f {}/composer.json ]]; then
+                    echo "🐘 Projet PHP/Symfony"
+                    echo ""
+                    jq -r ".name // \"Nom non défini\", .description // \"Description non définie\", .version // \"Version non définie\"" {}/composer.json 2>/dev/null | head -3
+                    echo ""
+                    if [[ -f {}/bin/console ]]; then
+                        echo "🎼 Projet Symfony détecté"
+                    fi
+                elif [[ -f {}/Cargo.toml ]]; then
+                    echo "🦀 Projet Rust"
+                    echo ""
+                    grep -E "^name|^version|^description" {}/Cargo.toml | head -3
+                elif [[ -f {}/go.mod ]]; then
+                    echo "🐹 Projet Go"
+                    echo ""
+                    head -5 {}/go.mod
+                else
+                    echo "📁 Dossier: $(basename {})"
+                    echo ""
+                    ls -la {} | head -10
+                fi
+            ' \
+            --bind='ctrl-/:toggle-preview' \
+            --bind='ctrl-r:reload(find "${search_dirs[@]}" -mindepth 1 -maxdepth 3 -type d 2>/dev/null)' \
+            --header='Ctrl+R: Actualiser | Ctrl+/: Toggle preview | Enter: Sélectionner')
+fi
+
+# Vérifier si une sélection a été faite
+if [[ -z "$selected" ]]; then
+    exit 0
+fi
+
+# Nettoyer le nom de session (remplacer les caractères spéciaux)
+session_name=$(basename "$selected" | tr . _)
+
+# Créer ou attacher à la session tmux
+if [[ -z $TMUX ]] && [[ -z $(pgrep tmux) ]]; then
+    # Pas de tmux en cours, créer une nouvelle session
+    tmux new-session -s "$session_name" -c "$selected"
+    exit 0
+fi
+
+# Vérifier si la session existe déjà
+if ! tmux has-session -t="$session_name" 2> /dev/null; then
+    # Créer la session en arrière-plan
+    tmux new-session -ds "$session_name" -c "$selected"
+    
+    # Configuration spécifique selon le type de projet
+    if [[ -f "$selected/package.json" ]]; then
+        # Projet Node.js/TypeScript
+        tmux send-keys -t "$session_name:1" "clear" Enter
+        
+        # Créer des fenêtres supplémentaires pour le développement
+        tmux new-window -t "$session_name" -n "server" -c "$selected"
+        tmux new-window -t "$session_name" -n "tests" -c "$selected"
+        tmux new-window -t "$session_name" -n "git" -c "$selected"
+        
+        # Commandes automatiques
+        tmux send-keys -t "$session_name:server" "npm run dev" Enter 2>/dev/null || true
+        tmux send-keys -t "$session_name:tests" "npm test -- --watch" Enter 2>/dev/null || true
+        tmux send-keys -t "$session_name:git" "lazygit" Enter 2>/dev/null || tmux send-keys -t "$session_name:git" "git status" Enter
+        
+        # Retourner à la première fenêtre
+        tmux select-window -t "$session_name:1"
+        
+    elif [[ -f "$selected/composer.json" ]] || [[ -f "$selected/bin/console" ]]; then
+        # Projet PHP/Symfony
+        tmux send-keys -t "$session_name:1" "clear" Enter
+        
+        # Créer des fenêtres pour Symfony
+        tmux new-window -t "$session_name" -n "server" -c "$selected"
+        tmux new-window -t "$session_name" -n "console" -c "$selected"
+        tmux new-window -t "$session_name" -n "tests" -c "$selected"
+        tmux new-window -t "$session_name" -n "git" -c "$selected"
+        
+        # Commandes automatiques
+        if [[ -f "$selected/bin/console" ]]; then
+            tmux send-keys -t "$session_name:server" "symfony serve" Enter 2>/dev/null || tmux send-keys -t "$session_name:server" "php -S localhost:8000 -t public" Enter
+            tmux send-keys -t "$session_name:console" "php bin/console" Enter
+        fi
+        tmux send-keys -t "$session_name:tests" "vendor/bin/phpunit --testdox" Enter 2>/dev/null || true
+        tmux send-keys -t "$session_name:git" "lazygit" Enter 2>/dev/null || tmux send-keys -t "$session_name:git" "git status" Enter
+        
+        # Retourner à la première fenêtre
+        tmux select-window -t "$session_name:1"
+        
+    else
+        # Projet générique
+        tmux send-keys -t "$session_name:1" "clear" Enter
+        
+        # Créer une fenêtre git si c'est un repo
+        if [[ -d "$selected/.git" ]]; then
+            tmux new-window -t "$session_name" -n "git" -c "$selected"
+            tmux send-keys -t "$session_name:git" "lazygit" Enter 2>/dev/null || tmux send-keys -t "$session_name:git" "git status" Enter
+            tmux select-window -t "$session_name:1"
+        fi
+    fi
+fi
+
+# Attacher ou switcher vers la session
+if [[ -z $TMUX ]]; then
+    tmux attach -t "$session_name"
+else
+    tmux switch-client -t "$session_name"
+fi

@@ -1,0 +1,154 @@
+#!/usr/bin/env bash
+
+# Script de workflow Symfony pour tmux
+# Crée un environnement de développement complet pour Symfony
+
+set -euo pipefail
+
+# Paramètres
+project_name="${1:-$(basename $(pwd))}"
+project_path="${2:-$(pwd)}"
+
+# Vérification que c'est un projet Symfony
+if [[ ! -f "$project_path/bin/console" ]] && [[ ! -f "$project_path/symfony.lock" ]]; then
+    echo "❌ Projet Symfony non détecté dans $project_path"
+    echo "💡 Recherche de bin/console ou symfony.lock"
+    exit 1
+fi
+
+# Nettoyer le nom de session
+session_name="symfony-$(echo "$project_name" | tr . _ | tr '[:upper:]' '[:lower:]')"
+
+echo "🎼 Création de l'environnement Symfony: $session_name"
+
+# Tuer la session si elle existe déjà
+tmux kill-session -t "$session_name" 2>/dev/null || true
+
+# Créer la session principale
+tmux new-session -d -s "$session_name" -c "$project_path" -n "editor"
+
+# Fenêtre 1: Éditeur (Neovim)
+tmux send-keys -t "$session_name:editor" "clear && nvim ." Enter
+
+# Fenêtre 2: Serveur Symfony
+tmux new-window -t "$session_name" -n "server" -c "$project_path"
+if command -v symfony &> /dev/null; then
+    tmux send-keys -t "$session_name:server" "symfony serve --no-tls" Enter
+else
+    tmux send-keys -t "$session_name:server" "php -S localhost:8000 -t public" Enter
+fi
+
+# Fenêtre 3: Console Symfony (split en 2)
+tmux new-window -t "$session_name" -n "console" -c "$project_path"
+tmux split-window -t "$session_name:console" -h -c "$project_path"
+
+# Pane gauche: Console interactive
+tmux send-keys -t "$session_name:console.0" "clear" Enter
+tmux send-keys -t "$session_name:console.0" "echo '🎼 Console Symfony - Commandes utiles:'" Enter
+tmux send-keys -t "$session_name:console.0" "echo '  • php bin/console debug:router'" Enter
+tmux send-keys -t "$session_name:console.0" "echo '  • php bin/console make:controller'" Enter
+tmux send-keys -t "$session_name:console.0" "echo '  • php bin/console doctrine:migrations:migrate'" Enter
+tmux send-keys -t "$session_name:console.0" "echo '  • php bin/console cache:clear'" Enter
+tmux send-keys -t "$session_name:console.0" "echo ''" Enter
+
+# Pane droite: Base de données / Logs
+tmux send-keys -t "$session_name:console.1" "clear" Enter
+if [[ -f "$project_path/.env" ]] && grep -q "DATABASE_URL" "$project_path/.env"; then
+    tmux send-keys -t "$session_name:console.1" "echo '💾 Base de données détectée'" Enter
+    tmux send-keys -t "$session_name:console.1" "php bin/console doctrine:database:create --if-not-exists" Enter
+    tmux send-keys -t "$session_name:console.1" "php bin/console doctrine:migrations:status" Enter
+else
+    tmux send-keys -t "$session_name:console.1" "echo '📋 Logs Symfony:'" Enter
+    tmux send-keys -t "$session_name:console.1" "tail -f var/log/dev.log" Enter 2>/dev/null || true
+fi
+
+# Fenêtre 4: Tests et qualité (split en 2)
+tmux new-window -t "$session_name" -n "tests" -c "$project_path"
+tmux split-window -t "$session_name:tests" -h -c "$project_path"
+
+# Pane gauche: Tests
+tmux send-keys -t "$session_name:tests.0" "clear" Enter
+if [[ -f "$project_path/phpunit.xml.dist" ]] || [[ -f "$project_path/phpunit.xml" ]]; then
+    tmux send-keys -t "$session_name:tests.0" "echo '🧪 Tests PHPUnit disponibles'" Enter
+    tmux send-keys -t "$session_name:tests.0" "vendor/bin/phpunit --testdox" Enter 2>/dev/null || \
+    tmux send-keys -t "$session_name:tests.0" "php bin/phpunit --testdox" Enter 2>/dev/null || \
+    tmux send-keys -t "$session_name:tests.0" "echo 'PHPUnit non configuré'" Enter
+else
+    tmux send-keys -t "$session_name:tests.0" "echo '⚠️ Aucun test configuré'" Enter
+    tmux send-keys -t "$session_name:tests.0" "echo 'Pour créer des tests: php bin/console make:test'" Enter
+fi
+
+# Pane droite: Qualité de code
+tmux send-keys -t "$session_name:tests.1" "clear" Enter
+tmux send-keys -t "$session_name:tests.1" "echo '🔍 Outils de qualité:'" Enter
+
+# Vérifier les outils de qualité disponibles
+if [[ -f "$project_path/vendor/bin/phpstan" ]]; then
+    tmux send-keys -t "$session_name:tests.1" "echo '  • PHPStan: vendor/bin/phpstan analyse'" Enter
+fi
+
+if [[ -f "$project_path/vendor/bin/php-cs-fixer" ]]; then
+    tmux send-keys -t "$session_name:tests.1" "echo '  • PHP-CS-Fixer: vendor/bin/php-cs-fixer fix --dry-run'" Enter
+fi
+
+if [[ -f "$project_path/vendor/bin/phpcs" ]]; then
+    tmux send-keys -t "$session_name:tests.1" "echo '  • PHPCS: vendor/bin/phpcs'" Enter
+fi
+
+# Fenêtre 5: Git (Lazygit)
+tmux new-window -t "$session_name" -n "git" -c "$project_path"
+if command -v lazygit &> /dev/null; then
+    tmux send-keys -t "$session_name:git" "lazygit" Enter
+else
+    tmux send-keys -t "$session_name:git" "git status" Enter
+    tmux send-keys -t "$session_name:git" "echo '💡 Installez lazygit pour une meilleure expérience Git'" Enter
+fi
+
+# Fenêtre 6: Monitoring (optionnelle)
+if command -v htop &> /dev/null || command -v top &> /dev/null; then
+    tmux new-window -t "$session_name" -n "monitor" -c "$project_path"
+    tmux split-window -t "$session_name:monitor" -v -c "$project_path"
+    
+    # Pane haut: Processus système
+    if command -v htop &> /dev/null; then
+        tmux send-keys -t "$session_name:monitor.0" "htop" Enter
+    else
+        tmux send-keys -t "$session_name:monitor.0" "top" Enter
+    fi
+    
+    # Pane bas: Logs en temps réel
+    tmux send-keys -t "$session_name:monitor.1" "clear" Enter
+    tmux send-keys -t "$session_name:monitor.1" "echo '📊 Monitoring du projet Symfony'" Enter
+    if [[ -f "$project_path/var/log/dev.log" ]]; then
+        tmux send-keys -t "$session_name:monitor.1" "tail -f var/log/dev.log" Enter
+    fi
+fi
+
+# Retourner à la fenêtre éditeur
+tmux select-window -t "$session_name:editor"
+
+# Attacher à la session
+if [[ -z ${TMUX:-} ]]; then
+    tmux attach-session -t "$session_name"
+else
+    tmux switch-client -t "$session_name"
+fi
+
+echo ""
+echo "✅ Environnement Symfony '$session_name' créé avec succès!"
+echo ""
+echo "📋 Fenêtres disponibles:"
+echo "   1. editor  - Neovim avec le projet"
+echo "   2. server  - Serveur Symfony (localhost:8000)"
+echo "   3. console - Console Symfony + DB/Logs"
+echo "   4. tests   - Tests PHPUnit + Qualité de code"
+echo "   5. git     - Lazygit pour le contrôle de version"
+if command -v htop &> /dev/null; then
+    echo "   6. monitor - Monitoring système + Logs"
+fi
+echo ""
+echo "🎯 Raccourcis tmux:"
+echo "   • Ctrl+Space + 1-6 : Naviguer entre les fenêtres"
+echo "   • Ctrl+Space + |   : Split vertical"
+echo "   • Ctrl+Space + -   : Split horizontal"
+echo "   • Alt + hjkl       : Naviguer entre les panes"

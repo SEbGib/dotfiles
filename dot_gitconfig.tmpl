@@ -1,0 +1,289 @@
+# Configuration Git moderne - Générée par Chezmoi
+# User: {{ .name }} <{{ .email }}>
+# Hostname: {{ .chezmoi.hostname }}
+
+[user]
+    name = {{ .name }}
+    email = {{ .email }}
+    {{- if .gpg_key_id }}
+    signingkey = {{ .gpg_key_id }}
+    {{- end }}
+
+[core]
+    editor = nvim
+    pager = delta
+    autocrlf = input
+    safecrlf = true
+    excludesfile = ~/.gitignore_global
+    attributesfile = ~/.gitattributes_global
+    {{- if eq .chezmoi.os "darwin" }}
+    precomposeunicode = true
+    {{- end }}
+
+[init]
+    defaultBranch = main
+
+[push]
+    default = simple
+    autoSetupRemote = true
+    {{- if .gpg_key_id }}
+    gpgSign = if-asked
+    {{- end }}
+
+[pull]
+    rebase = true
+    ff = only
+
+[fetch]
+    prune = true
+    pruneTags = true
+
+[rebase]
+    autoStash = true
+    autoSquash = true
+
+[merge]
+    tool = nvimdiff
+    conflictstyle = diff3
+    ff = false
+
+[mergetool]
+    prompt = false
+    keepBackup = false
+
+[mergetool "nvimdiff"]
+    cmd = nvim -d $LOCAL $REMOTE $MERGED -c '$wincmd w' -c 'wincmd J'
+
+[diff]
+    tool = nvimdiff
+    colorMoved = default
+    algorithm = histogram
+
+[difftool]
+    prompt = false
+
+[difftool "nvimdiff"]
+    cmd = nvim -d $LOCAL $REMOTE
+
+# ===== DELTA CONFIGURATION =====
+[delta]
+    navigate = true
+    light = false
+    line-numbers = true
+    syntax-theme = Catppuccin-mocha
+    features = catppuccin-mocha
+
+[delta "catppuccin-mocha"]
+    # Catppuccin Mocha theme for delta
+    dark = true
+    syntax-theme = Catppuccin-mocha
+    file-style = "#cba6f7 bold"
+    file-decoration-style = "#cba6f7 ul"
+    hunk-header-style = "#89b4fa bold"
+    hunk-header-decoration-style = "#89b4fa box"
+    line-numbers-left-style = "#6c7086"
+    line-numbers-right-style = "#6c7086"
+    line-numbers-minus-style = "#f38ba8"
+    line-numbers-plus-style = "#a6e3a1"
+    line-numbers-zero-style = "#6c7086"
+    minus-style = "syntax #3c1f1e"
+    minus-emph-style = "syntax #73333f"
+    plus-style = "syntax #1e3a1f"
+    plus-emph-style = "syntax #2d5a2f"
+    zero-style = "syntax"
+    blame-code-style = "syntax"
+    blame-format = "{author:<18} ({commit:>7}) {timestamp:^12} "
+    blame-palette = "#1e1e2e #313244 #45475a #585b70"
+
+[interactive]
+    diffFilter = delta --color-only
+
+# ===== ALIASES AVANCÉS =====
+[alias]
+    # Status et informations
+    s = status --short --branch
+    st = status
+    info = remote show origin
+    
+    # Logs et historique
+    l = log --oneline --graph --decorate --all -20
+    ll = log --oneline --graph --decorate --all
+    lg = log --color --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit
+    lp = log --pretty=format:'%C(yellow)%h%C(reset) - %an [%C(green)%ar%C(reset)] %s'
+    last = log -1 HEAD --stat
+    
+    # Branches
+    b = branch
+    ba = branch -a
+    bd = branch -d
+    bD = branch -D
+    co = checkout
+    cob = checkout -b
+    com = checkout main
+    cod = checkout develop
+    
+    # Commits
+    c = commit
+    cm = commit -m
+    ca = commit --amend
+    can = commit --amend --no-edit
+    cane = commit --amend --no-edit
+    
+    # Add et staging
+    a = add
+    aa = add --all
+    ap = add --patch
+    au = add --update
+    
+    # Diff
+    d = diff
+    ds = diff --staged
+    dc = diff --cached
+    dh = diff HEAD
+    
+    # Push et pull
+    p = push
+    pf = push --force-with-lease
+    pu = push -u origin HEAD
+    pl = pull
+    pr = pull --rebase
+    
+    # Fetch
+    f = fetch
+    fa = fetch --all --prune
+    
+    # Merge et rebase
+    m = merge
+    mn = merge --no-ff
+    rb = rebase
+    rbi = rebase -i
+    rbc = rebase --continue
+    rba = rebase --abort
+    
+    # Stash
+    st = stash
+    stp = stash pop
+    stl = stash list
+    sts = stash show
+    std = stash drop
+    
+    # Reset
+    r = reset
+    rh = reset --hard
+    rs = reset --soft
+    
+    # Remote
+    rv = remote -v
+    ra = remote add
+    rr = remote remove
+    
+    # Tags
+    t = tag
+    ta = tag -a
+    td = tag -d
+    
+    # Utilitaires
+    aliases = config --get-regexp alias
+    ignore = "!gi() { curl -sL https://www.toptal.com/developers/gitignore/api/$@ ;}; gi"
+    
+    # Nettoyage
+    clean-branches = "!git branch --merged | grep -v '\\*\\|main\\|master\\|develop' | xargs -n 1 git branch -d"
+    clean-remote = "!git remote prune origin && git branch -r --merged | grep -v '\\*\\|main\\|master\\|develop' | sed 's/origin\\///' | xargs -n 1 git push --delete origin"
+    
+    # Workflows
+    sync = "!git fetch --all --prune && git pull --rebase && git push"
+    save = "!git add -A && git commit -m 'SAVEPOINT'"
+    wip = "!git add -A && git commit -m 'WIP: work in progress'"
+    undo = reset HEAD~1 --mixed
+    amend = commit -a --amend
+    
+    # Recherche
+    grep = grep -Ii
+    find = "!git ls-files | grep -i"
+    
+    # Statistiques
+    stats = shortlog -sn
+    contributors = shortlog -sn --all --no-merges
+    
+    # Maintenance
+    optimize = "!git repack -Ad && git prune && git gc --aggressive"
+
+# ===== CONFIGURATION SPÉCIFIQUE =====
+{{- if .work }}
+# Configuration entreprise
+[includeIf "gitdir:~/work/"]
+    path = ~/.gitconfig-work
+
+[includeIf "gitdir:~/company/"]
+    path = ~/.gitconfig-work
+{{- end }}
+
+{{- if .personal }}
+# Configuration personnelle
+[includeIf "gitdir:~/personal/"]
+    path = ~/.gitconfig-personal
+
+[includeIf "gitdir:~/projects/"]
+    path = ~/.gitconfig-personal
+{{- end }}
+
+# ===== GITHUB CLI =====
+[credential "https://github.com"]
+    helper = 
+    {{- if eq .chezmoi.os "darwin" }}
+    helper = osxkeychain
+    {{- else }}
+    helper = cache --timeout=3600
+    {{- end }}
+
+[credential "https://gitlab.com"]
+    helper = 
+    {{- if eq .chezmoi.os "darwin" }}
+    helper = osxkeychain
+    {{- else }}
+    helper = cache --timeout=3600
+    {{- end }}
+
+# ===== HOOKS ET SÉCURITÉ =====
+{{- if .gpg_key_id }}
+[commit]
+    gpgSign = true
+
+[tag]
+    gpgSign = true
+{{- end }}
+
+[transfer]
+    fsckobjects = true
+
+[fetch]
+    fsckobjects = true
+
+[receive]
+    fsckObjects = true
+
+# ===== URL SHORTCUTS =====
+[url "git@github.com:"]
+    insteadOf = gh:
+    insteadOf = github:
+
+[url "git@gitlab.com:"]
+    insteadOf = gl:
+    insteadOf = gitlab:
+
+[url "git@bitbucket.org:"]
+    insteadOf = bb:
+    insteadOf = bitbucket:
+
+# ===== CONFIGURATION LOCALE =====
+# Inclusion de la configuration locale si elle existe
+[include]
+    path = ~/.gitconfig.local
+
+# ===== MAINTENANCE AUTOMATIQUE =====
+[maintenance]
+    repo = true
+    auto = false
+
+[gc]
+    auto = 256

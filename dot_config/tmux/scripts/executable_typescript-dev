@@ -1,0 +1,219 @@
+#!/usr/bin/env bash
+
+# Script de workflow TypeScript/Node.js pour tmux
+# Crée un environnement de développement complet pour TypeScript
+
+set -euo pipefail
+
+# Paramètres
+project_name="${1:-$(basename $(pwd))}"
+project_path="${2:-$(pwd)}"
+
+# Vérification que c'est un projet Node.js/TypeScript
+if [[ ! -f "$project_path/package.json" ]]; then
+    echo "❌ package.json non trouvé dans $project_path"
+    exit 1
+fi
+
+# Nettoyer le nom de session
+session_name="ts-$(echo "$project_name" | tr . _ | tr '[:upper:]' '[:lower:]')"
+
+echo "⚡ Création de l'environnement TypeScript: $session_name"
+
+# Tuer la session si elle existe déjà
+tmux kill-session -t "$session_name" 2>/dev/null || true
+
+# Créer la session principale
+tmux new-session -d -s "$session_name" -c "$project_path" -n "editor"
+
+# Fenêtre 1: Éditeur (Neovim)
+tmux send-keys -t "$session_name:editor" "clear && nvim ." Enter
+
+# Fenêtre 2: Dev Server (split en 2)
+tmux new-window -t "$session_name" -n "server" -c "$project_path"
+tmux split-window -t "$session_name:server" -h -c "$project_path"
+
+# Pane gauche: Dev server
+tmux send-keys -t "$session_name:server.0" "clear" Enter
+
+# Détecter le type de projet et lancer le serveur approprié
+if grep -q '"dev"' "$project_path/package.json"; then
+    tmux send-keys -t "$session_name:server.0" "npm run dev" Enter
+elif grep -q '"start"' "$project_path/package.json"; then
+    tmux send-keys -t "$session_name:server.0" "npm start" Enter
+elif grep -q '"serve"' "$project_path/package.json"; then
+    tmux send-keys -t "$session_name:server.0" "npm run serve" Enter
+else
+    tmux send-keys -t "$session_name:server.0" "echo '⚠️ Aucun script de développement détecté'" Enter
+    tmux send-keys -t "$session_name:server.0" "echo 'Scripts disponibles:'" Enter
+    tmux send-keys -t "$session_name:server.0" "npm run" Enter
+fi
+
+# Pane droite: TypeScript compiler watch
+tmux send-keys -t "$session_name:server.1" "clear" Enter
+if [[ -f "$project_path/tsconfig.json" ]]; then
+    tmux send-keys -t "$session_name:server.1" "echo '⚡ TypeScript Watch Mode'" Enter
+    if command -v tsc &> /dev/null; then
+        tmux send-keys -t "$session_name:server.1" "tsc --watch" Enter
+    elif [[ -f "$project_path/node_modules/.bin/tsc" ]]; then
+        tmux send-keys -t "$session_name:server.1" "npx tsc --watch" Enter
+    else
+        tmux send-keys -t "$session_name:server.1" "echo 'TypeScript non installé'" Enter
+    fi
+else
+    tmux send-keys -t "$session_name:server.1" "echo '📋 Logs du serveur:'" Enter
+fi
+
+# Fenêtre 3: Tests et Linting (split en 2)
+tmux new-window -t "$session_name" -n "tests" -c "$project_path"
+tmux split-window -t "$session_name:tests" -h -c "$project_path"
+
+# Pane gauche: Tests
+tmux send-keys -t "$session_name:tests.0" "clear" Enter
+if grep -q '"test"' "$project_path/package.json"; then
+    # Détecter le framework de test
+    if grep -q '"jest"' "$project_path/package.json" || [[ -f "$project_path/jest.config.js" ]]; then
+        tmux send-keys -t "$session_name:tests.0" "echo '🧪 Tests Jest en mode watch'" Enter
+        tmux send-keys -t "$session_name:tests.0" "npm test -- --watch" Enter
+    elif grep -q '"vitest"' "$project_path/package.json"; then
+        tmux send-keys -t "$session_name:tests.0" "echo '🧪 Tests Vitest en mode watch'" Enter
+        tmux send-keys -t "$session_name:tests.0" "npm test" Enter
+    elif grep -q '"mocha"' "$project_path/package.json"; then
+        tmux send-keys -t "$session_name:tests.0" "echo '🧪 Tests Mocha'" Enter
+        tmux send-keys -t "$session_name:tests.0" "npm test" Enter
+    else
+        tmux send-keys -t "$session_name:tests.0" "npm test" Enter
+    fi
+else
+    tmux send-keys -t "$session_name:tests.0" "echo '⚠️ Aucun test configuré'" Enter
+    tmux send-keys -t "$session_name:tests.0" "echo 'Pour ajouter des tests, installez Jest ou Vitest'" Enter
+fi
+
+# Pane droite: Linting et formatage
+tmux send-keys -t "$session_name:tests.1" "clear" Enter
+tmux send-keys -t "$session_name:tests.1" "echo '🔍 Outils de qualité:'" Enter
+
+# ESLint
+if grep -q '"eslint"' "$project_path/package.json" || [[ -f "$project_path/.eslintrc.js" ]] || [[ -f "$project_path/.eslintrc.json" ]]; then
+    tmux send-keys -t "$session_name:tests.1" "echo '  • ESLint: npm run lint'" Enter
+    if grep -q '"lint"' "$project_path/package.json"; then
+        tmux send-keys -t "$session_name:tests.1" "npm run lint" Enter
+    else
+        tmux send-keys -t "$session_name:tests.1" "npx eslint . --ext .ts,.tsx,.js,.jsx" Enter
+    fi
+else
+    tmux send-keys -t "$session_name:tests.1" "echo '  • ESLint non configuré'" Enter
+fi
+
+# Prettier
+if grep -q '"prettier"' "$project_path/package.json" || [[ -f "$project_path/.prettierrc" ]]; then
+    tmux send-keys -t "$session_name:tests.1" "echo '  • Prettier disponible'" Enter
+fi
+
+# Fenêtre 4: Build et Production (split en 2)
+tmux new-window -t "$session_name" -n "build" -c "$project_path"
+tmux split-window -t "$session_name:build" -v -c "$project_path"
+
+# Pane haut: Build
+tmux send-keys -t "$session_name:build.0" "clear" Enter
+tmux send-keys -t "$session_name:build.0" "echo '🏗️ Build du projet'" Enter
+
+# Détecter le bundler
+if [[ -f "$project_path/vite.config.ts" ]] || [[ -f "$project_path/vite.config.js" ]]; then
+    tmux send-keys -t "$session_name:build.0" "echo 'Bundler: Vite'" Enter
+    if grep -q '"build"' "$project_path/package.json"; then
+        tmux send-keys -t "$session_name:build.0" "npm run build" Enter
+    fi
+elif [[ -f "$project_path/webpack.config.js" ]] || grep -q '"webpack"' "$project_path/package.json"; then
+    tmux send-keys -t "$session_name:build.0" "echo 'Bundler: Webpack'" Enter
+    if grep -q '"build"' "$project_path/package.json"; then
+        tmux send-keys -t "$session_name:build.0" "npm run build" Enter
+    fi
+elif [[ -f "$project_path/rollup.config.js" ]]; then
+    tmux send-keys -t "$session_name:build.0" "echo 'Bundler: Rollup'" Enter
+    if grep -q '"build"' "$project_path/package.json"; then
+        tmux send-keys -t "$session_name:build.0" "npm run build" Enter
+    fi
+elif [[ -f "$project_path/next.config.js" ]]; then
+    tmux send-keys -t "$session_name:build.0" "echo 'Framework: Next.js'" Enter
+    tmux send-keys -t "$session_name:build.0" "npm run build" Enter
+elif grep -q '"nuxt"' "$project_path/package.json"; then
+    tmux send-keys -t "$session_name:build.0" "echo 'Framework: Nuxt.js'" Enter
+    tmux send-keys -t "$session_name:build.0" "npm run build" Enter
+else
+    tmux send-keys -t "$session_name:build.0" "echo 'Build générique'" Enter
+    if grep -q '"build"' "$project_path/package.json"; then
+        tmux send-keys -t "$session_name:build.0" "npm run build" Enter
+    fi
+fi
+
+# Pane bas: Analyse du bundle
+tmux send-keys -t "$session_name:build.1" "clear" Enter
+tmux send-keys -t "$session_name:build.1" "echo '📊 Analyse du projet:'" Enter
+tmux send-keys -t "$session_name:build.1" "echo ''" Enter
+
+# Informations sur le projet
+if command -v jq &> /dev/null; then
+    tmux send-keys -t "$session_name:build.1" "echo 'Nom: $(jq -r .name package.json)'" Enter
+    tmux send-keys -t "$session_name:build.1" "echo 'Version: $(jq -r .version package.json)'" Enter
+    tmux send-keys -t "$session_name:build.1" "echo 'Description: $(jq -r .description package.json)'" Enter
+fi
+
+# Taille du projet
+if command -v du &> /dev/null; then
+    tmux send-keys -t "$session_name:build.1" "echo 'Taille: $(du -sh . | cut -f1)'" Enter
+fi
+
+# Fenêtre 5: Git (Lazygit)
+tmux new-window -t "$session_name" -n "git" -c "$project_path"
+if command -v lazygit &> /dev/null; then
+    tmux send-keys -t "$session_name:git" "lazygit" Enter
+else
+    tmux send-keys -t "$session_name:git" "git status" Enter
+    tmux send-keys -t "$session_name:git" "echo '💡 Installez lazygit pour une meilleure expérience Git'" Enter
+fi
+
+# Fenêtre 6: Package Manager (optionnelle)
+tmux new-window -t "$session_name" -n "packages" -c "$project_path"
+tmux send-keys -t "$session_name:packages" "clear" Enter
+tmux send-keys -t "$session_name:packages" "echo '📦 Gestionnaire de packages'" Enter
+tmux send-keys -t "$session_name:packages" "echo ''" Enter
+
+# Détecter le gestionnaire de packages
+if [[ -f "$project_path/yarn.lock" ]]; then
+    tmux send-keys -t "$session_name:packages" "echo 'Gestionnaire: Yarn'" Enter
+    tmux send-keys -t "$session_name:packages" "yarn list --depth=0" Enter
+elif [[ -f "$project_path/pnpm-lock.yaml" ]]; then
+    tmux send-keys -t "$session_name:packages" "echo 'Gestionnaire: pnpm'" Enter
+    tmux send-keys -t "$session_name:packages" "pnpm list --depth=0" Enter
+else
+    tmux send-keys -t "$session_name:packages" "echo 'Gestionnaire: npm'" Enter
+    tmux send-keys -t "$session_name:packages" "npm list --depth=0" Enter
+fi
+
+# Retourner à la fenêtre éditeur
+tmux select-window -t "$session_name:editor"
+
+# Attacher à la session
+if [[ -z ${TMUX:-} ]]; then
+    tmux attach-session -t "$session_name"
+else
+    tmux switch-client -t "$session_name"
+fi
+
+echo ""
+echo "✅ Environnement TypeScript '$session_name' créé avec succès!"
+echo ""
+echo "📋 Fenêtres disponibles:"
+echo "   1. editor   - Neovim avec le projet"
+echo "   2. server   - Dev server + TypeScript watch"
+echo "   3. tests    - Tests + Linting"
+echo "   4. build    - Build + Analyse"
+echo "   5. git      - Lazygit pour le contrôle de version"
+echo "   6. packages - Gestionnaire de packages"
+echo ""
+echo "🎯 Raccourcis tmux:"
+echo "   • Ctrl+Space + 1-6 : Naviguer entre les fenêtres"
+echo "   • Ctrl+Space + |   : Split vertical"
+echo "   • Ctrl+Space + -   : Split horizontal"
+echo "   • Alt + hjkl       : Naviguer entre les panes"
