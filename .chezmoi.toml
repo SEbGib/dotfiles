@@ -1,0 +1,7 @@
+[data]
+    email = "seb@giband.com"
+    name = "Sebastien Giband"
+    github_username = "SEbGib"
+    personal = true
+    work = false
+    gpg_key_id = ""
