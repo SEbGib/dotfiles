@@ -14,21 +14,28 @@ Configuration complète et moderne pour un environnement de développement PHP/S
 
 ## 🚀 Installation rapide
 
-### Méthode recommandée (depuis GitHub)
+### Méthode recommandée (production)
 ```bash
-# Remplacez 'SEbGib' par votre nom d'utilisateur GitHub si vous avez forké
+# Installation directe depuis GitHub - chezmoi gère tout automatiquement
 sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/SEbGib/dotfiles.git
 ```
 
-### Installation locale (développement)
+### Développement et modifications
 ```bash
-# Cloner le repo
-git clone https://github.com/SEbGib/dotfiles.git ~/Downloads/dotfiles
-cd ~/Downloads/dotfiles
+# 1. Initialiser chezmoi depuis GitHub
+chezmoi init https://github.com/SEbGib/dotfiles.git
 
-# Copier vers chezmoi et appliquer
-cp -r * ~/.local/share/chezmoi/
-chezmoi apply --force
+# 2. Modifier les fichiers dans l'éditeur chezmoi
+chezmoi edit ~/.zshrc
+
+# 3. Appliquer les changements
+chezmoi apply
+
+# 4. Pousser les modifications vers GitHub
+chezmoi cd
+git add .
+git commit -m "feat: update configuration"
+git push
 ```
 
 ### Vérification de l'installation
@@ -112,9 +119,14 @@ which fzf ripgrep    # Outils modernes installés
     gpg_key_id = ""
 ```
 
-**Important** : Après modification, copiez le fichier vers la configuration chezmoi :
+**Important** : Modifiez directement via chezmoi :
 ```bash
-cp .chezmoi.toml ~/.config/chezmoi/chezmoi.toml
+# Éditer la configuration chezmoi
+chezmoi edit ~/.config/chezmoi/chezmoi.toml
+
+# Ou éditer le fichier source
+chezmoi cd
+vim .chezmoi.toml
 chezmoi apply
 ```
 
@@ -162,17 +174,46 @@ Configuration intelligente selon :
 - **Contexte** : Personnel vs Entreprise
 - **Hostname** : Configuration spécifique par machine
 
-## 🔄 Maintenance
+## 🔄 Maintenance et workflow
 
+### Workflow quotidien
 ```bash
-# Voir les changements
+# Voir les changements en attente
 chezmoi diff
 
-# Appliquer les mises à jour
+# Appliquer les changements depuis le repo
 chezmoi apply
 
-# Synchroniser depuis GitHub
+# Synchroniser depuis GitHub (pull + apply)
 chezmoi update
+```
+
+### Modifier la configuration
+```bash
+# Éditer un fichier géré par chezmoi
+chezmoi edit ~/.zshrc
+
+# Voir les différences avant d'appliquer
+chezmoi diff
+
+# Appliquer les changements
+chezmoi apply
+
+# Pousser vers GitHub
+chezmoi cd
+git add . && git commit -m "update config" && git push
+```
+
+### Commandes utiles
+```bash
+# Aller dans le répertoire source chezmoi
+chezmoi cd
+
+# Voir le statut des fichiers gérés
+chezmoi status
+
+# Réinitialiser depuis GitHub (attention: perd les modifs locales)
+chezmoi init --apply --force https://github.com/SEbGib/dotfiles.git
 
 # Mise à jour complète du système
 update_all  # Alias configuré
