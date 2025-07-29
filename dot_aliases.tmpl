@@ -347,11 +347,7 @@ alias backup='rsync -avz --progress'
 # ===== FONCTIONS COMME ALIASES =====
 # Création rapide de dossier et navigation
 
-# Backup rapide avec timestamp
-alias bak='function _bak(){ cp "$1" "$1.backup.$(date +%Y%m%d_%H%M%S)"; }; _bak'
 
-# Recherche et remplacement dans fichiers
-alias replace='function _replace(){ rg -l "$1" | xargs sed -i "s/$1/$2/g"; }; _replace'
 
 
 
