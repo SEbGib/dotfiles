@@ -31,21 +31,22 @@ M.format = {}
 
 function M.format.format(opts)
   local buf = vim.api.nvim_get_current_buf()
-  if vim.b.autoformat == false then
+  if vim.b.disable_autoformat or vim.g.disable_autoformat then
     return
   end
-  local ft = vim.bo[buf].filetype
-  local have_nls = #require("null-ls.sources").get_available(ft, "NULL_LS_FORMATTING") > 0
-
-  vim.lsp.buf.format(vim.tbl_deep_extend("force", {
-    bufnr = buf,
-    filter = function(client)
-      if have_nls then
-        return client.name == "null-ls"
-      end
-      return client.name ~= "null-ls"
-    end,
-  }, opts or {}))
+  
+  -- Try conform.nvim first, fallback to LSP
+  local ok, conform = pcall(require, "conform")
+  if ok then
+    conform.format(vim.tbl_deep_extend("force", {
+      bufnr = buf,
+      lsp_fallback = true,
+    }, opts or {}))
+  else
+    vim.lsp.buf.format(vim.tbl_deep_extend("force", {
+      bufnr = buf,
+    }, opts or {}))
+  end
 end
 
 -- Utilitaires de diagnostic
@@ -68,6 +69,35 @@ function M.diagnostic.get_diagnostics()
   end
   
   return count
+end
+
+-- Utilitaires UI
+M.ui = {}
+
+function M.ui.fg(name)
+  local hl = vim.api.nvim_get_hl and vim.api.nvim_get_hl(0, { name = name }) or vim.api.nvim_get_hl_by_name(name, true)
+  local fg = hl and hl.fg or hl.foreground
+  return fg and { fg = string.format("#%06x", fg) }
+end
+
+-- Utilitaires de projet
+M.project = {}
+
+function M.project.is_symfony()
+  return vim.fn.filereadable("symfony.lock") == 1 or vim.fn.filereadable("bin/console") == 1
+end
+
+function M.project.is_laravel()
+  return vim.fn.filereadable("artisan") == 1
+end
+
+function M.project.is_node()
+  return vim.fn.filereadable("package.json") == 1
+end
+
+function M.project.get_root()
+  local patterns = { ".git", "composer.json", "package.json", "symfony.lock" }
+  return vim.fs.dirname(vim.fs.find(patterns, { upward = true })[1])
 end
 
 return M
