@@ -36,7 +36,7 @@ func (m InfoModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c":
 			return m, tea.Quit
 		case "esc", "enter":
-			return NewMainModel(), nil
+			return NewTwoColumnMainModel(), nil
 		}
 	}
 
@@ -80,7 +80,7 @@ func (m InfoModel) View() string {
 
 	// Footer
 	s.WriteString("\n")
-	footerText := "• Entrée/Échap Retour au menu principal"
+	footerText := "• Entrée/Échap Retour au menu • Ctrl+C Quitter"
 	s.WriteString(FooterStyle.Render(footerText))
 
 	return AppStyle.Render(s.String())

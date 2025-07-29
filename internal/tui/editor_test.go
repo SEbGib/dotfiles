@@ -70,8 +70,8 @@ func TestEditorModelUpdate(t *testing.T) {
 
 	// Test Esc returns to main menu
 	updatedModel, _ = model.Update(tea.KeyMsg{Type: tea.KeyEsc})
-	if _, ok := updatedModel.(MainModel); !ok {
-		t.Error("Expected Esc to return MainModel")
+	if _, ok := updatedModel.(TwoColumnMainModel); !ok {
+		t.Error("Expected Esc to return TwoColumnMainModel")
 	}
 
 	// Test file loaded message

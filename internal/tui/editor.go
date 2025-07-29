@@ -65,7 +65,7 @@ func (m EditorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c":
 			return m, tea.Quit
 		case "esc":
-			return NewMainModel(), nil
+			return NewTwoColumnMainModel(), nil
 		case "ctrl+s":
 			return m, m.saveFile()
 		case "e", "enter":

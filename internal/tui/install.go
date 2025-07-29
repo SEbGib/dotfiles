@@ -235,11 +235,15 @@ func (m InstallModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 		case "esc":
 			if m.completed {
-				return NewMainModel(), nil
+				return NewTwoColumnMainModel(), nil
+			} else {
+				// Allow cancellation during installation
+				m.quitting = true
+				return NewTwoColumnMainModel(), nil
 			}
 		case "enter":
 			if m.completed {
-				return NewMainModel(), nil
+				return NewTwoColumnMainModel(), nil
 			}
 		}
 
@@ -364,9 +368,9 @@ func (m InstallModel) View() string {
 	// Footer
 	s.WriteString("\n")
 	if m.completed {
-		s.WriteString(FooterStyle.Render("Entrée/Échap pour retour au menu • Installation terminée! 🎉"))
+		s.WriteString(FooterStyle.Render("• Entrée/Échap Retour au menu • Installation terminée! 🎉"))
 	} else {
-		s.WriteString(FooterStyle.Render("Ctrl+C pour annuler l'installation"))
+		s.WriteString(FooterStyle.Render("• Échap Annuler et retour • Ctrl+C Quitter"))
 	}
 
 	return s.String()

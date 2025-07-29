@@ -41,13 +41,13 @@ func (m ConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c":
 			return m, tea.Quit
 		case "esc":
-			return NewMainModel(), nil
+			return NewTwoColumnMainModel(), nil
 		case "enter":
 			i, ok := m.list.SelectedItem().(MenuItem)
 			if ok {
 				switch i.action {
 				case "back":
-					return NewMainModel(), nil
+					return NewTwoColumnMainModel(), nil
 				case "edit_zshrc":
 					editor := NewEnhancedEditorModel("$HOME/.zshrc", ".zshrc")
 					shortcuts := GetEditorShortcuts()
@@ -98,7 +98,7 @@ func (m ConfigModel) View() string {
 	s.WriteString(CardStyle.Render(listContent))
 
 	// Footer
-	footerText := "• Entrée Sélectionner • Échap Retour • Ctrl+C Quitter"
+	footerText := "• Entrée Sélectionner • Échap Retour au menu • Ctrl+C Quitter"
 	s.WriteString(FooterStyle.Render(footerText))
 
 	return AppStyle.Render(s.String())

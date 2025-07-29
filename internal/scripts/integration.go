@@ -116,17 +116,17 @@ func (sr *ScriptRunner) GetSystemInfo() map[string]string {
 func (sr *ScriptRunner) ListBackups() ([]string, error) {
 	homeDir := os.Getenv("HOME")
 	if homeDir == "" {
-		return nil, fmt.Errorf("impossible de déterminer le répertoire home")
+		return []string{}, fmt.Errorf("impossible de déterminer le répertoire home")
 	}
 
 	pattern := filepath.Join(homeDir, ".dotfiles-backup-*")
 	matches, err := filepath.Glob(pattern)
 	if err != nil {
-		return nil, err
+		return []string{}, err
 	}
 
 	// Extract just the directory names
-	var backups []string
+	backups := make([]string, 0, len(matches))
 	for _, match := range matches {
 		backups = append(backups, filepath.Base(match))
 	}

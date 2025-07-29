@@ -90,16 +90,20 @@ func (m EnhancedEditorModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			updatedModel, cmd := m.EditorModel.Update(msg)
 			if baseModel, ok := updatedModel.(EditorModel); ok {
 				m.EditorModel = baseModel
+				return m, cmd
 			}
-			return m, cmd
+			// If the base editor returned a different model type (e.g., main menu), propagate it
+			return updatedModel, cmd
 		}
 	default:
 		// Delegate to base editor
 		updatedModel, cmd := m.EditorModel.Update(msg)
 		if baseModel, ok := updatedModel.(EditorModel); ok {
 			m.EditorModel = baseModel
+			return m, cmd
 		}
-		return m, cmd
+		// If the base editor returned a different model type (e.g., main menu), propagate it
+		return updatedModel, cmd
 	}
 }
 

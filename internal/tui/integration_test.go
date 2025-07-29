@@ -11,7 +11,7 @@ import (
 // TestMainMenuNavigation tests the complete navigation flow
 func TestMainMenuNavigation(t *testing.T) {
 	tester := testutil.NewModelTester(t)
-	model := NewMainModel()
+	model := NewTwoColumnMainModel()
 
 	// Test initial state
 	tester.AssertViewContains(model, "Dotfiles Manager")
@@ -19,7 +19,7 @@ func TestMainMenuNavigation(t *testing.T) {
 
 	// Test navigation down
 	updatedModel := tester.SendKey(model, tea.KeyDown)
-	if mainModel, ok := updatedModel.(MainModel); ok {
+	if mainModel, ok := updatedModel.(TwoColumnMainModel); ok {
 		model = mainModel
 	}
 	view := model.View()
@@ -80,7 +80,7 @@ func TestEditorIntegration(t *testing.T) {
 
 	// Test navigation back to main menu
 	updatedModel := tester.SendKey(model, tea.KeyEsc)
-	if _, ok := updatedModel.(MainModel); !ok {
+	if _, ok := updatedModel.(TwoColumnMainModel); !ok {
 		t.Error("Expected Esc to return to main menu")
 	}
 }
@@ -100,7 +100,7 @@ func TestConfigurationFlow(t *testing.T) {
 	fileHelper.CreateFile(".gitconfig", "[user]\n\tname = Test User\n\temail = test@example.com\n")
 
 	// Start with main menu
-	mainModel := NewMainModel()
+	mainModel := NewTwoColumnMainModel()
 	tester.AssertViewContains(mainModel, "Dotfiles Manager")
 
 	// Navigate to configuration menu (assuming it's the second item)
@@ -114,7 +114,7 @@ func TestConfigurationFlow(t *testing.T) {
 	configModel = tester.SendKey(configModel, tea.KeyUp).(ConfigModel)
 
 	// Test returning to main menu
-	mainModel = tester.SendKey(configModel, tea.KeyEsc).(MainModel)
+	mainModel = tester.SendKey(configModel, tea.KeyEsc).(TwoColumnMainModel)
 	tester.AssertViewContains(mainModel, "Dotfiles Manager")
 }
 
@@ -188,7 +188,7 @@ func TestErrorHandling(t *testing.T) {
 
 	// Test quit functionality across models
 	models := []tea.Model{
-		NewMainModel(),
+		NewTwoColumnMainModel(),
 		NewConfigModel(),
 		NewVerifyModel(),
 		editorModel,
@@ -208,7 +208,7 @@ func TestModelTransitions(t *testing.T) {
 	tester := testutil.NewModelTester(t)
 
 	// Start with main menu
-	mainModel := NewMainModel()
+	mainModel := NewTwoColumnMainModel()
 	tester.AssertViewContains(mainModel, "Dotfiles Manager")
 
 	// Test transition to config model
@@ -217,8 +217,8 @@ func TestModelTransitions(t *testing.T) {
 
 	// Test transition back to main
 	backToMain := tester.SendKey(configModel, tea.KeyEsc)
-	if _, ok := backToMain.(MainModel); !ok {
-		t.Error("Expected transition back to MainModel")
+	if _, ok := backToMain.(TwoColumnMainModel); !ok {
+		t.Error("Expected transition back to TwoColumnMainModel")
 	}
 
 	// Test transition to editor
@@ -227,8 +227,8 @@ func TestModelTransitions(t *testing.T) {
 
 	// Test transition back to main from editor
 	backFromEditor := tester.SendKey(editorModel, tea.KeyEsc)
-	if _, ok := backFromEditor.(MainModel); !ok {
-		t.Error("Expected transition back to MainModel from editor")
+	if _, ok := backFromEditor.(TwoColumnMainModel); !ok {
+		t.Error("Expected transition back to TwoColumnMainModel from editor")
 	}
 }
 
@@ -247,7 +247,7 @@ func TestConcurrentOperations(t *testing.T) {
 			go func(index int) {
 				switch index % 4 {
 				case 0:
-					models[index] = NewMainModel()
+					models[index] = NewTwoColumnMainModel()
 				case 1:
 					models[index] = NewConfigModel()
 				case 2:
@@ -276,7 +276,7 @@ func TestConcurrentOperations(t *testing.T) {
 // BenchmarkModelOperations benchmarks common model operations
 func BenchmarkModelOperations(b *testing.B) {
 	models := []tea.Model{
-		NewMainModel(),
+		NewTwoColumnMainModel(),
 		NewConfigModel(),
 		NewVerifyModel(),
 		NewEditorModel("/tmp/bench.conf", "bench.conf"),

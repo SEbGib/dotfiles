@@ -199,9 +199,18 @@ func (m VerifyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "ctrl+c":
 			return m, tea.Quit
-		case "esc", "enter":
+		case "esc":
+			// Allow cancellation during verification or return when complete
 			if m.complete {
-				return NewMainModel(), nil
+				return NewTwoColumnMainModel(), nil
+			} else {
+				// Cancel verification and return to main menu
+				m.running = false
+				return NewTwoColumnMainModel(), nil
+			}
+		case "enter":
+			if m.complete {
+				return NewTwoColumnMainModel(), nil
 			}
 		}
 
@@ -245,12 +254,19 @@ func (m VerifyModel) View() string {
 	s.WriteString(CreateBanner("✅ Vérification du Système"))
 	s.WriteString("\n\n")
 
-	// Progress
-	if m.running {
-		s.WriteString(fmt.Sprintf("Vérification en cours... %s (%d/%d)\n\n",
-			m.spinner.View(), m.current, len(m.checks)))
+	// Welcome message and progress
+	if !m.running && !m.complete {
+		s.WriteString(SubtitleStyle.Render("🚀 Démarrage de la vérification automatique..."))
+		s.WriteString("\n\n")
+	} else if m.running {
+		s.WriteString(SubtitleStyle.Render(fmt.Sprintf("🔍 Vérification en cours... %s (%d/%d)",
+			m.spinner.View(), m.current, len(m.checks))))
+		s.WriteString("\n\n")
+		s.WriteString(lipgloss.NewStyle().Foreground(ColorInfo).Render("💡 Appuyez sur Échap pour annuler"))
+		s.WriteString("\n\n")
 	} else if m.complete {
-		s.WriteString("Vérification terminée!\n\n")
+		s.WriteString(SubtitleStyle.Render("🎉 Vérification terminée!"))
+		s.WriteString("\n\n")
 	}
 
 	// Checks list
@@ -317,9 +333,11 @@ func (m VerifyModel) View() string {
 	// Footer
 	s.WriteString("\n\n")
 	if m.complete {
-		s.WriteString(FooterStyle.Render("Entrée/Échap pour retour au menu"))
+		s.WriteString(FooterStyle.Render("• Entrée/Échap Retour au menu • Ctrl+C Quitter"))
+	} else if m.running {
+		s.WriteString(FooterStyle.Render("• Échap Annuler et retour • Ctrl+C Quitter"))
 	} else {
-		s.WriteString(FooterStyle.Render("Ctrl+C pour annuler"))
+		s.WriteString(FooterStyle.Render("• Vérification en cours de démarrage... • Ctrl+C Quitter"))
 	}
 
 	return s.String()

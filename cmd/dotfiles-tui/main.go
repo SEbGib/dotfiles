@@ -18,15 +18,12 @@ func main() {
 	scriptRunner := scripts.NewScriptRunner()
 	tui.InitializeCache(scriptRunner)
 
-	// Create the enhanced main TUI model with search
-	searchableModel := tui.NewSearchableMainModel()
-
-	// Wrap with notifications
-	modelWithNotifications := tui.NewWithNotifications(searchableModel)
+	// Create the two-column main TUI model with search and notifications
+	twoColumnModel := tui.NewTwoColumnMainModel()
 
 	// Wrap with help overlay
 	shortcuts := tui.GetMainMenuShortcuts()
-	finalModel := tui.NewWithHelp(modelWithNotifications, "Aide - Menu Principal", shortcuts)
+	finalModel := tui.NewWithHelp(twoColumnModel, "Aide - Menu Principal", shortcuts)
 
 	// Create the Bubble Tea program
 	p := tea.NewProgram(
