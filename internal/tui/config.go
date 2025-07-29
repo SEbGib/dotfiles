@@ -49,17 +49,29 @@ func (m ConfigModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				case "back":
 					return NewMainModel(), nil
 				case "edit_zshrc":
-					return NewEditorModel("$HOME/.zshrc", ".zshrc"), nil
+					editor := NewEnhancedEditorModel("$HOME/.zshrc", ".zshrc")
+					shortcuts := GetEditorShortcuts()
+					return NewWithHelp(editor, "Aide - Éditeur", shortcuts), nil
 				case "edit_gitconfig":
-					return NewEditorModel("$HOME/.gitconfig", ".gitconfig"), nil
+					editor := NewEnhancedEditorModel("$HOME/.gitconfig", ".gitconfig")
+					shortcuts := GetEditorShortcuts()
+					return NewWithHelp(editor, "Aide - Éditeur", shortcuts), nil
 				case "edit_starship":
-					return NewEditorModel("$HOME/.config/starship.toml", "starship.toml"), nil
+					editor := NewEnhancedEditorModel("$HOME/.config/starship.toml", "starship.toml")
+					shortcuts := GetEditorShortcuts()
+					return NewWithHelp(editor, "Aide - Éditeur", shortcuts), nil
 				case "edit_nvim":
-					return NewEditorModel("$HOME/.config/nvim/init.lua", "init.lua"), nil
+					editor := NewEnhancedEditorModel("$HOME/.config/nvim/init.lua", "init.lua")
+					shortcuts := GetEditorShortcuts()
+					return NewWithHelp(editor, "Aide - Éditeur", shortcuts), nil
 				case "edit_tmux":
-					return NewEditorModel("$HOME/.config/tmux/tmux.conf", "tmux.conf"), nil
+					editor := NewEnhancedEditorModel("$HOME/.config/tmux/tmux.conf", "tmux.conf")
+					shortcuts := GetEditorShortcuts()
+					return NewWithHelp(editor, "Aide - Éditeur", shortcuts), nil
 				case "edit_aliases":
-					return NewEditorModel("$HOME/.aliases", ".aliases"), nil
+					editor := NewEnhancedEditorModel("$HOME/.aliases", ".aliases")
+					shortcuts := GetEditorShortcuts()
+					return NewWithHelp(editor, "Aide - Éditeur", shortcuts), nil
 				}
 			}
 		}
