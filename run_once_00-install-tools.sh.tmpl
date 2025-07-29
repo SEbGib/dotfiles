@@ -2,7 +2,7 @@
 
 set -eufo pipefail
 
-echo "🔧 Installation des outils essentiels et configuration moderne..."
+echo "🔧 Installation des outils essentiels et configuration Starship + plugins Zsh..."
 
 {{- if eq .chezmoi.os "darwin" }}
 # macOS - Homebrew
@@ -13,7 +13,7 @@ if ! command -v brew &> /dev/null; then
 fi
 
 echo "📦 Installation des packages via Homebrew..."
-brew bundle --file=- <<EOF
+brew bundle --no-lock <<EOF
 # Shells et outils de base
 brew "zsh"
 brew "starship"
@@ -59,6 +59,7 @@ cask "font-meslo-lg-nerd-font"
 {{- if .personal }}
 cask "iterm2"
 cask "raycast"
+cask "cleanmymac"
 cask "visual-studio-code"
 {{- end }}
 EOF
@@ -214,28 +215,3 @@ echo "📋 Outils installés :"
 echo "   • Starship (prompt moderne)"
 echo "   • Zsh + Oh My Zsh (shell avancé)"
 echo "   • Neovim + tmux (éditeur et multiplexeur)"
-echo "   • FZF + Ripgrep + fd + bat + eza (outils modernes)"
-echo "   • Git + Lazygit + GitHub CLI (contrôle de version)"
-echo "   • Node.js + PHP + Composer (développement)"
-echo "   • Bitwarden CLI + AGE (gestion des secrets)"
-echo ""
-echo "💾 IMPORTANT - Sauvegarde créée :"
-if ls ~/.dotfiles-backup-* 1> /dev/null 2>&1; then
-    BACKUP_DIR=$(ls -td ~/.dotfiles-backup-* | head -1)
-    echo "   📍 Emplacement: $BACKUP_DIR"
-    echo "   🔄 Pour restaurer: cp -r $BACKUP_DIR/* ~/"
-    echo "   📋 Voir détails: cat $BACKUP_DIR/BACKUP_INFO.txt"
-else
-    echo "   ℹ️ Aucune configuration existante détectée - installation propre"
-fi
-echo ""
-echo "🎯 Prochaines étapes :"
-echo "   1. Redémarrez votre terminal"
-echo "   2. Lancez: bw login && export BW_SESSION=\$(bw unlock --raw)"
-echo "   3. Exécutez: chezmoi apply"
-echo "   4. Profitez de votre terminal moderne ! 🚀"
-echo ""
-echo "🆘 En cas de problème :"
-echo "   • Restaurer: cp -r ~/.dotfiles-backup-*/\* ~/"
-echo "   • Désinstaller: curl -fsSL https://raw.githubusercontent.com/{{ .github_username }}/dotfiles/main/uninstall.sh | bash"
-echo "   • Support: https://github.com/{{ .github_username }}/dotfiles/issues"

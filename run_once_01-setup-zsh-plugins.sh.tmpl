@@ -161,6 +161,38 @@ for plugin in zsh-autosuggestions fast-syntax-highlighting zsh-completions zsh-h
     fi
 done
 
+# Configuration des keybindings pour zsh-history-substring-search
+echo "⌨️ Configuration des raccourcis clavier..."
+ZSHRC_FILE="$HOME/.zshrc"
+
+# Vérifier si les keybindings sont déjà configurés
+if [[ -f "$ZSHRC_FILE" ]] && ! grep -q "history-substring-search-up" "$ZSHRC_FILE"; then
+    cat >> "$ZSHRC_FILE" << 'EOF'
+
+# ===== KEYBINDINGS POUR PLUGINS =====
+# zsh-history-substring-search
+bindkey '^[[A' history-substring-search-up      # Flèche haut
+bindkey '^[[B' history-substring-search-down    # Flèche bas
+bindkey '^P' history-substring-search-up        # Ctrl+P
+bindkey '^N' history-substring-search-down      # Ctrl+N
+
+# Navigation améliorée
+bindkey '^[[1;5C' forward-word                  # Ctrl+Right
+bindkey '^[[1;5D' backward-word                 # Ctrl+Left
+bindkey '^[[H' beginning-of-line                # Home
+bindkey '^[[F' end-of-line                      # End
+bindkey '^[[3~' delete-char                     # Delete
+
+# Autosuggestions
+bindkey '^ ' autosuggest-accept                 # Ctrl+Space pour accepter suggestion
+bindkey '^I' complete-word                      # Tab pour complétion
+
+# Édition rapide
+bindkey '^X^E' edit-command-line                # Ctrl+X Ctrl+E pour éditer dans $EDITOR
+EOF
+    echo "✅ Keybindings configurés dans .zshrc"
+fi
+
 # Validation de l'installation
 echo ""
 echo "🔍 Validation de l'installation..."
@@ -202,6 +234,12 @@ if [[ "$validation_passed" == true ]]; then
     echo "   • zsh-z : Navigation rapide avec la commande 'z'"
     echo ""
     echo "🎨 Thème Catppuccin Mocha configuré pour coordination avec Neovim et tmux"
+    echo ""
+    echo "⌨️ Raccourcis clavier configurés :"
+    echo "   • ↑/↓ ou Ctrl+P/N : Recherche dans l'historique"
+    echo "   • Ctrl+Space : Accepter suggestion"
+    echo "   • Ctrl+← / → : Navigation par mots"
+    echo "   • Ctrl+X Ctrl+E : Éditer commande dans \$EDITOR"
     echo ""
     echo "🔄 Redémarrez votre terminal ou exécutez 'exec zsh' pour activer les changements."
 else

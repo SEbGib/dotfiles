@@ -135,7 +135,7 @@ alias gunignore='git update-index --no-assume-unchanged'
 alias t='tmux'
 alias ta='tmux attach'
 alias tad='tmux attach -d'  # Detach others
-# ts function is defined in .zshrc instead
+alias ts='tmux new-session'
 alias tl='tmux list-sessions'
 alias tk='tmux kill-session'
 alias tka='tmux kill-server'  # Kill all
@@ -307,7 +307,7 @@ alias brewinfo='brew leaves | xargs brew desc --eval-all'
 alias cask='brew install --cask'
 alias showfiles='defaults write com.apple.finder AppleShowAllFiles -bool true && killall Finder'
 alias hidefiles='defaults write com.apple.finder AppleShowAllFiles -bool false && killall Finder'
-alias lock='/System/Library/CoreServices/Menu\ Extras/User.menu/Contents/Resources/CGSession -suspend'
+alias lock='/System/Library/CoreServices/Menu\\ Extras/User.menu/Contents/Resources/CGSession -suspend'
 alias emptytrash='sudo rm -rfv /Volumes/*/.Trashes; sudo rm -rfv ~/.Trash; sudo rm -rfv /private/var/log/asl/*.asl'
 {{- else }}
 # Linux spécifique
@@ -341,12 +341,12 @@ alias kdel='kubectl delete'
 # Personnel
 alias blog='cd ~/projects/blog && code .'
 alias server='ssh user@myserver.com'
-# backup function is defined in .zshrc instead
+alias backup='rsync -avz --progress'
 {{- end }}
 
 # ===== FONCTIONS COMME ALIASES =====
 # Création rapide de dossier et navigation
-# mkcd function is defined in .zshrc instead
+alias mkcd='function _mkcd(){ mkdir -p "$1" && cd "$1"; }; _mkcd'
 
 # Backup rapide avec timestamp
 alias bak='function _bak(){ cp "$1" "$1.backup.$(date +%Y%m%d_%H%M%S)"; }; _bak'

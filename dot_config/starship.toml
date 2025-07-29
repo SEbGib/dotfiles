@@ -48,7 +48,7 @@ format = "[$symbol$branch(:$remote_branch)]($style) "
 
 [git_status]
 style = "bold yellow"
-format = '([\[$all_status$ahead_behind\]]($style) )'
+format = '([[$all_status$ahead_behind]]($style) )'
 ahead = "⇡${count}"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
 behind = "⇣${count}"
@@ -64,7 +64,7 @@ deleted = "🗑"
 [git_commit]
 commit_hash_length = 7
 style = "bold yellow"
-format = '[\($hash$tag\)]($style) '
+format = '[($hash$tag)]($style) '
 
 # ===== LANGAGES DE PROGRAMMATION =====
 
@@ -79,19 +79,22 @@ style = "bold green"
 format = "[$symbol($version )]($style)"
 detect_files = ["package.json", ".nvmrc"]
 
-
+[typescript]
+symbol = "⚡ "
+style = "bold blue"
+format = "[$symbol($version )]($style)"
 
 [python]
 symbol = "🐍 "
 style = "bold yellow"
-format = '[${symbol}${pyenv_prefix}(${version} )(\($virtualenv\) )]($style)'
+format = '[${symbol}${pyenv_prefix}(${version} )($virtualenv )]($style)'
 
 [rust]
 symbol = "🦀 "
 style = "bold red"
 format = "[$symbol($version )]($style)"
 
-[golang]
+[go]
 symbol = "🐹 "
 style = "bold cyan"
 format = "[$symbol($version )]($style)"
@@ -112,17 +115,17 @@ only_with_files = true
 [aws]
 symbol = "☁️ "
 style = "bold orange"
-format = '[$symbol($profile )(\($region\) )(\[$duration\] )]($style)'
+format = '[$symbol($profile )($region )[$duration] ]($style)'
 
 [gcloud]
 symbol = "☁️ "
 style = "bold blue"
-format = '[$symbol$account(@$domain)(\($region\))]($style) '
+format = '[$symbol$account(@$domain)($region)]($style) '
 
 [kubernetes]
 symbol = "☸ "
 style = "bold blue"
-format = '[$symbol$context( \($namespace\))]($style) '
+format = '[$symbol$context( ($namespace))]($style) '
 disabled = false
 
 # ===== OUTILS DE BUILD =====
@@ -132,9 +135,15 @@ symbol = "📦 "
 style = "bold yellow"
 format = "[$symbol$version]($style) "
 
-# composer module removed due to compatibility issues
+[composer]
+symbol = "🎼 "
+style = "bold blue"
+format = "[$symbol($version )]($style)"
 
-# npm module removed due to compatibility issues
+[npm]
+symbol = "📦 "
+style = "bold red"
+format = "[$symbol($version )]($style)"
 
 # ===== SYSTÈME =====
 
@@ -241,7 +250,7 @@ utc_time_offset = "+1"  # Fuseau horaire France
 
 [status]
 style = "bold red"
-format = '[\[$common_meaning$signal_name$maybe_int\]]($style) '
+format = '[[$common_meaning$signal_name$maybe_int]]($style) '
 disabled = false
 
 # ===== MODULES PERSONNALISÉS =====
