@@ -1,6 +1,7 @@
 package tui
 
 import (
+	"fmt"
 	"strings"
 
 	tea "github.com/charmbracelet/bubbletea"
@@ -89,7 +90,7 @@ func (h *HelpOverlay) renderHelpContent() string {
 		Bold(true).
 		Foreground(ColorPrimary).
 		Align(lipgloss.Center).
-		Render("❓ " + h.title)
+		Render(" " + h.title)
 	content.WriteString(title)
 	content.WriteString("\n\n")
 
@@ -187,10 +188,21 @@ func (wh WithHelp) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	// Update the wrapped model only if help is not visible
 	if !wh.Help.IsVisible() {
 		var cmd tea.Cmd
-		wh.Model, cmd = wh.Model.Update(msg)
+		updatedModel, cmd := wh.Model.Update(msg)
+
+		// Check if the model type has changed (indicating navigation)
+		// by comparing type names using reflection-free approach
+		originalType := fmt.Sprintf("%T", wh.Model)
+		updatedType := fmt.Sprintf("%T", updatedModel)
+
+		// If the model type changed, return the new model directly (navigation)
+		if originalType != updatedType {
+			return updatedModel, cmd
+		}
+
+		wh.Model = updatedModel
 		return wh, cmd
 	}
-
 	return wh, nil
 }
 

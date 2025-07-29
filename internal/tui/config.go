@@ -13,17 +13,17 @@ type ConfigModel struct {
 
 func NewConfigModel() ConfigModel {
 	items := []list.Item{
-		MenuItem{title: "📝 Éditer .zshrc", description: "Configuration du shell Zsh", action: "edit_zshrc"},
-		MenuItem{title: "⚙️ Éditer .gitconfig", description: "Configuration Git", action: "edit_gitconfig"},
-		MenuItem{title: "🎨 Éditer starship.toml", description: "Configuration du prompt", action: "edit_starship"},
-		MenuItem{title: "📁 Éditer init.lua (Neovim)", description: "Configuration de l'éditeur", action: "edit_nvim"},
-		MenuItem{title: "🖥️ Éditer tmux.conf", description: "Configuration du multiplexeur", action: "edit_tmux"},
-		MenuItem{title: "🔧 Éditer .aliases", description: "Aliases personnalisés", action: "edit_aliases"},
-		MenuItem{title: "🔙 Retour au menu principal", description: "", action: "back"},
+		MenuItem{title: " Éditer .zshrc", description: "Configuration du shell Zsh", action: "edit_zshrc"},
+		MenuItem{title: " Éditer .gitconfig", description: "Configuration Git", action: "edit_gitconfig"},
+		MenuItem{title: " Éditer starship.toml", description: "Configuration du prompt", action: "edit_starship"},
+		MenuItem{title: " Éditer init.lua (Neovim)", description: "Configuration de l'éditeur", action: "edit_nvim"},
+		MenuItem{title: " Éditer tmux.conf", description: "Configuration du multiplexeur", action: "edit_tmux"},
+		MenuItem{title: " Éditer .aliases", description: "Aliases personnalisés", action: "edit_aliases"},
+		MenuItem{title: " Retour au menu principal", description: "", action: "back"},
 	}
 
 	l := list.New(items, list.NewDefaultDelegate(), 80, 14)
-	l.Title = "⚙️ Gestion de Configuration"
+	l.Title = " Gestion de Configuration"
 	l.SetShowStatusBar(false)
 	l.SetFilteringEnabled(false)
 

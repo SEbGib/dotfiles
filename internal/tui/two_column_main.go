@@ -38,49 +38,49 @@ func NewTwoColumnMainModel() TwoColumnMainModel {
 	items := []TwoColumnMenuItem{
 		{
 			shortcut:    "1",
-			title:       "🚀 Installation Interactive",
+			title:       " Installation Interactive",
 			description: "Guide d'installation complète étape par étape avec vérification automatique des prérequis, installation des outils essentiels et configuration personnalisée de votre environnement de développement.",
 			action:      "install",
 		},
 		{
 			shortcut:    "2",
-			title:       "⚙️ Gestion de Configuration",
+			title:       " Gestion de Configuration",
 			description: "Éditer vos fichiers de configuration (.zshrc, .gitconfig, .tmux.conf, etc.) avec un éditeur intégré supportant la coloration syntaxique et la validation en temps réel.",
 			action:      "config",
 		},
 		{
 			shortcut:    "3",
-			title:       "✅ Vérification du Système",
+			title:       " Vérification du Système",
 			description: "Vérifier l'installation et la santé du système avec des tests automatisés pour s'assurer que tous les outils sont correctement installés et configurés.",
 			action:      "verify",
 		},
 		{
 			shortcut:    "4",
-			title:       "💾 Sauvegarde & Restauration",
+			title:       " Sauvegarde & Restauration",
 			description: "Gérer les sauvegardes de vos configurations avec versioning automatique, restauration sélective et synchronisation cloud pour protéger vos paramètres personnalisés.",
 			action:      "backup",
 		},
 		{
 			shortcut:    "5",
-			title:       "🔧 Gestion des Outils",
+			title:       " Gestion des Outils",
 			description: "Installer, mettre à jour ou supprimer des outils de développement avec gestion des dépendances, vérification de compatibilité et installation automatisée.",
 			action:      "tools",
 		},
 		{
 			shortcut:    "6",
-			title:       "🔐 Configuration des Secrets",
+			title:       " Configuration des Secrets",
 			description: "Configurer Bitwarden et la gestion des secrets avec chiffrement sécurisé, intégration CLI et synchronisation automatique pour protéger vos données sensibles.",
 			action:      "secrets",
 		},
 		{
 			shortcut:    "7",
-			title:       "📊 Informations Système",
+			title:       " Informations Système",
 			description: "Afficher les informations détaillées sur votre système incluant les versions des outils installés, l'utilisation des ressources et les statistiques de performance.",
 			action:      "info",
 		},
 		{
 			shortcut:    "8",
-			title:       "❌ Quitter",
+			title:       " Quitter",
 			description: "Fermer l'application en sauvegardant automatiquement les modifications en cours et en nettoyant les fichiers temporaires.",
 			action:      "quit",
 		},
@@ -260,13 +260,13 @@ func (m TwoColumnMainModel) handleMenuSelection(item TwoColumnMenuItem) (tea.Mod
 // View renders the two-column layout
 func (m TwoColumnMainModel) View() string {
 	if m.quitting {
-		return "Au revoir! 👋\n"
+		return "Au revoir! \n"
 	}
 
 	var s strings.Builder
 
 	// Header - consistent with other screens
-	s.WriteString(CreateBanner("🏠 Dotfiles Manager - Menu Principal"))
+	s.WriteString(CreateBanner(" Dotfiles Manager - Menu Principal"))
 	s.WriteString("\n\n")
 	s.WriteString(SubtitleStyle.Render("Interface moderne pour la gestion de vos dotfiles"))
 	s.WriteString("\n\n")
@@ -276,7 +276,7 @@ func (m TwoColumnMainModel) View() string {
 		searchHeader := lipgloss.NewStyle().
 			Foreground(ColorInfo).
 			Bold(true).
-			Render("🔍 Mode Recherche")
+			Render(" Mode Recherche")
 		s.WriteString(searchHeader)
 		s.WriteString("\n\n")
 
@@ -334,7 +334,7 @@ func (m TwoColumnMainModel) renderTwoColumns() string {
 			Foreground(ColorTextMuted).
 			Padding(2).
 			Align(lipgloss.Center).
-			Render("🔍 Aucun résultat trouvé")
+			Render(" Aucun résultat trouvé")
 	}
 
 	// Calculate column widths - more responsive
@@ -356,7 +356,7 @@ func (m TwoColumnMainModel) renderTwoColumns() string {
 		Padding(0, 1).
 		Width(leftWidth - 2).
 		Align(lipgloss.Center).
-		Render("📋 Options")
+		Render(" Options")
 	leftColumn.WriteString(leftHeader)
 	leftColumn.WriteString("\n\n")
 
@@ -373,7 +373,7 @@ func (m TwoColumnMainModel) renderTwoColumns() string {
 			prefix = "  "
 		}
 
-		menuText := fmt.Sprintf("%s%s %s", prefix, item.shortcut, item.title)
+		menuText := fmt.Sprintf("%s(%s) %s", prefix, item.shortcut, item.title)
 		leftColumn.WriteString(itemStyle.Render(menuText))
 		leftColumn.WriteString("\n")
 	}
@@ -389,7 +389,7 @@ func (m TwoColumnMainModel) renderTwoColumns() string {
 		Padding(0, 1).
 		Width(rightWidth - 2).
 		Align(lipgloss.Center).
-		Render("📖 Description détaillée")
+		Render(" Description détaillée")
 	rightColumn.WriteString(rightHeader)
 	rightColumn.WriteString("\n\n")
 
@@ -404,7 +404,7 @@ func (m TwoColumnMainModel) renderTwoColumns() string {
 			Padding(0, 1).
 			Width(rightWidth - 4).
 			MarginBottom(1)
-		rightColumn.WriteString(titleStyle.Render("🎯 " + selectedItem.title))
+		rightColumn.WriteString(titleStyle.Render(" " + selectedItem.title))
 		rightColumn.WriteString("\n\n")
 
 		// Description with better formatting
@@ -416,7 +416,7 @@ func (m TwoColumnMainModel) renderTwoColumns() string {
 		rightColumn.WriteString(descStyle.Render(selectedItem.description))
 		rightColumn.WriteString("\n\n")
 
-		// Action hint with improved styling
+		// Action hint with improved styling (removed shortcut number)
 		actionHint := lipgloss.NewStyle().
 			Foreground(ColorInfo).
 			Bold(true).
@@ -424,7 +424,7 @@ func (m TwoColumnMainModel) renderTwoColumns() string {
 			BorderForeground(ColorInfo).
 			Padding(0, 1).
 			Background(ColorBgPrimary).
-			Render(fmt.Sprintf("⌨️  Raccourci: %s  ou  ↵ Entrée", selectedItem.shortcut))
+			Render("  Appuyez sur Entrée pour sélectionner")
 		rightColumn.WriteString(actionHint)
 	}
 

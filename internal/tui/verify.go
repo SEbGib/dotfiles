@@ -5,7 +5,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/charmbracelet/bubbles/spinner"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/sebastiengiband/dotfiles/internal/scripts"
@@ -21,7 +20,7 @@ type VerifyCheck struct {
 type VerifyModel struct {
 	checks       []VerifyCheck
 	current      int
-	spinner      spinner.Model
+	progress     UnifiedProgressModel
 	running      bool
 	complete     bool
 	summary      VerifySummary
@@ -43,34 +42,32 @@ type checkCompleteMsg struct {
 
 func NewVerifyModel() VerifyModel {
 	checks := []VerifyCheck{
-		{name: "🔧 Chezmoi", description: "Gestionnaire de dotfiles", status: "pending"},
-		{name: "⭐ Starship", description: "Prompt moderne", status: "pending"},
-		{name: "🐚 Zsh", description: "Shell avancé", status: "pending"},
-		{name: "📝 Neovim", description: "Éditeur moderne", status: "pending"},
-		{name: "🖥️ tmux", description: "Multiplexeur terminal", status: "pending"},
-		{name: "📁 Git", description: "Contrôle de version", status: "pending"},
-		{name: "🔍 FZF", description: "Recherche floue", status: "pending"},
-		{name: "🔎 Ripgrep", description: "Recherche dans fichiers", status: "pending"},
-		{name: "📂 fd", description: "Alternative à find", status: "pending"},
-		{name: "🦇 bat", description: "Alternative à cat", status: "pending"},
-		{name: "📋 eza", description: "Alternative à ls", status: "pending"},
-		{name: "🌟 Lazygit", description: "Interface Git", status: "pending"},
-		{name: "📄 Configuration Zsh", description: "~/.zshrc", status: "pending"},
-		{name: "⚙️ Configuration Git", description: "~/.gitconfig", status: "pending"},
-		{name: "🎨 Configuration Starship", description: "~/.config/starship.toml", status: "pending"},
-		{name: "📁 Configuration Neovim", description: "~/.config/nvim/", status: "pending"},
-		{name: "🖥️ Configuration tmux", description: "~/.config/tmux/", status: "pending"},
-		{name: "🔌 Oh My Zsh", description: "Framework Zsh", status: "pending"},
-		{name: "🔌 Plugins Zsh", description: "Plugins installés", status: "pending"},
+		{name: " Chezmoi", description: "Gestionnaire de dotfiles", status: "pending"},
+		{name: " Starship", description: "Prompt moderne", status: "pending"},
+		{name: " Zsh", description: "Shell avancé", status: "pending"},
+		{name: " Neovim", description: "Éditeur moderne", status: "pending"},
+		{name: " tmux", description: "Multiplexeur terminal", status: "pending"},
+		{name: " Git", description: "Contrôle de version", status: "pending"},
+		{name: " FZF", description: "Recherche floue", status: "pending"},
+		{name: " Ripgrep", description: "Recherche dans fichiers", status: "pending"},
+		{name: " fd", description: "Alternative à find", status: "pending"},
+		{name: " bat", description: "Alternative à cat", status: "pending"},
+		{name: " eza", description: "Alternative à ls", status: "pending"},
+		{name: " Lazygit", description: "Interface Git", status: "pending"},
+		{name: " Configuration Zsh", description: "~/.zshrc", status: "pending"},
+		{name: " Configuration Git", description: "~/.gitconfig", status: "pending"},
+		{name: " Configuration Starship", description: "~/.config/starship.toml", status: "pending"},
+		{name: " Configuration Neovim", description: "~/.config/nvim/", status: "pending"},
+		{name: " Configuration tmux", description: "~/.config/tmux/", status: "pending"},
+		{name: " Oh My Zsh", description: "Framework Zsh", status: "pending"},
+		{name: " Plugins Zsh", description: "Plugins installés", status: "pending"},
 	}
 
-	s := spinner.New()
-	s.Spinner = spinner.Dot
-	s.Style = lipgloss.NewStyle().Foreground(lipgloss.Color("205"))
+	progress := NewVerificationProgress()
 
 	return VerifyModel{
 		checks:       checks,
-		spinner:      s,
+		progress:     progress,
 		summary:      VerifySummary{total: len(checks)},
 		scriptRunner: scripts.NewScriptRunner(),
 	}
@@ -78,7 +75,7 @@ func NewVerifyModel() VerifyModel {
 
 func (m VerifyModel) Init() tea.Cmd {
 	return tea.Batch(
-		m.spinner.Tick,
+		m.progress.Init(),
 		m.startVerification(),
 	)
 }
@@ -92,7 +89,12 @@ func (m VerifyModel) startVerification() tea.Cmd {
 
 func (m VerifyModel) runNextCheck() tea.Cmd {
 	if m.current >= len(m.checks) {
-		return nil
+		return func() tea.Msg {
+			return ProgressFinishedMsg{
+				Success: true,
+				Message: "Vérification terminée",
+			}
+		}
 	}
 
 	return func() tea.Msg {
@@ -111,73 +113,73 @@ func (m VerifyModel) runNextCheck() tea.Cmd {
 
 func (m VerifyModel) performCheck(check VerifyCheck) (string, string) {
 	switch check.name {
-	case "🔧 Chezmoi":
+	case " Chezmoi":
 		if m.commandExists("chezmoi") {
 			return "passed", "chezmoi installé"
 		}
 		return "failed", "chezmoi non trouvé"
 
-	case "⭐ Starship":
+	case " Starship":
 		if m.commandExists("starship") {
 			return "passed", "starship installé"
 		}
 		return "failed", "starship non trouvé"
 
-	case "🐚 Zsh":
+	case " Zsh":
 		if m.commandExists("zsh") {
 			return "passed", "zsh installé"
 		}
 		return "failed", "zsh non trouvé"
 
-	case "📝 Neovim":
+	case " Neovim":
 		if m.commandExists("nvim") {
 			return "passed", "neovim installé"
 		}
 		return "failed", "neovim non trouvé"
 
-	case "🖥️ tmux":
+	case " tmux":
 		if m.commandExists("tmux") {
 			return "passed", "tmux installé"
 		}
 		return "failed", "tmux non trouvé"
 
-	case "📁 Git":
+	case " Git":
 		if m.commandExists("git") {
 			return "passed", "git installé"
 		}
 		return "failed", "git non trouvé"
 
-	case "🔍 FZF":
+	case " FZF":
 		if m.commandExists("fzf") {
 			return "passed", "fzf installé"
 		}
 		return "warning", "fzf non trouvé (optionnel)"
 
-	case "🔎 Ripgrep":
+	case " Ripgrep":
 		if m.commandExists("rg") {
 			return "passed", "ripgrep installé"
 		}
 		return "warning", "ripgrep non trouvé (optionnel)"
 
-	case "📂 fd":
+	case " fd":
 		if m.commandExists("fd") {
 			return "passed", "fd installé"
 		}
 		return "warning", "fd non trouvé (optionnel)"
 
-	case "🦇 bat":
+	case " bat":
 		if m.commandExists("bat") {
 			return "passed", "bat installé"
 		}
 		return "warning", "bat non trouvé (optionnel)"
 
-	case "📋 eza":
+	case " eza":
 		if m.commandExists("eza") {
 			return "passed", "eza installé"
 		}
 		return "warning", "eza non trouvé (optionnel)"
 
-	case "🌟 Lazygit":
+	case " Lazygit":
 		if m.commandExists("lazygit") {
 			return "passed", "lazygit installé"
 		}
@@ -190,7 +192,22 @@ func (m VerifyModel) performCheck(check VerifyCheck) (string, string) {
 }
 
 func (m VerifyModel) commandExists(cmd string) bool {
-	return m.scriptRunner.CheckCommand(cmd)
+	// Add timeout to prevent hanging
+	done := make(chan bool, 1)
+	result := false
+
+	go func() {
+		result = m.scriptRunner.CheckCommand(cmd)
+		done <- true
+	}()
+
+	select {
+	case <-done:
+		return result
+	case <-time.After(2 * time.Second):
+		// Timeout after 2 seconds
+		return false
+	}
 }
 
 func (m VerifyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
@@ -233,14 +250,20 @@ func (m VerifyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			if m.current >= len(m.checks) {
 				m.complete = true
 				m.running = false
+				return m, func() tea.Msg {
+					return ProgressFinishedMsg{
+						Success: true,
+						Message: "Vérification terminée",
+					}
+				}
 			} else {
 				return m, m.runNextCheck()
 			}
 		}
 
-	case spinner.TickMsg:
+	default:
 		var cmd tea.Cmd
-		m.spinner, cmd = m.spinner.Update(msg)
+		m.progress, cmd = m.progress.Update(msg)
 		return m, cmd
 	}
 
@@ -248,68 +271,59 @@ func (m VerifyModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m VerifyModel) View() string {
-	var s strings.Builder
-
-	// Clean header
-	s.WriteString(CreateBanner("✅ Vérification du Système"))
-	s.WriteString("\n\n")
-
-	// Welcome message and progress
-	if !m.running && !m.complete {
-		s.WriteString(SubtitleStyle.Render("🚀 Démarrage de la vérification automatique..."))
-		s.WriteString("\n\n")
-	} else if m.running {
-		s.WriteString(SubtitleStyle.Render(fmt.Sprintf("🔍 Vérification en cours... %s (%d/%d)",
-			m.spinner.View(), m.current, len(m.checks))))
-		s.WriteString("\n\n")
-		s.WriteString(lipgloss.NewStyle().Foreground(ColorInfo).Render("💡 Appuyez sur Échap pour annuler"))
-		s.WriteString("\n\n")
-	} else if m.complete {
-		s.WriteString(SubtitleStyle.Render("🎉 Vérification terminée!"))
-		s.WriteString("\n\n")
-	}
-
-	// Checks list
-	for i, check := range m.checks {
-		var status string
-		var style lipgloss.Style
-
-		switch check.status {
-		case "passed":
-			status = "✅"
-			style = lipgloss.NewStyle().Foreground(ColorSuccess)
-		case "failed":
-			status = "❌"
-			style = lipgloss.NewStyle().Foreground(ColorError)
-		case "warning":
-			status = "⚠️"
-			style = lipgloss.NewStyle().Foreground(ColorWarning)
-		case "running":
-			status = m.spinner.View()
-			style = lipgloss.NewStyle().Foreground(ColorWarning)
-		default:
-			status = "⏳"
-			style = lipgloss.NewStyle().Foreground(ColorTextMuted)
-		}
-
-		if i == m.current && m.running {
-			status = m.spinner.View()
-			style = lipgloss.NewStyle().Foreground(ColorWarning)
-		}
-
-		checkText := fmt.Sprintf("%s %s", status, check.name)
-		if check.message != "" {
-			checkText += fmt.Sprintf(" - %s", check.message)
-		}
-
-		s.WriteString(style.Render(checkText))
-		s.WriteString("\n")
-	}
-
-	// Summary
 	if m.complete {
+		// Show detailed results when complete
+		var s strings.Builder
+
+		s.WriteString(CreateBanner(" Vérification du Système"))
+		s.WriteString("\n\n")
+		s.WriteString(SubtitleStyle.Render(" Vérification terminée!"))
+		s.WriteString("\n\n")
+
+		// Progress bar showing completion
+		completedChecks := 0
+		for _, check := range m.checks {
+			if check.status == "passed" || check.status == "failed" || check.status == "warning" {
+				completedChecks++
+			}
+		}
+
+		progressPercent := float64(completedChecks) / float64(len(m.checks))
+		s.WriteString(m.progress.ProgressBar.ViewAs(progressPercent))
+		s.WriteString(fmt.Sprintf(" %d/%d vérifications terminées\n\n", completedChecks, len(m.checks)))
+
+		// Checks list
+		for _, check := range m.checks {
+			var status string
+			var style lipgloss.Style
+
+			switch check.status {
+			case "passed":
+				status = ""
+				style = lipgloss.NewStyle().Foreground(ColorSuccess)
+			case "failed":
+				status = ""
+				style = lipgloss.NewStyle().Foreground(ColorError)
+			case "warning":
+				status = ""
+				style = lipgloss.NewStyle().Foreground(ColorWarning)
+			default:
+				status = ""
+				style = lipgloss.NewStyle().Foreground(ColorTextMuted)
+			}
+
+			checkText := fmt.Sprintf("%s %s", status, check.name)
+			if check.message != "" {
+				checkText += fmt.Sprintf(" - %s", check.message)
+			}
+
+			s.WriteString(style.Render(checkText))
+			s.WriteString("\n")
+		}
+
+		// Summary
 		s.WriteString("\n")
-		s.WriteString(lipgloss.NewStyle().Bold(true).Foreground(ColorPrimary).Render("📊 Résumé:"))
+		s.WriteString(lipgloss.NewStyle().Bold(true).Foreground(ColorPrimary).Render(" Résumé:"))
 		s.WriteString("\n")
 
 		successRate := float64(m.summary.passed) / float64(m.summary.total) * 100
@@ -322,23 +336,19 @@ func (m VerifyModel) View() string {
 
 		s.WriteString("\n")
 		if m.summary.failed == 0 {
-			s.WriteString(lipgloss.NewStyle().Foreground(ColorSuccess).Render("🎉 Système parfaitement configuré!"))
+			s.WriteString(lipgloss.NewStyle().Foreground(ColorSuccess).Render(" Système parfaitement configuré!"))
 		} else if successRate >= 80 {
-			s.WriteString(lipgloss.NewStyle().Foreground(ColorWarning).Render("⚠️ Système majoritairement configuré"))
+			s.WriteString(lipgloss.NewStyle().Foreground(ColorWarning).Render(" Système majoritairement configuré"))
 		} else {
-			s.WriteString(lipgloss.NewStyle().Foreground(ColorError).Render("❌ Système nécessite une attention"))
+			s.WriteString(lipgloss.NewStyle().Foreground(ColorError).Render(" Système nécessite une attention"))
 		}
-	}
 
-	// Footer
-	s.WriteString("\n\n")
-	if m.complete {
+		s.WriteString("\n\n")
 		s.WriteString(FooterStyle.Render("• Entrée/Échap Retour au menu • Ctrl+C Quitter"))
-	} else if m.running {
-		s.WriteString(FooterStyle.Render("• Échap Annuler et retour • Ctrl+C Quitter"))
-	} else {
-		s.WriteString(FooterStyle.Render("• Vérification en cours de démarrage... • Ctrl+C Quitter"))
-	}
 
-	return s.String()
+		return s.String()
+	} else {
+		// Show progress view while running
+		return m.progress.View()
+	}
 }
