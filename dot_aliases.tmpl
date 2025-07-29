@@ -353,27 +353,7 @@ alias bak='function _bak(){ cp "$1" "$1.backup.$(date +%Y%m%d_%H%M%S)"; }; _bak'
 # Recherche et remplacement dans fichiers
 alias replace='function _replace(){ rg -l "$1" | xargs sed -i "s/$1/$2/g"; }; _replace'
 
-# Extraction universelle
-alias extract='function _extract(){ 
-    if [ -f "$1" ]; then
-        case "$1" in
-            *.tar.bz2)   tar xjf "$1"     ;;
-            *.tar.gz)    tar xzf "$1"     ;;
-            *.bz2)       bunzip2 "$1"     ;;
-            *.rar)       unrar x "$1"     ;;
-            *.gz)        gunzip "$1"      ;;
-            *.tar)       tar xf "$1"      ;;
-            *.tbz2)      tar xjf "$1"     ;;
-            *.tgz)       tar xzf "$1"     ;;
-            *.zip)       unzip "$1"       ;;
-            *.Z)         uncompress "$1"  ;;
-            *.7z)        7z x "$1"        ;;
-            *)           echo "Format non supporté: $1" ;;
-        esac
-    else
-        echo "Fichier non trouvé: $1"
-    fi
-}; _extract'
+
 
 # ===== DIVERS =====
 # Météo
