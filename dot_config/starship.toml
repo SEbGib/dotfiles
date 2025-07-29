@@ -316,13 +316,7 @@ symbol = "🐳 "
 style = "bold blue"
 format = "[$symbol$output]($style) "
 
-# Statut Bitwarden
-[custom.bitwarden]
-command = 'if command -v bw >/dev/null && bw status | grep -q "unlocked"; then echo "unlocked"; fi'
-when = "command -v bw >/dev/null"
-symbol = "🔓 "
-style = "bold green"
-format = "[$symbol]($style)"
+
 
 # ===== PALETTES DE COULEURS =====
 

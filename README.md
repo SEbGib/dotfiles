@@ -48,21 +48,7 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/votreuse
 - **Symfony CLI** : Outils Symfony
 - **GitHub CLI** : Intégration GitHub
 
-## 🎯 Gestion des secrets
 
-Configuration sécurisée avec Bitwarden :
-
-```bash
-# Configuration initiale
-bw login
-export BW_SESSION="$(bw unlock --raw)"
-chezmoi apply
-```
-
-Les secrets sont automatiquement injectés dans :
-- Configuration SSH (`~/.ssh/config`)
-- Variables d'environnement (`~/.env`)
-- Configuration Git (`~/.gitconfig`)
 
 ## ⌨️ Raccourcis essentiels
 

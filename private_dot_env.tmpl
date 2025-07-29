@@ -1,64 +1,11 @@
 # Variables d'environnement privées - Générées par Chezmoi
-# Fichier chiffré avec les secrets Bitwarden
 # ⚠️ Ce fichier contient des informations sensibles
 
-{{- if lookPath "bw" }}
-# ===== CONFIGURATION BITWARDEN =====
-# Session Bitwarden (sera définie dynamiquement)
-# export BW_SESSION="$(bw unlock --raw)"
-
-# ===== SECRETS DE DÉVELOPPEMENT =====
-{{- $secrets := bitwarden "item" "Development Secrets" }}
-{{- if $secrets }}
-# Clés API de développement
-export OPENAI_API_KEY="{{ $secrets.fields.openai_api_key.value }}"
-export GITHUB_TOKEN="{{ $secrets.fields.github_token.value }}"
-export GITLAB_TOKEN="{{ $secrets.fields.gitlab_token.value }}"
-
-# Base de données
-export DATABASE_URL="{{ $secrets.fields.database_url.value }}"
-export REDIS_URL="{{ $secrets.fields.redis_url.value }}"
-
-# Services externes
-export STRIPE_SECRET_KEY="{{ $secrets.fields.stripe_secret_key.value }}"
-export MAILGUN_API_KEY="{{ $secrets.fields.mailgun_api_key.value }}"
-export AWS_ACCESS_KEY_ID="{{ $secrets.fields.aws_access_key_id.value }}"
-export AWS_SECRET_ACCESS_KEY="{{ $secrets.fields.aws_secret_access_key.value }}"
-{{- end }}
-
-# ===== CONFIGURATION SSH =====
-{{- $ssh := bitwarden "item" "SSH Keys" }}
-{{- if $ssh }}
-# Clés SSH (chemins vers les fichiers)
-export SSH_KEY_PERSONAL="{{ $ssh.fields.personal_key_path.value }}"
-export SSH_KEY_WORK="{{ $ssh.fields.work_key_path.value }}"
-{{- end }}
-
-# ===== CONFIGURATION GPG =====
-{{- if .gpg_key_id }}
-export GPG_TTY=$(tty)
-export GPG_KEY_ID="{{ .gpg_key_id }}"
-{{- end }}
-
-{{- else }}
 # ===== CONFIGURATION MANUELLE =====
-# Bitwarden CLI non disponible - Configuration manuelle requise
-
 # Exemple de variables d'environnement à définir :
 # export GITHUB_TOKEN="your_github_token_here"
 # export OPENAI_API_KEY="your_openai_key_here"
 # export DATABASE_URL="postgresql://user:pass@localhost/db"
-
-# ===== INSTRUCTIONS =====
-# 1. Installez Bitwarden CLI : brew install bitwarden-cli
-# 2. Connectez-vous : bw login
-# 3. Déverrouillez : export BW_SESSION="$(bw unlock --raw)"
-# 4. Créez les items suivants dans votre vault :
-#    - "Development Secrets" avec les champs API
-#    - "SSH Keys" avec les chemins des clés
-# 5. Ré-appliquez la configuration : chezmoi apply
-
-{{- end }}
 
 # ===== CONFIGURATION LOCALE =====
 {{- if .work }}

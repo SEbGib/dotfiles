@@ -332,36 +332,7 @@ git_sync() {
     echo "✅ Synchronisation terminée"
 }
 
-# ===== SECRETS ET TOKENS =====
-# Chargement variables d'environnement privées
-[[ -f ~/.env ]] && source ~/.env
 
-# Fonction Bitwarden améliorée
-bw_unlock() {
-    if command -v bw &> /dev/null; then
-        if bw status | grep -q "unauthenticated"; then
-            echo "🔐 Connexion Bitwarden requise..."
-            bw login
-        fi
-        
-        if bw status | grep -q "locked"; then
-            export BW_SESSION="$(bw unlock --raw)"
-            echo "🔓 Bitwarden déverrouillé"
-        else
-            echo "✅ Bitwarden déjà déverrouillé"
-        fi
-    else
-        echo "⚠️ Bitwarden CLI non installé"
-    fi
-}
-
-# Auto-déverrouillage Bitwarden si session expirée
-bw_auto() {
-    if command -v bw &> /dev/null && [[ -z "$BW_SESSION" ]]; then
-        echo "🔓 Auto-déverrouillage Bitwarden..."
-        bw_unlock
-    fi
-}
 
 # ===== INTÉGRATIONS SPÉCIFIQUES =====
 {{- if .work }}
