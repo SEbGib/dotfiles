@@ -14,9 +14,29 @@ Configuration complète et moderne pour un environnement de développement PHP/S
 
 ## 🚀 Installation rapide
 
+### Méthode recommandée (depuis GitHub)
 ```bash
-# Remplacez 'votreusername' par votre nom d'utilisateur GitHub
-sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/votreusername/dotfiles.git
+# Remplacez 'SEbGib' par votre nom d'utilisateur GitHub si vous avez forké
+sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/SEbGib/dotfiles.git
+```
+
+### Installation locale (développement)
+```bash
+# Cloner le repo
+git clone https://github.com/SEbGib/dotfiles.git ~/Downloads/dotfiles
+cd ~/Downloads/dotfiles
+
+# Copier vers chezmoi et appliquer
+cp -r * ~/.local/share/chezmoi/
+chezmoi apply --force
+```
+
+### Vérification de l'installation
+```bash
+# Vérifier que les scripts ont bien été exécutés
+ls -la ~/.oh-my-zsh/  # Oh My Zsh installé
+starship --version    # Starship disponible
+which fzf ripgrep    # Outils modernes installés
 ```
 
 ## 📦 Ce qui est installé
@@ -81,12 +101,21 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/votreuse
 
 ### Modifier les informations personnelles
 
-Éditez `.chezmoi.toml.tmpl` :
+Éditez `.chezmoi.toml` :
 ```toml
 [data]
-    email = "votre@email.com"
-    name = "Votre Nom"
-    github_username = "votreusername"
+    email = "sebastien.giband@gmail.com"
+    name = "Sebastien Giband"
+    github_username = "SEbGib"
+    personal = true
+    work = false
+    gpg_key_id = ""
+```
+
+**Important** : Après modification, copiez le fichier vers la configuration chezmoi :
+```bash
+cp .chezmoi.toml ~/.config/chezmoi/chezmoi.toml
+chezmoi apply
 ```
 
 ### Ajouter des secrets Bitwarden
