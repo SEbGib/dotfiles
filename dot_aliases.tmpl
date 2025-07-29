@@ -346,7 +346,6 @@ alias backup='rsync -avz --progress'
 
 # ===== FONCTIONS COMME ALIASES =====
 # Création rapide de dossier et navigation
-alias mkcd='function _mkcd(){ mkdir -p "$1" && cd "$1"; }; _mkcd'
 
 # Backup rapide avec timestamp
 alias bak='function _bak(){ cp "$1" "$1.backup.$(date +%Y%m%d_%H%M%S)"; }; _bak'
