@@ -64,6 +64,12 @@ map("n", "<leader>W", "<cmd>wa<cr>", { desc = "Sauvegarder tout" })
 map("n", "<leader>q", "<cmd>q<cr>", { desc = "Quitter" })
 map("n", "<leader>Q", "<cmd>qa<cr>", { desc = "Quitter tout" })
 
+-- ===== EXPLORATEUR DE FICHIERS =====
+map("n", "<leader>e", "<cmd>Neotree toggle<cr>", { desc = "Explorer (Neo-tree)" })
+map("n", "<leader>E", "<cmd>Neotree reveal<cr>", { desc = "Explorer révéler fichier" })
+map("n", "<leader>ge", "<cmd>Neotree git_status<cr>", { desc = "Git explorer" })
+map("n", "<leader>be", "<cmd>Neotree buffers<cr>", { desc = "Buffer explorer" })
+
 -- ===== TERMINAL =====
 map("t", "<Esc><Esc>", "<C-\\><C-n>", { desc = "Sortir du mode terminal" })
 map("t", "<C-h>", "<cmd>wincmd h<cr>", { desc = "Aller à la fenêtre de gauche" })

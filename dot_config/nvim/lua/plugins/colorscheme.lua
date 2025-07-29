@@ -78,7 +78,8 @@ return {
     integrations = {
       cmp = true,
       gitsigns = true,
-      nvimtree = true,
+      nvimtree = false,
+      neotree = true,
       treesitter = true,
       notify = true,
       mini = true,
