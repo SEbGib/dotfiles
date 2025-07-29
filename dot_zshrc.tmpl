@@ -167,7 +167,55 @@ alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/m
 alias weather='curl wttr.in/{{ if .personal }}Paris{{ else }}{{ .chezmoi.username }}{{ end }}'
 
 # ===== FONCTIONS AVANCÉES =====
+# Création et navigation dans dossier
+mkcd() {
+    mkdir -p "$1" && cd "$1"
+}
 
+# Recherche et remplacement intelligent
+replace_in_files() {
+    if [[ $# -ne 2 ]]; then
+        echo "Usage: replace_in_files 'ancien_texte' 'nouveau_texte'"
+        return 1
+    fi
+    rg -l "$1" | xargs sed -i "s/$1/$2/g"
+}
+
+# Extraction archives universelle
+extract() {
+    if [[ -f $1 ]]; then
+        case $1 in
+            *.tar.bz2)   tar xjf $1     ;;
+            *.tar.gz)    tar xzf $1     ;;
+            *.tar.xz)    tar xJf $1     ;;
+            *.bz2)       bunzip2 $1     ;;
+            *.rar)       unrar x $1     ;;
+            *.gz)        gunzip $1      ;;
+            *.tar)       tar xf $1      ;;
+            *.tbz2)      tar xjf $1     ;;
+            *.tgz)       tar xzf $1     ;;
+            *.zip)       unzip $1       ;;
+            *.Z)         uncompress $1  ;;
+            *.7z)        7z x $1        ;;
+            *.deb)       ar x $1        ;;
+            *.tar.zst)   tar --use-compress-program=unzstd -xf $1 ;;
+            *)           echo "'$1' ne peut pas être extrait avec extract()" ;;
+        esac
+    else
+        echo "'$1' n'est pas un fichier valide"
+    fi
+}
+
+# Backup intelligent avec timestamp
+backup() {
+    local file="$1"
+    if [[ -f "$file" ]] || [[ -d "$file" ]]; then
+        cp -r "$file" "${file}.backup.$(date +%Y%m%d_%H%M%S)"
+        echo "✅ Backup créé: ${file}.backup.$(date +%Y%m%d_%H%M%S)"
+    else
+        echo "❌ Fichier/dossier '$file' non trouvé"
+    fi
+}
 
 # Tmux sessionizer avec fzf intégré
 ts() {
