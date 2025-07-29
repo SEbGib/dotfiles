@@ -24,19 +24,6 @@ mkdir -p "$HOME/company"
 echo "  ✅ Dossiers professionnels créés"
 {{- end }}
 
-# Dossiers de développement spécialisés
-echo "📦 Création des dossiers de développement..."
-
-# Dossiers par langage/framework
-mkdir -p "$HOME/projects/php"
-mkdir -p "$HOME/projects/symfony"
-mkdir -p "$HOME/projects/typescript"
-mkdir -p "$HOME/projects/javascript"
-mkdir -p "$HOME/projects/vue"
-mkdir -p "$HOME/projects/react"
-mkdir -p "$HOME/projects/python"
-mkdir -p "$HOME/projects/go"
-
 # Dossiers utilitaires
 mkdir -p "$HOME/projects/scripts"
 mkdir -p "$HOME/projects/dotfiles"
@@ -128,39 +115,6 @@ mkdir -p "$HOME/.config/systemd/user"
 
 # Création d'un fichier de bienvenue dans projects
 cat > "$HOME/projects/README.md" << 'EOF'
-# 📁 Dossier Projects
-
-Ce dossier contient vos projets de développement organisés par technologie.
-
-## 📋 Structure
-
-- `php/` - Projets PHP génériques
-- `symfony/` - Projets Symfony
-- `typescript/` - Projets TypeScript
-- `javascript/` - Projets JavaScript
-- `vue/` - Projets Vue.js
-- `react/` - Projets React
-- `python/` - Projets Python
-- `go/` - Projets Go
-- `scripts/` - Scripts utilitaires
-- `dotfiles/` - Configurations système
-- `learning/` - Projets d'apprentissage
-- `sandbox/` - Tests et expérimentations
-
-## 🚀 Utilisation
-
-Utilisez les commandes suivantes pour naviguer rapidement :
-
-```bash
-# Navigation rapide avec z
-z symfony    # Va dans le dossier symfony le plus utilisé
-z react      # Va dans le dossier react le plus utilisé
-
-# Tmux sessionizer
-ts           # Sélectionne un projet avec fzf
-dev-symfony  # Lance un workflow Symfony
-dev-ts       # Lance un workflow TypeScript
-```
 
 ## 📚 Workflows
 

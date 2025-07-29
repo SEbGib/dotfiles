@@ -53,7 +53,6 @@ sh -c "$(curl -fsLS get.chezmoi.io)" -- init --apply https://github.com/votreuse
 ## ⌨️ Raccourcis essentiels
 
 ### Général
-- `Ctrl+Space` : Accepter suggestion Zsh
 - `↑/↓` : Recherche dans l'historique
 - `Ctrl+R` : Recherche fuzzy avec fzf
 

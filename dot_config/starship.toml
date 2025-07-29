@@ -79,11 +79,6 @@ style = "bold green"
 format = "[$symbol($version )]($style)"
 detect_files = ["package.json", ".nvmrc"]
 
-[typescript]
-symbol = "⚡ "
-style = "bold blue"
-format = "[$symbol($version )]($style)"
-
 [python]
 symbol = "🐍 "
 style = "bold yellow"
@@ -94,7 +89,7 @@ symbol = "🦀 "
 style = "bold red"
 format = "[$symbol($version )]($style)"
 
-[go]
+[golang]
 symbol = "🐹 "
 style = "bold cyan"
 format = "[$symbol($version )]($style)"
@@ -134,16 +129,6 @@ disabled = false
 symbol = "📦 "
 style = "bold yellow"
 format = "[$symbol$version]($style) "
-
-[composer]
-symbol = "🎼 "
-style = "bold blue"
-format = "[$symbol($version )]($style)"
-
-[npm]
-symbol = "📦 "
-style = "bold red"
-format = "[$symbol($version )]($style)"
 
 # ===== SYSTÈME =====
 
