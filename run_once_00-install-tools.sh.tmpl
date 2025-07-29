@@ -13,7 +13,7 @@ if ! command -v brew &> /dev/null; then
 fi
 
 echo "📦 Installation des packages via Homebrew..."
-brew bundle --no-lock <<EOF
+brew bundle <<EOF
 # Shells et outils de base
 brew "zsh"
 brew "starship"
