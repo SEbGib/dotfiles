@@ -5,6 +5,7 @@ return {
   "catppuccin/nvim",
   name = "catppuccin",
   priority = 1000,
+  lazy = false, -- Load immediately
   opts = {
     flavour = "mocha",
     background = {
@@ -82,14 +83,19 @@ return {
       neotree = true,
       treesitter = true,
       notify = true,
-      mini = true,
+      mini = {
+        enabled = true,
+        indentscope_color = "",
+      },
       telescope = {
         enabled = true,
+        style = "nvchad"
       },
       lsp_trouble = true,
       which_key = true,
       indent_blankline = {
         enabled = true,
+        scope_color = "sapphire",
         colored_indent_levels = false,
       },
       native_lsp = {
@@ -110,6 +116,19 @@ return {
           background = true,
         },
       },
+      mason = true,
+      dap = true,
+      dap_ui = true,
+      barbecue = {
+        dim_dirname = true,
+        bold_basename = true,
+        dim_context = false,
+        alt_background = false,
+      },
+      flash = true,
+      leap = true,
+      markdown = true,
+      noice = true,
     },
   },
   config = function(_, opts)

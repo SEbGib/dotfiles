@@ -33,6 +33,30 @@ map("i", "<A-k>", "<esc><cmd>m .-2<cr>==gi", { desc = "Déplacer la ligne vers l
 map("v", "<A-j>", ":m '>+1<cr>gv=gv", { desc = "Déplacer la sélection vers le bas" })
 map("v", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "Déplacer la sélection vers le haut" })
 
+-- Clear search with <esc>
+map({ "i", "n" }, "<esc>", "<cmd>noh<cr><esc>", { desc = "Escape and clear hlsearch" })
+
+-- Better up/down
+map({ "n", "x" }, "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+map({ "n", "x" }, "<Down>", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
+map({ "n", "x" }, "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+map({ "n", "x" }, "<Up>", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+
+-- Add undo break-points
+map("i", ",", ",<c-g>u")
+map("i", ".", ".<c-g>u")
+map("i", ";", ";<c-g>u")
+
+-- Save file
+map({ "i", "x", "n", "s" }, "<C-s>", "<cmd>w<cr><esc>", { desc = "Save file" })
+
+-- Better paste
+map("v", "p", '"_dP', { desc = "Paste without yanking" })
+map("i", "<A-j>", "<esc><cmd>m .+1<cr>==gi", { desc = "Déplacer la ligne vers le bas" })
+map("i", "<A-k>", "<esc><cmd>m .-2<cr>==gi", { desc = "Déplacer la ligne vers le haut" })
+map("v", "<A-j>", ":m '>+1<cr>gv=gv", { desc = "Déplacer la sélection vers le bas" })
+map("v", "<A-k>", ":m '<-2<cr>gv=gv", { desc = "Déplacer la sélection vers le haut" })
+
 -- Duplication de ligne
 map("n", "<leader>d", "<cmd>t.<cr>", { desc = "Dupliquer la ligne" })
 
