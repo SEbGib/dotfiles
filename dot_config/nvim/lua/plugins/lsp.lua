@@ -54,6 +54,7 @@ return {
   -- LSP Configuration
   {
     "neovim/nvim-lspconfig",
+    version = false, -- Use latest for modern API support
     event = { "BufReadPre", "BufNewFile" },
     dependencies = {
       "mason.nvim",
