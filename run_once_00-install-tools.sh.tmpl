@@ -252,9 +252,22 @@ if command -v apt &> /dev/null; then
     
     if ! command -v dust &> /dev/null; then
         echo "📦 Installation Dust..."
-        if safe_download "https://github.com/bootandy/dust/releases/latest/download/dust-v0.8.6-x86_64-unknown-linux-gnu.tar.gz" "$TEMP_DIR/dust.tar.gz"; then
+        # Déterminer l'architecture
+        ARCH=$(uname -m)
+        case "$ARCH" in
+            x86_64) DUST_ARCH="x86_64-unknown-linux-gnu" ;;
+            aarch64|arm64) DUST_ARCH="aarch64-unknown-linux-gnu" ;;
+            armv7l) DUST_ARCH="arm-unknown-linux-gnueabihf" ;;
+            i686) DUST_ARCH="i686-unknown-linux-gnu" ;;
+            *) DUST_ARCH="x86_64-unknown-linux-gnu" ;;
+        esac
+        
+        DUST_VERSION=$(curl -s --connect-timeout 10 "https://api.github.com/repos/bootandy/dust/releases/latest" 2>/dev/null | grep -Po '"tag_name": "v\K[^"]*' || echo "1.2.2")
+        DUST_URL="https://github.com/bootandy/dust/releases/download/v${DUST_VERSION}/dust-v${DUST_VERSION}-${DUST_ARCH}.tar.gz"
+        
+        if safe_download "$DUST_URL" "$TEMP_DIR/dust.tar.gz"; then
             if safe_extract "$TEMP_DIR/dust.tar.gz" "$TEMP_DIR"; then
-                sudo mv "$TEMP_DIR"/dust-*/dust /usr/local/bin/ 2>/dev/null || echo "⚠️  Échec installation dust (non critique)"
+                sudo mv "$TEMP_DIR"/dust /usr/local/bin/ 2>/dev/null || echo "⚠️  Échec installation dust (non critique)"
             fi
         else
             echo "⚠️  Dust non installé (non critique)"
@@ -364,19 +377,45 @@ fi
 # Installation Lazydocker (si pas disponible via package manager)
 if ! command -v lazydocker &> /dev/null; then
     echo "📦 Installation Lazydocker..."
-    curl https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash
+    if safe_download "https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh" "$TEMP_DIR/lazydocker_install.sh"; then
+        chmod +x "$TEMP_DIR/lazydocker_install.sh"
+        bash "$TEMP_DIR/lazydocker_install.sh" || echo "⚠️  Échec installation Lazydocker (non critique)"
+    else
+        echo "⚠️  Lazydocker non installé (non critique)"
+    fi
 fi
 
 # Installation d'outils Python utiles
-if command -v pip3 &> /dev/null; then
+if command -v python3 &> /dev/null; then
     echo "📦 Installation outils Python..."
-    pip3 install --user --upgrade \
-        black \
-        flake8 \
-        mypy \
-        pytest \
-        requests \
-        httpie
+    
+    # Vérifier si on peut installer via pip (environnement non géré)
+    if python3 -m pip install --help &>/dev/null; then
+        # Essayer d'installer avec --user d'abord
+        if python3 -m pip install --user --upgrade black flake8 mypy pytest requests httpie 2>/dev/null; then
+            echo "✅ Outils Python installés via pip --user"
+        elif command -v pipx &> /dev/null; then
+            # Utiliser pipx si disponible
+            echo "📦 Installation via pipx..."
+            pipx install black || echo "⚠️  black non installé"
+            pipx install flake8 || echo "⚠️  flake8 non installé"
+            pipx install mypy || echo "⚠️  mypy non installé"
+            pipx install pytest || echo "⚠️  pytest non installé"
+            pipx install httpie || echo "⚠️  httpie non installé"
+        else
+            # Installer les packages système si disponibles
+            echo "📦 Installation via packages système..."
+            if command -v apt &> /dev/null; then
+                sudo apt install -y python3-black python3-flake8 python3-mypy python3-pytest python3-requests python3-httpie 2>/dev/null || echo "⚠️  Certains packages Python non disponibles"
+            elif command -v pacman &> /dev/null; then
+                sudo pacman -S --noconfirm python-black python-flake8 python-mypy python-pytest python-requests python-httpie 2>/dev/null || echo "⚠️  Certains packages Python non disponibles"
+            else
+                echo "⚠️  Impossible d'installer les outils Python (environnement géré)"
+            fi
+        fi
+    else
+        echo "⚠️  pip non disponible, outils Python non installés"
+    fi
 fi
 
 # Installation d'outils Node.js globaux
