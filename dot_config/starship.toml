@@ -3,22 +3,16 @@
 
 # Timeout pour les commandes (optimisation performance)
 command_timeout = 1000
-scan_timeout = 30
 
-# Format personnalisé du prompt avec séparateurs visuels
+# Format personnalisé du prompt
 format = """
-[╭─](bold sapphire)$os$username$hostname$directory$git_branch$git_status$git_commit$package$php$nodejs$python$rust$golang$java$docker_context$kubernetes$aws$gcloud$custom$fill$cmd_duration$jobs$battery$memory_usage
-[╰─](bold sapphire)$character"""
+[╭─](bold blue) $all$character"""
 
 # Format prompt de droite (informations contextuelles)
-right_format = """$time$status"""
+right_format = """$cmd_duration$jobs$time"""
 
 # Pas de nouvelle ligne au début
 add_newline = false
-
-# Module de remplissage pour séparer gauche et droite
-[fill]
-symbol = " "
 
 # Palette de couleurs Catppuccin Mocha
 palette = "catppuccin_mocha"
@@ -33,37 +27,24 @@ vimcmd_symbol = "[❮](bold yellow)"
 [directory]
 style = "bold blue"
 format = "[$path]($style)[$lock_symbol]($lock_style) "
-truncation_length = 3
+truncation_length = 4
 truncation_symbol = "…/"
-truncate_to_repo = true
-home_symbol = "🏠 ~"
-read_only = "🔒"
-read_only_style = "red"
+truncate_to_repo = false
 
 # Dossiers personnalisés avec icônes
 [directory.substitutions]
-"projects" = " projects"
-"work" = " work"
-"Documents" = " docs"
-"Downloads" = " downloads"
-"Music" = " music"
-"Pictures" = " pics"
-".config" = " config"
-"src" = " src"
-"public" = " public"
-"assets" = " assets"
-"templates" = " templates"
-"vendor" = " vendor"
-"node_modules" = " modules"
-"migrations" = " migrations"
-"tests" = " tests"
+"projects" = "📁 projects"
+"work" = "💼 work"
+"Documents" = "📄 docs"
+"Downloads" = "⬇️ downloads"
+"Music" = "🎵 music"
+"Pictures" = "📷 pics"
+".config" = "⚙️ config"
 
 [git_branch]
 symbol = " "
-style = "bold mauve"
+style = "bold purple"
 format = "[$symbol$branch(:$remote_branch)]($style) "
-always_show_remote = false
-only_attached = false
 
 [git_status]
 style = "bold yellow"
@@ -71,135 +52,83 @@ format = '([$all_status$ahead_behind]($style) )'
 ahead = "⇡${count}"
 diverged = "⇕⇡${ahead_count}⇣${behind_count}"
 behind = "⇣${count}"
-conflicted = "="
-up_to_date = "✓"
-untracked = "?"
-stashed = "$"
-modified = "!"
-staged = '+'
-renamed = "»"
-deleted = "✘"
-typechanged = ""
+conflicted = "🏳"
+up_to_date = ""
+untracked = "🤷"
+stashed = "📦"
+modified = "📝"
+staged = '📋'
+renamed = "👅"
+deleted = "🗑"
 
 [git_commit]
 commit_hash_length = 7
 style = "bold yellow"
 format = '[($hash$tag)]($style) '
-only_detached = true
-tag_symbol = " 🏷 "
-tag_disabled = false
-
-[git_state]
-format = '[\($state( $progress_current of $progress_total)\)]($style) '
-cherry_pick = "[🍒 PICKING](bold red)"
-bisect = "[📊 BISECTING](bold red)"
-am = "[📧 AM](bold red)"
-am_or_rebase = "[📧 AM/REBASE](bold red)"
-style = "bold yellow"
-disabled = false
-
-[git_metrics]
-added_style = "bold green"
-deleted_style = "bold red"
-only_nonzero_diffs = true
-format = '[+$added]($added_style) [-$deleted]($deleted_style) '
 
 # ===== LANGAGES DE PROGRAMMATION =====
 
 [php]
-symbol = " "
+symbol = "🐘 "
 style = "bold blue"
 format = "[$symbol($version )]($style)"
-detect_extensions = ["php"]
-detect_files = ["composer.json", ".php-version", "artisan", "bin/console"]
-detect_folders = ["app", "src", "vendor"]
 
 [nodejs]
 symbol = " "
 style = "bold green"
 format = "[$symbol($version )]($style)"
-detect_extensions = ["js", "mjs", "cjs", "ts", "tsx"]
-detect_files = ["package.json", ".nvmrc", ".node-version"]
-detect_folders = ["node_modules"]
-not_capable_style = "bold red"
+detect_files = ["package.json", ".nvmrc"]
 
 [python]
-symbol = " "
+symbol = "🐍 "
 style = "bold yellow"
 format = '[${symbol}${pyenv_prefix}(${version} )($virtualenv )]($style)'
-detect_extensions = ["py", "pyi"]
-detect_files = ["requirements.txt", ".python-version", "pyproject.toml", "Pipfile", "tox.ini", "setup.py", "__init__.py"]
-detect_folders = [".venv"]
-python_binary = ["./venv/bin/python", "python", "python3", "python2"]
 
 [rust]
-symbol = " "
+symbol = "🦀 "
 style = "bold red"
 format = "[$symbol($version )]($style)"
-detect_extensions = ["rs"]
-detect_files = ["Cargo.toml"]
 
 [golang]
-symbol = " "
+symbol = "🐹 "
 style = "bold cyan"
 format = "[$symbol($version )]($style)"
-detect_extensions = ["go"]
-detect_files = ["go.mod", "go.sum", "glide.yaml", "Gopkg.yml", "Gopkg.lock", ".go-version"]
-detect_folders = ["Godeps"]
 
 [java]
-symbol = " "
+symbol = "☕ "
 style = "bold orange"
 format = "[$symbol($version )]($style)"
-detect_extensions = ["java", "class", "jar", "gradle", "clj", "cljc"]
-detect_files = ["pom.xml", "build.gradle.kts", "build.sbt", ".java-version", "deps.edn", "project.clj", "build.boot"]
 
 [docker_context]
-symbol = " "
+symbol = "🐳 "
 style = "bold blue"
 format = "[$symbol$context]($style) "
-only_with_files = false
-detect_extensions = []
-detect_files = ["docker-compose.yml", "docker-compose.yaml", "Dockerfile"]
-detect_folders = []
+only_with_files = true
 
 # ===== CLOUD ET INFRASTRUCTURE =====
 
 [aws]
-symbol = " "
+symbol = "☁️ "
 style = "bold orange"
-format = '[$symbol($profile )($region )]($style)'
-expiration_symbol = " "
+format = '[$symbol($profile )($region )[$duration] ]($style)'
 
 [gcloud]
-symbol = " "
+symbol = "☁️ "
 style = "bold blue"
 format = '[$symbol$account(@$domain)($region)]($style) '
 
 [kubernetes]
-symbol = " "
+symbol = "☸ "
 style = "bold blue"
 format = '[$symbol$context( ($namespace))]($style) '
 disabled = false
-detect_extensions = []
-detect_files = ["k8s"]
-detect_folders = []
-
-[terraform]
-symbol = " "
-style = "bold purple"
-format = "[$symbol$workspace]($style) "
-detect_extensions = ["tf", "tfplan", "tfstate"]
-detect_files = []
-detect_folders = [".terraform"]
 
 # ===== OUTILS DE BUILD =====
 
 [package]
-symbol = " "
+symbol = "📦 "
 style = "bold yellow"
 format = "[$symbol$version]($style) "
-display_private = false
 
 # ===== SYSTÈME =====
 
@@ -211,10 +140,8 @@ show_always = false
 
 [hostname]
 ssh_only = true
-ssh_symbol = " "
 style = "bold green"
-format = "[$ssh_symbol$hostname]($style) "
-trim_at = "."
+format = "[@$hostname]($style) "
 
 [os]
 style = "bold white"
@@ -222,75 +149,70 @@ format = "[$symbol]($style)"
 disabled = false
 
 [os.symbols]
-Alpine = " "
-Amazon = " "
-Android = " "
-Arch = " "
-CentOS = " "
-Debian = " "
-DragonFly = " "
-Emscripten = " "
-EndeavourOS = " "
-Fedora = " "
-FreeBSD = " "
-Garuda = " "
-Gentoo = " "
-HardenedBSD = " "
-Illumos = " "
-Linux = " "
-Macos = " "
-Manjaro = " "
-Mariner = " "
-MidnightBSD = " "
-Mint = " "
-NetBSD = " "
-NixOS = " "
-OpenBSD = " "
-OpenCloudOS = " "
-openEuler = " "
-openSUSE = " "
-OracleLinux = " "
-Pop = " "
-Raspbian = " "
-Redhat = " "
-RedHatEnterprise = " "
-Redox = " "
-Solus = " "
-SUSE = " "
-Ubuntu = " "
-Unknown = " "
-Windows = " "
+Alpine = "🏔️"
+Amazon = "🙂"
+Android = "🤖"
+Arch = "🎗️"
+CentOS = "💠"
+Debian = "🌀"
+DragonFly = "🐉"
+Emscripten = "🔗"
+EndeavourOS = "🚀"
+Fedora = "🎩"
+FreeBSD = "😈"
+Garuda = "🦅"
+Gentoo = "🗜️"
+HardenedBSD = "🛡️"
+Illumos = "🐦"
+Linux = "🐧"
+Macos = "🍎"
+Manjaro = "🥭"
+Mariner = "🌊"
+MidnightBSD = "🌘"
+Mint = "🌿"
+NetBSD = "🚩"
+NixOS = "❄️"
+OpenBSD = "🐡"
+OpenCloudOS = "☁️"
+openEuler = "🦉"
+openSUSE = "🦎"
+OracleLinux = "🦴"
+Pop = "🍭"
+Raspbian = "🍓"
+Redhat = "🎩"
+RedHatEnterprise = "🎩"
+Redox = "🧪"
+Solus = "⛵"
+SUSE = "🦎"
+Ubuntu = "🎯"
+Unknown = "❓"
+Windows = "🪟"
 
 [memory_usage]
 disabled = false
-threshold = 75
+threshold = 70
 style = "bold yellow"
-format = "[$symbol${ram}( | ${swap})]($style) "
-symbol = " "
+format = "[$symbol${ram}]($style) "
+symbol = "🐏 "
 
 [battery]
-full_symbol = " "
-charging_symbol = " "
-discharging_symbol = " "
-unknown_symbol = " "
-empty_symbol = " "
-format = "[$symbol$percentage]($style) "
+full_symbol = "🔋"
+charging_symbol = "⚡"
+discharging_symbol = "💀"
+unknown_symbol = "❓"
+empty_symbol = "💩"
 
 [[battery.display]]
-threshold = 10
+threshold = 20
 style = "bold red"
 
 [[battery.display]]
-threshold = 30
+threshold = 50
 style = "bold yellow"
 
 [[battery.display]]
-threshold = 60
+threshold = 80
 style = "bold green"
-
-[[battery.display]]
-threshold = 100
-style = "bold blue"
 
 # ===== INFORMATIONS CONTEXTUELLES =====
 
@@ -302,9 +224,7 @@ format = "[$duration]($style) "
 [jobs]
 style = "bold blue"
 format = "[$symbol$number]($style) "
-symbol = " "
-number_threshold = 1
-symbol_threshold = 1
+symbol = "⚙️"
 
 [time]
 disabled = false
@@ -320,170 +240,65 @@ disabled = false
 
 # ===== MODULES PERSONNALISÉS =====
 
-# Détection projets Symfony avec informations avancées
+# Détection projets Symfony
 [custom.symfony]
-command = '''
-if [ -f bin/console ]; then
-    VERSION=$(php bin/console --version 2>/dev/null | grep -o 'Symfony [0-9.]*' | head -1)
-    ENV=$(grep -o 'APP_ENV=.*' .env 2>/dev/null | cut -d'=' -f2 | head -1)
-    if [ -n "$ENV" ]; then
-        echo "$VERSION ($ENV)"
-    else
-        echo "$VERSION"
-    fi
-fi
-'''
+command = "php bin/console --version 2>/dev/null | grep -o 'Symfony [0-9.]*' | head -1"
 when = "test -f bin/console"
-symbol = " "
+symbol = "🎼 "
 style = "bold green"
 format = "[$symbol$output]($style) "
 
-# Détection projets Laravel avec environnement
+# Détection projets Laravel
 [custom.laravel]
-command = '''
-if [ -f artisan ]; then
-    VERSION=$(php artisan --version 2>/dev/null | grep -o 'Laravel Framework [0-9.]*' | head -1)
-    ENV=$(grep -o 'APP_ENV=.*' .env 2>/dev/null | cut -d'=' -f2 | head -1)
-    if [ -n "$ENV" ]; then
-        echo "$VERSION ($ENV)"
-    else
-        echo "$VERSION"
-    fi
-fi
-'''
+command = "php artisan --version 2>/dev/null | grep -o 'Laravel Framework [0-9.]*' | head -1"
 when = "test -f artisan"
-symbol = " "
+symbol = "🔥 "
 style = "bold red"
 format = "[$symbol$output]($style) "
 
-# Détection Composer avec dépendances critiques
-[custom.composer]
-command = '''
-if [ -f composer.json ]; then
-    DEPS=$(jq -r '.require | keys | length' composer.json 2>/dev/null)
-    if [ "$DEPS" != "null" ] && [ "$DEPS" -gt 0 ]; then
-        echo "$DEPS deps"
-    fi
-fi
-'''
-when = "test -f composer.json"
-symbol = " "
-style = "bold yellow"
-format = "[$symbol$output]($style) "
-
-# Détection projets Vue.js avec version
+# Détection projets Vue.js
 [custom.vue]
 detect_files = ["vue.config.js", "vite.config.js"]
 detect_folders = ["src"]
-command = '''
-if [ -f package.json ] && grep -q '"vue"' package.json; then
-    VERSION=$(node -pe 'JSON.parse(require("fs").readFileSync("package.json")).dependencies.vue' 2>/dev/null | sed 's/[^0-9.]//g')
-    echo "v$VERSION"
-fi
-'''
+command = "node -pe 'JSON.parse(require(\"fs\").readFileSync(\"package.json\")).dependencies.vue' 2>/dev/null"
 when = "test -f package.json && grep -q '\"vue\"' package.json"
-symbol = " "
+symbol = "💚 "
 style = "bold green"
 format = "[$symbol$output]($style) "
 
-# Détection projets React avec version
+# Détection projets React
 [custom.react]
 detect_files = ["package.json"]
-command = '''
-if [ -f package.json ] && grep -q '"react"' package.json; then
-    VERSION=$(node -pe 'JSON.parse(require("fs").readFileSync("package.json")).dependencies.react' 2>/dev/null | sed 's/[^0-9.]//g')
-    echo "v$VERSION"
-fi
-'''
+command = "node -pe 'JSON.parse(require(\"fs\").readFileSync(\"package.json\")).dependencies.react' 2>/dev/null"
 when = "test -f package.json && grep -q '\"react\"' package.json"
-symbol = " "
+symbol = "⚛️ "
 style = "bold blue"
 format = "[$symbol$output]($style) "
 
-# Détection projets Next.js avec version
+# Détection projets Next.js
 [custom.nextjs]
 detect_files = ["next.config.js", "next.config.ts"]
-command = '''
-if [ -f package.json ] && grep -q '"next"' package.json; then
-    VERSION=$(node -pe 'JSON.parse(require("fs").readFileSync("package.json")).dependencies.next' 2>/dev/null | sed 's/[^0-9.]//g')
-    echo "v$VERSION"
-fi
-'''
+command = "node -pe 'JSON.parse(require(\"fs\").readFileSync(\"package.json\")).dependencies.next' 2>/dev/null"
 when = "test -f package.json && grep -q '\"next\"' package.json"
-symbol = " "
+symbol = "▲ "
 style = "bold white"
 format = "[$symbol$output]($style) "
 
-# Détection projets Nuxt.js avec version
+# Détection projets Nuxt.js
 [custom.nuxt]
 detect_files = ["nuxt.config.js", "nuxt.config.ts"]
-command = '''
-if [ -f package.json ] && grep -q '"nuxt"' package.json; then
-    VERSION=$(node -pe 'JSON.parse(require("fs").readFileSync("package.json")).dependencies.nuxt' 2>/dev/null | sed 's/[^0-9.]//g')
-    echo "v$VERSION"
-fi
-'''
+command = "node -pe 'JSON.parse(require(\"fs\").readFileSync(\"package.json\")).dependencies.nuxt' 2>/dev/null"
 when = "test -f package.json && grep -q '\"nuxt\"' package.json"
-symbol = " "
+symbol = "💚 "
 style = "bold green"
 format = "[$symbol$output]($style) "
 
-# Détection environnement Docker avec services
+# Détection environnement Docker
 [custom.docker_compose]
 detect_files = ["docker-compose.yml", "docker-compose.yaml", "compose.yml"]
-command = '''
-if [ -f docker-compose.yml ] || [ -f docker-compose.yaml ] || [ -f compose.yml ]; then
-    SERVICES=$(docker-compose config --services 2>/dev/null | wc -l | tr -d ' ')
-    if [ "$SERVICES" -gt 0 ]; then
-        echo "${SERVICES} services"
-    else
-        echo "compose"
-    fi
-fi
-'''
-symbol = " "
+command = "echo 'compose'"
+symbol = "🐳 "
 style = "bold blue"
-format = "[$symbol$output]($style) "
-
-# Détection Dockerfile
-[custom.dockerfile]
-detect_files = ["Dockerfile", "dockerfile"]
-command = "echo 'docker'"
-symbol = " "
-style = "bold blue"
-format = "[$symbol$output]($style) "
-
-# Détection Makefile avec targets
-[custom.makefile]
-detect_files = ["Makefile", "makefile"]
-command = '''
-if [ -f Makefile ] || [ -f makefile ]; then
-    TARGETS=$(grep -c "^[a-zA-Z][^:]*:" Makefile makefile 2>/dev/null | head -1)
-    echo "${TARGETS} targets"
-fi
-'''
-symbol = " "
-style = "bold yellow"
-format = "[$symbol$output]($style) "
-
-# Détection tests avec framework
-[custom.tests]
-command = '''
-if [ -d tests ] || [ -d test ]; then
-    if [ -f phpunit.xml ] || [ -f phpunit.xml.dist ]; then
-        echo "PHPUnit"
-    elif [ -f jest.config.js ] || grep -q '"jest"' package.json 2>/dev/null; then
-        echo "Jest"
-    elif [ -f vitest.config.js ] || grep -q '"vitest"' package.json 2>/dev/null; then
-        echo "Vitest"
-    else
-        echo "tests"
-    fi
-fi
-'''
-when = "test -d tests || test -d test"
-symbol = " "
-style = "bold green"
 format = "[$symbol$output]($style) "
 
 
