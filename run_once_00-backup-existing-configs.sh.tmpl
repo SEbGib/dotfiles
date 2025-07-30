@@ -3,7 +3,8 @@
 # Script de sauvegarde des configurations existantes
 # Exécuté avant l'installation des dotfiles pour préserver les configurations actuelles
 
-set -euo pipefail
+# Use safer error handling - don't exit on command failures
+set -uo pipefail
 
 # Couleurs pour l'affichage
 GREEN='\033[0;32m'
@@ -121,7 +122,10 @@ create_backup() {
     
     # Créer le dossier de sauvegarde
     print_step "Création de la sauvegarde dans $BACKUP_DIR"
-    mkdir -p "$BACKUP_DIR"
+    if ! mkdir -p "$BACKUP_DIR"; then
+        print_error "Impossible de créer le dossier de sauvegarde: $BACKUP_DIR"
+        return 1
+    fi
     
     # Sauvegarder chaque élément
     local backup_count=0
@@ -130,13 +134,19 @@ create_backup() {
         local backup_path="$BACKUP_DIR/$item_name"
         
         if [[ -f "$item" ]]; then
-            cp "$item" "$backup_path"
-            echo "  📄 $item_name"
-            ((backup_count++))
+            if cp "$item" "$backup_path" 2>/dev/null; then
+                echo "  📄 $item_name"
+                ((backup_count++))
+            else
+                echo "  ⚠️  Échec sauvegarde: $item_name"
+            fi
         elif [[ -d "$item" ]]; then
-            cp -r "$item" "$backup_path"
-            echo "  📁 $item_name/"
-            ((backup_count++))
+            if cp -r "$item" "$backup_path" 2>/dev/null; then
+                echo "  📁 $item_name/"
+                ((backup_count++))
+            else
+                echo "  ⚠️  Échec sauvegarde: $item_name/"
+            fi
         fi
     done
     

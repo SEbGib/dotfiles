@@ -9,8 +9,12 @@
 - **Test script syntax**: `bash -n script.sh.tmpl`
 
 ## Installation & Setup
-- **Full setup**: Run `chezmoi init --apply` (executes all run_once scripts)
-- **Manual tool install**: `./run_once_00-install-tools.sh` (installs all development tools)
+- **Full setup**: Run `chezmoi init --apply` (executes all run_once scripts in order)
+- **Script execution order**:
+  1. `run_once_00-backup-existing-configs.sh` - Backs up existing configurations
+  2. `run_once_01-install-tools.sh` - Installs all development tools
+  3. `run_once_02-setup-zsh-plugins.sh` - Sets up Zsh plugins
+  4. `run_once_03-setup-directories.sh` - Creates directory structure
 - **Tools installed**: Ghostty terminal, Docker, Starship, Node.js, PHP, Python, modern CLI tools (fzf, ripgrep, bat, eza, etc.)
 - **Post-install**: Restart terminal, run `chezmoi apply` for configuration
 
