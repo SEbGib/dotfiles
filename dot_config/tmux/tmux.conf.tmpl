@@ -1,0 +1,278 @@
+# Configuration tmux moderne - Optimisée pour Neovim
+# Thème: Catppuccin Mocha coordonné avec Neovim et Starship
+# Hostname: {{ .chezmoi.hostname }}
+# OS: {{ .chezmoi.os }}
+
+# ===== CONFIGURATION DE BASE =====
+# Utiliser Ctrl+Space comme préfixe (plus ergonomique que Ctrl+b)
+unbind C-b
+set -g prefix C-Space
+bind C-Space send-prefix
+
+# Terminal et couleurs (optimisé pour Neovim)
+set -g default-terminal "tmux-256color"
+set -ga terminal-overrides ",*256col*:Tc"
+set -ga terminal-overrides '*:Ss=\E[%p1%d q:Se=\E[ q'
+set-environment -g COLORTERM "truecolor"
+
+# Réglages de performance
+set -g mouse on
+set -g history-limit 100000
+set -g display-time 2000
+set -g status-interval 1
+set -g default-command "${SHELL}"
+
+# Numérotation des fenêtres et panes à partir de 1
+set -g base-index 1
+setw -g pane-base-index 1
+set -g renumber-windows on
+
+# Mode vi pour la navigation (essentiel pour Neovim)
+setw -g mode-keys vi
+set -g status-keys emacs
+
+# Optimisations pour Neovim
+set -sg escape-time 0
+set -g focus-events on
+set -g aggressive-resize on
+
+# Clipboard integration
+set -g set-clipboard on
+
+# ===== KEYBINDINGS NEOVIM-FRIENDLY =====
+# Rechargement de la configuration
+bind r source-file ~/.config/tmux/tmux.conf \; display "🔄 Configuration rechargée!"
+
+# Splits plus intuitifs (comme dans Neovim)
+bind | split-window -h -c "#{pane_current_path}"
+bind - split-window -v -c "#{pane_current_path}"
+bind '\' split-window -h -c "#{pane_current_path}"
+bind _ split-window -v -c "#{pane_current_path}"
+unbind '"'
+unbind %
+
+# Navigation entre panes avec Alt+hjkl (sans préfixe, compatible Neovim)
+# Ces bindings fonctionnent avec vim-tmux-navigator
+is_vim="ps -o state= -o comm= -t '#{pane_tty}' \
+    | grep -iqE '^[^TXZ ]+ +(\\S+\\/)?g?(view|l?n?vim?x?|fzf)(diff)?$'"
+bind-key -n 'M-h' if-shell "$is_vim" 'send-keys M-h'  'select-pane -L'
+bind-key -n 'M-j' if-shell "$is_vim" 'send-keys M-j'  'select-pane -D'
+bind-key -n 'M-k' if-shell "$is_vim" 'send-keys M-k'  'select-pane -U'
+bind-key -n 'M-l' if-shell "$is_vim" 'send-keys M-l'  'select-pane -R'
+
+bind-key -T copy-mode-vi 'M-h' select-pane -L
+bind-key -T copy-mode-vi 'M-j' select-pane -D
+bind-key -T copy-mode-vi 'M-k' select-pane -U
+bind-key -T copy-mode-vi 'M-l' select-pane -R
+
+# Redimensionnement des panes (répétable)
+bind -r H resize-pane -L 5
+bind -r J resize-pane -D 5
+bind -r K resize-pane -U 5
+bind -r L resize-pane -R 5
+
+# Navigation entre fenêtres
+bind -n M-p previous-window
+bind -n M-n next-window
+bind -n M-1 select-window -t 1
+bind -n M-2 select-window -t 2
+bind -n M-3 select-window -t 3
+bind -n M-4 select-window -t 4
+bind -n M-5 select-window -t 5
+
+# Création de nouvelles fenêtres dans le répertoire courant
+bind c new-window -c "#{pane_current_path}"
+bind C new-window
+
+# Mode copie vi amélioré (comme dans Neovim)
+bind Enter copy-mode
+bind -T copy-mode-vi v send -X begin-selection
+bind -T copy-mode-vi C-v send -X rectangle-toggle
+bind -T copy-mode-vi y send -X copy-pipe-and-cancel "{{- if eq .chezmoi.os "darwin" }}pbcopy{{- else }}xclip -selection clipboard{{- end }}"
+bind -T copy-mode-vi Enter send -X copy-pipe-and-cancel "{{- if eq .chezmoi.os "darwin" }}pbcopy{{- else }}xclip -selection clipboard{{- end }}"
+bind -T copy-mode-vi Escape send -X cancel
+bind -T copy-mode-vi H send -X start-of-line
+bind -T copy-mode-vi L send -X end-of-line
+
+# Collage
+bind p paste-buffer
+bind P choose-buffer
+
+# ===== SESSIONIZER ET WORKFLOWS PHP/SYMFONY =====
+# Tmux sessionizer avec fzf (comme dans Neovim Telescope)
+bind f run-shell "tmux neww ~/.config/tmux/scripts/tmux-sessionizer"
+
+# Workflows de développement spécialisés
+bind C-s run-shell "~/.config/tmux/scripts/symfony-dev"
+bind C-t run-shell "~/.config/tmux/scripts/typescript-dev"
+
+# Gestion des sessions
+bind S choose-session
+bind X confirm-before -p "Tuer la session #S? (y/n)" kill-session
+bind Q confirm-before -p "Tuer le serveur tmux? (y/n)" kill-server
+
+# Zoom toggle (utile avec Neovim)
+bind z resize-pane -Z
+
+# ===== THÈME CATPPUCCIN MOCHA (COORDONNÉ AVEC NEOVIM) =====
+# Palette de couleurs Catppuccin Mocha
+thm_bg="#1e1e2e"
+thm_fg="#cdd6f4"
+thm_cyan="#89dceb"
+thm_black="#181825"
+thm_gray="#313244"
+thm_magenta="#cba6f7"
+thm_pink="#f5c2e7"
+thm_red="#f38ba8"
+thm_green="#a6e3a1"
+thm_yellow="#f9e2af"
+thm_blue="#89b4fa"
+thm_orange="#fab387"
+thm_black4="#585b70"
+thm_surface0="#313244"
+thm_surface1="#45475a"
+thm_surface2="#585b70"
+
+# Configuration des couleurs de base
+set -g status-style "bg=$thm_bg,fg=$thm_fg"
+set -g status-left-style "bg=$thm_bg,fg=$thm_fg"
+set -g status-right-style "bg=$thm_bg,fg=$thm_fg"
+
+# Couleurs des panes (coordonnées avec Neovim)
+set -g pane-border-style "fg=$thm_surface0"
+set -g pane-active-border-style "fg=$thm_blue,bold"
+
+# Couleurs des fenêtres
+setw -g window-status-style "bg=$thm_bg,fg=$thm_surface2"
+setw -g window-status-current-style "bg=$thm_surface0,fg=$thm_blue,bold"
+setw -g window-status-activity-style "bg=$thm_bg,fg=$thm_yellow"
+setw -g window-status-bell-style "bg=$thm_red,fg=$thm_bg,bold"
+
+# Mode copie (coordonné avec Neovim)
+setw -g mode-style "bg=$thm_pink,fg=$thm_bg"
+
+# Messages
+set -g message-style "bg=$thm_orange,fg=$thm_bg,bold"
+set -g message-command-style "bg=$thm_orange,fg=$thm_bg,bold"
+
+# ===== BARRE DE STATUT MODERNE =====
+set -g status-position bottom
+set -g status-justify left
+set -g status-left-length 100
+set -g status-right-length 100
+
+# Partie gauche : session et indicateurs
+session_icon="#{?client_prefix,🟢,⚪}"
+set -g status-left "#[bg=$thm_blue,fg=$thm_bg,bold] $session_icon #S #[bg=$thm_bg,fg=$thm_blue]"
+
+# Partie droite : informations système et développement
+{{- if eq .chezmoi.os "darwin" }}
+set -g status-right "#[fg=$thm_surface1]#[bg=$thm_surface1,fg=$thm_fg] #{?#{==:#{pane_current_command},nvim},📝 NVIM,#{pane_current_command}} #[fg=$thm_surface2]#[bg=$thm_surface2,fg=$thm_fg] %d/%m #[fg=$thm_blue]#[bg=$thm_blue,fg=$thm_bg,bold] %H:%M #[bg=$thm_bg,fg=$thm_blue]#[fg=$thm_green]#[bg=$thm_green,fg=$thm_bg,bold] 🍎 #h "
+{{- else }}
+set -g status-right "#[fg=$thm_surface1]#[bg=$thm_surface1,fg=$thm_fg] #{?#{==:#{pane_current_command},nvim},📝 NVIM,#{pane_current_command}} #[fg=$thm_surface2]#[bg=$thm_surface2,fg=$thm_fg] %d/%m #[fg=$thm_blue]#[bg=$thm_blue,fg=$thm_bg,bold] %H:%M #[bg=$thm_bg,fg=$thm_blue]#[fg=$thm_green]#[bg=$thm_green,fg=$thm_bg,bold] 🐧 #h "
+{{- end }}
+
+# Format des fenêtres avec indicateurs de projet
+setw -g window-status-format "#[bg=$thm_bg,fg=$thm_surface2] #I#{?#{m:*symfony*,#{pane_current_path}},🎼,#{?#{m:*node_modules*,#{pane_current_path}},📦,}}:#W "
+setw -g window-status-current-format "#[bg=$thm_surface0,fg=$thm_blue,bold] #I#{?#{m:*symfony*,#{pane_current_path}},🎼,#{?#{m:*node_modules*,#{pane_current_path}},📦,}}:#W#{?window_zoomed_flag, 🔍,} "
+
+# Indicateurs d'activité
+setw -g monitor-activity on
+set -g visual-activity off
+set -g visual-bell off
+
+# ===== PLUGINS ESSENTIELS =====
+# Liste des plugins (TPM - Tmux Plugin Manager)
+set -g @plugin 'tmux-plugins/tpm'
+set -g @plugin 'tmux-plugins/tmux-sensible'
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+set -g @plugin 'tmux-plugins/tmux-yank'
+set -g @plugin 'christoomey/vim-tmux-navigator'
+set -g @plugin 'tmux-plugins/tmux-open'
+set -g @plugin 'fcsonline/tmux-thumbs'
+
+# ===== CONFIGURATION PLUGINS =====
+# tmux-resurrect (sauvegarde des sessions)
+set -g @resurrect-strategy-nvim 'session'
+set -g @resurrect-strategy-vim 'session'
+set -g @resurrect-capture-pane-contents 'on'
+set -g @resurrect-save-shell-history 'on'
+set -g @resurrect-processes 'nvim vim php node npm composer symfony'
+
+# tmux-continuum (sauvegarde automatique)
+set -g @continuum-restore 'on'
+set -g @continuum-save-interval '10'
+set -g @continuum-boot 'on'
+{{- if eq .chezmoi.os "darwin" }}
+set -g @continuum-boot-options 'iterm'
+{{- end }}
+
+# tmux-yank (copie améliorée)
+{{- if eq .chezmoi.os "darwin" }}
+set -g @yank_selection 'clipboard'
+set -g @yank_selection_mouse 'clipboard'
+{{- else }}
+set -g @yank_selection 'primary'
+set -g @yank_selection_mouse 'clipboard'
+{{- end }}
+set -g @yank_action 'copy-pipe-and-cancel'
+
+# vim-tmux-navigator (navigation Neovim/tmux)
+set -g @plugin 'christoomey/vim-tmux-navigator'
+
+# tmux-open (ouverture de liens)
+set -g @open-S 'https://www.google.com/search?q='
+set -g @open-editor 'nvim'
+
+# tmux-thumbs (sélection rapide de texte)
+set -g @thumbs-key F
+set -g @thumbs-alphabet dvorak-homerow
+set -g @thumbs-reverse enabled
+set -g @thumbs-unique enabled
+
+# ===== HOOKS ET AUTOMATISATIONS =====
+# Hook pour définir le titre de la fenêtre automatiquement
+set-hook -g after-new-window 'if-shell "test -f composer.json" "rename-window \"🎼 $(basename $PWD)\""'
+set-hook -g after-new-window 'if-shell "test -f package.json" "rename-window \"📦 $(basename $PWD)\""'
+set-hook -g after-new-window 'if-shell "test -f artisan" "rename-window \"🔥 $(basename $PWD)\""'
+
+# Hook pour les sessions de développement
+set-hook -g after-new-session 'if-shell "test -f composer.json" "rename-session \"🎼 $(basename $PWD)\""'
+set-hook -g after-new-session 'if-shell "test -f package.json" "rename-session \"📦 $(basename $PWD)\""'
+
+# ===== RACCOURCIS DÉVELOPPEMENT PHP/SYMFONY =====
+# Outils de développement rapides
+bind g new-window -n "🔍 lazygit" -c "#{pane_current_path}" "lazygit"
+bind N new-window -n "📝 nvim" -c "#{pane_current_path}" "nvim ."
+bind P new-window -n "🐘 php" -c "#{pane_current_path}" "php -a"
+
+# Symfony spécifique
+bind s new-window -n "🎼 symfony" -c "#{pane_current_path}" "symfony console"
+bind C new-window -n "🧹 cache" -c "#{pane_current_path}" "symfony console cache:clear && echo 'Cache cleared! Press any key...' && read"
+
+# Tests et qualité
+bind T new-window -n "🧪 tests" -c "#{pane_current_path}" "{{- if eq .chezmoi.os "darwin" }}if test -f vendor/bin/phpunit; then vendor/bin/phpunit; elif test -f bin/phpunit; then bin/phpunit; else echo 'PHPUnit not found'; fi{{- else }}phpunit{{- end }}"
+
+# ===== CONFIGURATION AVANCÉE =====
+# Amélioration de la gestion des couleurs pour Neovim
+set -as terminal-overrides ',*:Smulx=\E[4::%p1%dm'
+set -as terminal-overrides ',*:Setulc=\E[58::2::%p1%{65536}%/%d::%p1%{256}%/%{255}%&%d::%p1%{255}%&%d%;m'
+
+# Support des undercurls (soulignements ondulés) pour Neovim
+set -as terminal-overrides ',*:Smulx=\E[4::%p1%dm'
+
+# ===== CONFIGURATION LOCALE =====
+# Inclusion de la configuration locale si elle existe
+if-shell "test -f ~/.tmux.conf.local" "source ~/.tmux.conf.local"
+
+# ===== INITIALISATION TPM =====
+# Installation automatique de TPM si nécessaire
+if "test ! -d ~/.tmux/plugins/tpm" \
+   "run 'git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm && ~/.tmux/plugins/tpm/bin/install_plugins'"
+
+# Initialisation du gestionnaire de plugins (doit être à la fin)
+run '~/.tmux/plugins/tpm/tpm'
+
+# ===== MESSAGES DE DÉMARRAGE =====
+display-message "🚀 tmux optimisé pour Neovim avec Catppuccin Mocha"
