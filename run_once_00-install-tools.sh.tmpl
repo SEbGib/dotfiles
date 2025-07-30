@@ -2,6 +2,92 @@
 
 set -eufo pipefail
 
+# ===== ERROR HANDLING AND CLEANUP =====
+TEMP_DIR=""
+FAILED_DOWNLOADS=()
+
+cleanup() {
+    if [[ -n "$TEMP_DIR" && -d "$TEMP_DIR" ]]; then
+        echo "🧹 Nettoyage des fichiers temporaires..."
+        rm -rf "$TEMP_DIR"
+    fi
+}
+
+error_exit() {
+    echo "❌ Erreur: $1" >&2
+    cleanup
+    exit 1
+}
+
+# Trap pour nettoyer en cas d'erreur
+trap cleanup EXIT
+trap 'error_exit "Script interrompu"' INT TERM
+
+# Fonction de téléchargement sécurisé avec retry
+safe_download() {
+    local url="$1"
+    local output="$2"
+    local max_retries=3
+    local retry=0
+    
+    while [[ $retry -lt $max_retries ]]; do
+        echo "📥 Téléchargement: $(basename "$output") (tentative $((retry + 1))/$max_retries)"
+        
+        if curl -fsSL --connect-timeout 30 --max-time 300 "$url" -o "$output"; then
+            # Vérifier que le fichier n'est pas vide
+            if [[ -s "$output" ]]; then
+                echo "✅ Téléchargement réussi: $(basename "$output")"
+                return 0
+            else
+                echo "⚠️  Fichier vide détecté"
+            fi
+        fi
+        
+        retry=$((retry + 1))
+        if [[ $retry -lt $max_retries ]]; then
+            echo "🔄 Nouvelle tentative dans 5 secondes..."
+            sleep 5
+        fi
+    done
+    
+    FAILED_DOWNLOADS+=("$url")
+    echo "❌ Échec du téléchargement après $max_retries tentatives: $url"
+    return 1
+}
+
+# Fonction d'extraction sécurisée
+safe_extract() {
+    local archive="$1"
+    local destination="$2"
+    
+    echo "📦 Extraction: $(basename "$archive")"
+    
+    case "$archive" in
+        *.tar.gz|*.tgz)
+            if ! tar -tzf "$archive" &>/dev/null; then
+                echo "❌ Archive corrompue: $archive"
+                return 1
+            fi
+            tar -xzf "$archive" -C "$destination"
+            ;;
+        *.zip)
+            if ! unzip -t "$archive" &>/dev/null; then
+                echo "❌ Archive corrompue: $archive"
+                return 1
+            fi
+            unzip -q "$archive" -d "$destination"
+            ;;
+        *)
+            echo "❌ Format d'archive non supporté: $archive"
+            return 1
+            ;;
+    esac
+}
+
+# Créer dossier temporaire
+TEMP_DIR=$(mktemp -d)
+echo "📁 Dossier temporaire: $TEMP_DIR"
+
 echo "🔧 Installation des outils essentiels et configuration Starship + plugins Zsh..."
 
 {{- if eq .chezmoi.os "darwin" }}
@@ -152,15 +238,27 @@ if command -v apt &> /dev/null; then
         sudo apt install -y python3 python3-pip python3-venv
     fi
     
-    # Installation des outils modernes via cargo/scripts
+    # Installation des outils modernes via téléchargement sécurisé
     if ! command -v eza &> /dev/null; then
-        wget -qO- https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz | tar xz -C /tmp
-        sudo mv /tmp/eza /usr/local/bin/
+        echo "📦 Installation Eza..."
+        if safe_download "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz" "$TEMP_DIR/eza.tar.gz"; then
+            if safe_extract "$TEMP_DIR/eza.tar.gz" "$TEMP_DIR"; then
+                sudo mv "$TEMP_DIR/eza" /usr/local/bin/ || echo "⚠️  Échec installation eza (non critique)"
+            fi
+        else
+            echo "⚠️  Eza non installé (non critique)"
+        fi
     fi
     
     if ! command -v dust &> /dev/null; then
-        wget -qO- https://github.com/bootandy/dust/releases/latest/download/dust-v0.8.6-x86_64-unknown-linux-gnu.tar.gz | tar xz -C /tmp
-        sudo mv /tmp/dust-*/dust /usr/local/bin/
+        echo "📦 Installation Dust..."
+        if safe_download "https://github.com/bootandy/dust/releases/latest/download/dust-v0.8.6-x86_64-unknown-linux-gnu.tar.gz" "$TEMP_DIR/dust.tar.gz"; then
+            if safe_extract "$TEMP_DIR/dust.tar.gz" "$TEMP_DIR"; then
+                sudo mv "$TEMP_DIR"/dust-*/dust /usr/local/bin/ 2>/dev/null || echo "⚠️  Échec installation dust (non critique)"
+            fi
+        else
+            echo "⚠️  Dust non installé (non critique)"
+        fi
     fi
     
 elif command -v pacman &> /dev/null; then
@@ -208,13 +306,23 @@ fi
 # Starship
 if ! command -v starship &> /dev/null; then
     echo "📦 Installation Starship..."
-    curl -sS https://starship.rs/install.sh | sh -s -- -y
+    if safe_download "https://starship.rs/install.sh" "$TEMP_DIR/starship_install.sh"; then
+        chmod +x "$TEMP_DIR/starship_install.sh"
+        "$TEMP_DIR/starship_install.sh" -y || echo "⚠️  Échec installation Starship (non critique)"
+    else
+        echo "⚠️  Starship non installé (non critique)"
+    fi
 fi
 
 # Zoxide
 if ! command -v zoxide &> /dev/null; then
     echo "📦 Installation Zoxide..."
-    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash
+    if safe_download "https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh" "$TEMP_DIR/zoxide_install.sh"; then
+        chmod +x "$TEMP_DIR/zoxide_install.sh"
+        bash "$TEMP_DIR/zoxide_install.sh" || echo "⚠️  Échec installation Zoxide (non critique)"
+    else
+        echo "⚠️  Zoxide non installé (non critique)"
+    fi
 fi
 {{- end }}
 
@@ -236,11 +344,21 @@ fi
 # Installation Lazygit (si pas disponible via package manager)
 if ! command -v lazygit &> /dev/null; then
     echo "📦 Installation Lazygit..."
-    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-    curl -Lo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_{{ .chezmoi.os }}_{{ .chezmoi.arch }}.tar.gz"
-    tar xf lazygit.tar.gz lazygit
-    sudo install lazygit /usr/local/bin
-    rm lazygit lazygit.tar.gz
+    LAZYGIT_VERSION=$(curl -s --connect-timeout 10 "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" 2>/dev/null | grep -Po '"tag_name": "v\K[^"]*' || echo "0.40.2")
+    
+    if [[ -n "$LAZYGIT_VERSION" ]]; then
+        LAZYGIT_URL="https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_{{ .chezmoi.os }}_{{ .chezmoi.arch }}.tar.gz"
+        
+        if safe_download "$LAZYGIT_URL" "$TEMP_DIR/lazygit.tar.gz"; then
+            if safe_extract "$TEMP_DIR/lazygit.tar.gz" "$TEMP_DIR"; then
+                sudo install "$TEMP_DIR/lazygit" /usr/local/bin || echo "⚠️  Échec installation lazygit (non critique)"
+            fi
+        else
+            echo "⚠️  Lazygit non installé (non critique)"
+        fi
+    else
+        echo "⚠️  Impossible de déterminer la version de Lazygit"
+    fi
 fi
 
 # Installation Lazydocker (si pas disponible via package manager)
@@ -302,6 +420,16 @@ for tool in "${tools_to_check[@]}"; do
 done
 
 echo ""
+if [[ ${#FAILED_DOWNLOADS[@]} -gt 0 ]]; then
+    echo "⚠️  Certains téléchargements ont échoué :"
+    for failed_url in "${FAILED_DOWNLOADS[@]}"; do
+        echo "   • $(basename "$failed_url")"
+    done
+    echo ""
+    echo "💡 Vous pouvez réessayer plus tard avec: chezmoi apply"
+    echo ""
+fi
+
 echo "✅ Installation des outils terminée!"
 echo ""
 echo "📋 Outils installés :"
@@ -319,3 +447,6 @@ echo "   1. Redémarrez votre terminal pour Zsh"
 echo "   2. Reconnectez-vous pour utiliser Docker sans sudo"
 {{- end }}
 echo "   3. Lancez 'chezmoi apply' pour appliquer la configuration"
+
+# Ne pas faire échouer le script si certains outils optionnels n'ont pas pu être installés
+exit 0
