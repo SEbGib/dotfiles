@@ -269,8 +269,7 @@ return {
   -- Notifications
   {
     "rcarriga/nvim-notify",
-    -- Pin to compatible version for older Neovim
-    version = vim.fn.has("nvim-0.8") == 1 and false or "v3.10.0",
+    version = "v3.13.5", -- Pin to stable version to avoid deprecation warnings
     keys = {
       {
         "<leader>un",

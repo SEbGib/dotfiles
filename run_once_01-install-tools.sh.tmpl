@@ -396,9 +396,9 @@ if command -v python3 &> /dev/null; then
     # Vérifier si on peut installer via pip (environnement non géré)
     if python3 -m pip install --help &>/dev/null; then
         # Essayer d'installer avec --user d'abord
-        if python3 -m pip install --user --upgrade black flake8 mypy pytest requests httpie 2>/dev/null; then
-            echo "✅ Outils Python installés via pip --user"
-        elif command -v pipx &> /dev/null; then
+            if python3 -m pip install --user --upgrade black flake8 mypy pytest requests httpie pynvim 2>/dev/null; then
+                echo "✅ Outils Python installés via pip --user"
+            elif command -v pipx &> /dev/null; then
             # Utiliser pipx si disponible
             echo "📦 Installation via pipx..."
             pipx install black || echo "⚠️  black non installé"
@@ -410,7 +410,7 @@ if command -v python3 &> /dev/null; then
             # Installer les packages système si disponibles
             echo "📦 Installation via packages système..."
             if command -v apt &> /dev/null; then
-                sudo apt install -y python3-black python3-flake8 python3-mypy python3-pytest python3-requests python3-httpie 2>/dev/null || echo "⚠️  Certains packages Python non disponibles"
+                sudo apt install -y python3-black python3-flake8 python3-mypy python3-pytest python3-requests python3-httpie python3-pynvim 2>/dev/null || echo "⚠️  Certains packages Python non disponibles"
             elif command -v pacman &> /dev/null; then
                 sudo pacman -S --noconfirm python-black python-flake8 python-mypy python-pytest python-requests python-httpie 2>/dev/null || echo "⚠️  Certains packages Python non disponibles"
             else

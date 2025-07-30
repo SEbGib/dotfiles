@@ -15,6 +15,9 @@ return {
     { "<leader>E", "<cmd>Neotree reveal<cr>", desc = "Explorer révéler fichier" },
     { "<leader>ge", "<cmd>Neotree git_status<cr>", desc = "Git explorer" },
     { "<leader>be", "<cmd>Neotree buffers<cr>", desc = "Buffer explorer" },
+    { "<leader>se", "<cmd>Neotree document_symbols<cr>", desc = "Symbols explorer" },
+    { "<leader>fE", function() require("neo-tree.command").execute({ toggle = true, dir = vim.loop.cwd() }) end, desc = "Explorer NeoTree (cwd)" },
+    { "<c-n>", "<cmd>Neotree toggle<cr>", desc = "Toggle Explorer" },
   },
   deactivate = function()
     vim.cmd([[Neotree close]])
@@ -35,10 +38,56 @@ return {
   opts = {
     sources = { "filesystem", "buffers", "git_status", "document_symbols" },
     open_files_do_not_replace_types = { "terminal", "Trouble", "trouble", "qf", "Outline" },
+    popup_border_style = "rounded",
+    enable_git_status = true,
+    enable_diagnostics = true,
+    enable_modified_markers = true,
+    enable_opened_markers = true,
+    enable_refresh_on_write = true,
+    sort_case_insensitive = false,
+    sort_function = nil,
+    default_source = "filesystem",
+    sources = {
+      "filesystem",
+      "buffers", 
+      "git_status",
+      "document_symbols",
+    },
+    source_selector = {
+      winbar = false,
+      statusline = false,
+      show_scrolled_off_parent_node = false,
+      sources = {
+        { source = "filesystem", display_name = " 󰉓 Files " },
+        { source = "buffers", display_name = " 󰈚 Buffers " },
+        { source = "git_status", display_name = " 󰊢 Git " },
+        { source = "document_symbols", display_name = " 󰌗 Symbols " },
+      },
+      content_layout = "start",
+      tabs_layout = "equal",
+      truncation_character = "…",
+      tabs_min_width = nil,
+      tabs_max_width = nil,
+      padding = 0,
+      separator = { left = "▏", right= "▕" },
+      separator_active = nil,
+      show_separator_on_edge = false,
+      highlight_tab = "NeoTreeTabInactive",
+      highlight_tab_active = "NeoTreeTabActive",
+      highlight_background = "NeoTreeTabInactive",
+      highlight_separator = "NeoTreeTabSeparator",
+      highlight_separator_active = "NeoTreeTabSeparatorActive",
+    },
     filesystem = {
       bind_to_cwd = false,
-      follow_current_file = { enabled = true },
+      follow_current_file = { 
+        enabled = true,
+        leave_dirs_open = false,
+      },
+      group_empty_dirs = false,
+      hijack_netrw_behavior = "open_default",
       use_libuv_file_watcher = true,
+      scan_mode = "shallow",
       filtered_items = {
         visible = false,
         hide_dotfiles = false,
@@ -90,7 +139,8 @@ return {
     },
     window = {
       position = "left",
-      width = 35,
+      width = 40,
+      auto_expand_width = false,
       mapping_options = {
         noremap = true,
         nowait = true,
@@ -111,6 +161,7 @@ return {
         ["w"] = "open_with_window_picker",
         ["C"] = "close_node",
         ["z"] = "close_all_nodes",
+        ["Z"] = "expand_all_nodes",
         ["a"] = {
           "add",
           config = {
@@ -131,6 +182,27 @@ return {
         ["<"] = "prev_source",
         [">"] = "next_source",
         ["i"] = "show_file_details",
+        ["o"] = { "show_help", nowait=false, config = { title = "Order by", prefix_key = "o" }},
+        ["oc"] = { "order_by_created", nowait = false },
+        ["od"] = { "order_by_diagnostics", nowait = false },
+        ["og"] = { "order_by_git_status", nowait = false },
+        ["om"] = { "order_by_modified", nowait = false },
+        ["on"] = { "order_by_name", nowait = false },
+        ["os"] = { "order_by_size", nowait = false },
+        ["ot"] = { "order_by_type", nowait = false },
+        -- Modern file operations
+        ["<bs>"] = "navigate_up",
+        ["."] = "set_root",
+        ["H"] = "toggle_hidden",
+        ["/"] = "fuzzy_finder",
+        ["D"] = "fuzzy_finder_directory",
+        ["#"] = "fuzzy_sorter", -- fuzzy sorting using the fzy algorithm
+        ["f"] = "filter_on_submit",
+        ["<c-x>"] = "clear_filter",
+        ["[g"] = "prev_git_modified",
+        ["]g"] = "next_git_modified",
+        ["[c"] = "prev_git_modified",
+        ["]c"] = "next_git_modified",
       },
     },
     default_component_configs = {
@@ -153,11 +225,12 @@ return {
         folder_closed = "",
         folder_open = "",
         folder_empty = "󰜌",
-        default = "*",
+        folder_empty_open = "󰜌",
+        default = "󰈚",
         highlight = "NeoTreeFileIcon",
       },
       modified = {
-        symbol = "[+]",
+        symbol = "●",
         highlight = "NeoTreeModified",
       },
       name = {
@@ -167,15 +240,31 @@ return {
       },
       git_status = {
         symbols = {
-          added = "✚",
-          modified = "",
-          deleted = "✖",
-          renamed = "󰁕",
+          -- Change type
+          added     = "✚", -- or "✚", but this is redundant info if you use git_status_colors on the name
+          modified  = "", -- or "", but this is redundant info if you use git_status_colors on the name
+          deleted   = "✖",-- this can only be used in the git_status source
+          renamed   = "󰁕",-- this can only be used in the git_status source
+          -- Status type
           untracked = "",
-          ignored = "",
-          unstaged = "󰄱",
-          staged = "",
-          conflict = "",
+          ignored   = "",
+          unstaged  = "󰄱",
+          staged    = "",
+          conflict  = "",
+        },
+      },
+      diagnostics = {
+        symbols = {
+          hint = "󰌶",
+          info = "",
+          warn = "",
+          error = "",
+        },
+        highlights = {
+          hint = "DiagnosticSignHint",
+          info = "DiagnosticSignInfo",
+          warn = "DiagnosticSignWarn",
+          error = "DiagnosticSignError",
         },
       },
       file_size = {
