@@ -387,15 +387,15 @@ update_all() {
     echo "✅ Mise à jour complète terminée!"
 }
 
+# ===== CONFIGURATION LOCALE =====
+# Inclusion configuration spécifique machine
+[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
+
 # ===== STARSHIP PROMPT =====
 # Initialisation Starship (doit être à la fin)
 if command -v starship &> /dev/null; then
     eval "$(starship init zsh)"
 fi
-
-# ===== CONFIGURATION LOCALE =====
-# Inclusion configuration spécifique machine
-[[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
 # ===== PERFORMANCE DEBUG =====
 # Décommenter pour mesurer temps de démarrage
