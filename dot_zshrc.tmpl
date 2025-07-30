@@ -368,3 +368,86 @@ export STARSHIP_CONFIG=~/.config/starship.toml
 if command -v starship &> /dev/null; then
     eval "$(starship init zsh)"
 fi
+
+# ===== DOCKER & LAZYDOCKER =====
+# Docker aliases et raccourcis
+alias d='docker'
+alias dc='docker-compose'
+alias dcu='docker-compose up'
+alias dcd='docker-compose down'
+alias dcb='docker-compose build'
+alias dcr='docker-compose restart'
+alias dcp='docker-compose pull'
+alias dcl='docker-compose logs'
+alias dclf='docker-compose logs -f'
+alias dce='docker-compose exec'
+
+# Docker management
+alias dps='docker ps'
+alias dpsa='docker ps -a'
+alias di='docker images'
+alias dv='docker volume ls'
+alias dn='docker network ls'
+alias dprune='docker system prune -af'
+alias dvprune='docker volume prune -f'
+alias diprune='docker image prune -af'
+
+# Lazydocker
+alias lzd='lazydocker'
+alias lazy='lazydocker'
+
+# Docker utility functions
+docker-clean() {
+    echo "🧹 Nettoyage Docker complet..."
+    docker system prune -af --volumes
+    docker builder prune -af
+    echo "✅ Nettoyage terminé"
+}
+
+docker-stats() {
+    docker stats --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}"
+}
+
+docker-logs() {
+    if [[ $# -eq 0 ]]; then
+        echo "Usage: docker-logs <container_name>"
+        return 1
+    fi
+    docker logs -f --tail=100 "$1"
+}
+
+docker-shell() {
+    if [[ $# -eq 0 ]]; then
+        echo "Usage: docker-shell <container_name> [shell]"
+        return 1
+    fi
+    local shell=${2:-bash}
+    docker exec -it "$1" "$shell"
+}
+
+docker-ip() {
+    if [[ $# -eq 0 ]]; then
+        echo "Usage: docker-ip <container_name>"
+        return 1
+    fi
+    docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$1"
+}
+
+# Docker Compose helpers
+dc-rebuild() {
+    if [[ $# -eq 0 ]]; then
+        echo "🔄 Reconstruction de tous les services..."
+        docker-compose down && docker-compose build --no-cache && docker-compose up -d
+    else
+        echo "🔄 Reconstruction du service: $1"
+        docker-compose stop "$1" && docker-compose build --no-cache "$1" && docker-compose up -d "$1"
+    fi
+}
+
+dc-fresh() {
+    echo "🆕 Redémarrage complet avec reconstruction..."
+    docker-compose down -v --remove-orphans
+    docker-compose build --no-cache
+    docker-compose up -d
+    echo "✅ Environnement Docker redémarré"
+}

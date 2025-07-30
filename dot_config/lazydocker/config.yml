@@ -1,0 +1,158 @@
+# Configuration Lazydocker - Coordonnée avec Catppuccin Mocha
+# Thème et paramètres optimisés pour le développement
+
+gui:
+  # Thème Catppuccin Mocha coordonné avec Neovim/tmux/Starship
+  theme:
+    activeBorderColor:
+      - '#89b4fa' # blue
+      - bold
+    inactiveBorderColor:
+      - '#6c7086' # overlay0
+    optionsTextColor:
+      - '#cdd6f4' # text
+    selectedLineBgColor:
+      - '#313244' # surface0
+    selectedRangeBgColor:
+      - '#45475a' # surface1
+    cherryPickedCommitBgColor:
+      - '#94e2d5' # teal
+    cherryPickedCommitFgColor:
+      - '#1e1e2e' # base
+    unstagedChangesColor:
+      - '#f38ba8' # red
+    defaultFgColor:
+      - '#cdd6f4' # text
+  
+  # Interface settings
+  scrollHeight: 2
+  scrollPastBottom: true
+  sidePanelWidth: 0.3333
+  expandFocusedSidePanel: false
+  mainPanelSplitMode: 'flexible'
+  language: 'auto'
+  timeFormat: '02 Jan 06 15:04 MST'
+  shortTimeFormat: '15:04'
+  
+  # Confirmation dialogs
+  skipDiscardChangeWarning: false
+  skipStashWarning: false
+  showFileTree: true
+  showRandomTip: true
+  showCommandLog: true
+  commandLogSize: 8
+
+# Logging
+logs:
+  tail: true
+  since: '60m'
+  timestamps: false
+
+# Commands personnalisés pour le développement
+customCommands:
+  containers:
+    - name: 'Logs (follow)'
+      attach: true
+      command: 'docker logs --follow --tail=100 {{ .Container.Name }}'
+      serviceNames: []
+    - name: 'Bash shell'
+      attach: true
+      command: 'docker exec -it {{ .Container.Name }} /bin/bash'
+      serviceNames: []
+    - name: 'Sh shell (Alpine)'
+      attach: true
+      command: 'docker exec -it {{ .Container.Name }} /bin/sh'
+      serviceNames: []
+    - name: 'Inspect'
+      command: 'docker inspect {{ .Container.Name }}'
+      serviceNames: []
+    - name: 'Stats'
+      command: 'docker stats {{ .Container.Name }}'
+      serviceNames: []
+  
+  services:
+    - name: 'Rebuild service'
+      command: 'docker-compose up -d --build {{ .Service.Name }}'
+      serviceNames: []
+    - name: 'View logs'
+      command: 'docker-compose logs -f {{ .Service.Name }}'
+      serviceNames: []
+    - name: 'Scale service'
+      command: 'docker-compose up -d --scale {{ .Service.Name }}=3'
+      serviceNames: []
+
+# Raccourcis clavier personnalisés
+keybinding:
+  quit: 'q'
+  quit_alt1: '<c-c>'
+  return: '<esc>'
+  quitWithoutChangingDirectory: 'Q'
+  togglePanel: '<tab>'
+  prevItem: '<up>'
+  nextItem: '<down>'
+  prevItem-alt: 'k'
+  nextItem-alt: 'j'
+  prevPage: ','
+  nextPage: '.'
+  gotoTop: '<'
+  gotoBottom: '>'
+  prevBlock: '<left>'
+  nextBlock: '<right>'
+  prevBlock-alt: 'h'
+  nextBlock-alt: 'l'
+  jumpToBlock: ['1', '2', '3', '4', '5']
+  nextMatch: 'n'
+  prevMatch: 'N'
+  startSearch: '/'
+  optionMenu: 'x'
+  optionMenu-alt1: '?'
+  select: '<space>'
+  goInto: '<enter>'
+  confirm: '<enter>'
+  confirm-alt1: 'y'
+  remove: 'd'
+  edit: 'e'
+  openFile: 'o'
+  scrollUpMain: '<pgup>'
+  scrollDownMain: '<pgdown>'
+  scrollUpMain-alt1: 'K'
+  scrollDownMain-alt1: 'J'
+  scrollUpMain-alt2: '<c-u>'
+  scrollDownMain-alt2: '<c-d>'
+  executeCustomCommand: ':'
+  createRebaseOptionsMenu: 'm'
+  pushFiles: 'P'
+  pullFiles: 'p'
+  refresh: 'R'
+  createPatchOptionsMenu: '<c-p>'
+  nextTab: ']'
+  prevTab: '['
+  nextScreenMode: '+'
+  prevScreenMode: '_'
+  undo: 'z'
+  redo: '<c-z>'
+  filteringMenu: '<c-s>'
+  diffingMenu: 'W'
+  diffingMenu-alt: '<c-e>'
+  copyToClipboard: '<c-o>'
+  submitEditorText: '<enter>'
+  extrasMenu: '@'
+  toggleWhitespaceInDiffView: '<c-w>'
+  increaseContextInDiffView: '}'
+  decreaseContextInDiffView: '{'
+
+# Paramètres de performance
+stats:
+  graphs:
+    - caption: "CPU (%)"
+      statPath: "DerivedStats.CPUPercentage"
+      color: "blue"
+    - caption: "Memory (%)"
+      statPath: "DerivedStats.MemoryPercentage"  
+      color: "green"
+
+# Paramètres Docker
+docker:
+  command: 'docker'
+  composeCommand: 'docker-compose'
+  composeLogCommand: 'docker-compose logs'
