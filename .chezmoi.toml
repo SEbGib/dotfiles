@@ -5,3 +5,7 @@
     personal = true
     work = false
     gpg_key_id = ""
+
+# Template options for better error handling
+[template]
+    options = ["missingkey=default"]

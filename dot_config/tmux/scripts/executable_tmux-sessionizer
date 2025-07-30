@@ -9,10 +9,10 @@ set -euo pipefail
 search_dirs=(
     ~/projects
     ~/work
-    {{- if .personal }}
+    {{- if (index . "personal" | default false) }}
     ~/personal
     {{- end }}
-    {{- if .work }}
+    {{- if (index . "work" | default false) }}
     ~/company
     {{- end }}
     ~/.config

@@ -11,11 +11,11 @@ alias -- -='cd -'  # Revenir au dossier précédent
 
 # Navigation rapide vers dossiers importants
 alias proj='cd ~/projects'
-{{- if .work }}
+{{- if (index . "work" | default false) }}
 alias work='cd ~/work'
 alias company='cd ~/company'
 {{- end }}
-{{- if .personal }}
+{{- if (index . "personal" | default false) }}
 alias personal='cd ~/personal'
 {{- end }}
 alias config='cd ~/.config'
@@ -322,7 +322,7 @@ alias pbpaste='xclip -selection clipboard -o'
 {{- end }}
 
 # ===== RACCOURCIS CONTEXTUELS =====
-{{- if .work }}
+{{- if (index . "work" | default false) }}
 # Entreprise
 alias vpn='sudo openconnect --config=~/.openconnect/company.conf'
 alias k='kubectl'
@@ -337,7 +337,7 @@ alias ke='kubectl edit'
 alias kdel='kubectl delete'
 {{- end }}
 
-{{- if .personal }}
+{{- if (index . "personal" | default false) }}
 # Personnel
 alias blog='cd ~/projects/blog && code .'
 alias server='ssh user@myserver.com'
@@ -349,7 +349,7 @@ alias backup='rsync -avz --progress'
 
 # ===== DIVERS =====
 # Météo
-alias weather='curl wttr.in/{{ if .personal }}Paris{{ else }}{{ .chezmoi.username }}{{ end }}'
+alias weather='curl wttr.in/{{ if (index . "personal" | default false) }}Paris{{ else }}{{ .chezmoi.username }}{{ end }}'
 
 # Speedtest
 alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -'

@@ -13,12 +13,12 @@ mkdir -p "$HOME/.config"
 mkdir -p "$HOME/.cache"
 mkdir -p "$HOME/projects"
 
-{{- if .personal }}
+{{- if (index . "personal" | default false) }}
 mkdir -p "$HOME/personal"
 echo "  ✅ Dossier personnel créé"
 {{- end }}
 
-{{- if .work }}
+{{- if (index . "work" | default false) }}
 mkdir -p "$HOME/work"
 mkdir -p "$HOME/company"
 echo "  ✅ Dossiers professionnels créés"
@@ -129,10 +129,10 @@ echo ""
 echo "📋 Dossiers créés :"
 echo "   • ~/.local/bin (binaires personnels)"
 echo "   • ~/projects/* (projets de développement)"
-{{- if .personal }}
+{{- if (index . "personal" | default false) }}
 echo "   • ~/personal (projets personnels)"
 {{- end }}
-{{- if .work }}
+{{- if (index . "work" | default false) }}
 echo "   • ~/work et ~/company (projets professionnels)"
 {{- end }}
 echo "   • ~/.config/* (configurations)"

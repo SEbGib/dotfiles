@@ -44,6 +44,15 @@ brew "php"
 brew "composer"
 brew "symfony-cli/tap/symfony-cli"
 
+# Docker et conteneurs
+brew "docker"
+brew "docker-compose"
+brew "lazydocker"
+
+# Python et outils
+brew "python@3.11"
+brew "pipx"
+
 # Sécurité et secrets
 brew "age"
 brew "gnupg"
@@ -54,8 +63,11 @@ cask "font-jetbrains-mono-nerd-font"
 cask "font-hack-nerd-font"
 cask "font-meslo-lg-nerd-font"
 
+# Terminal moderne
+cask "ghostty"
+
 # Applications utiles
-{{- if .personal }}
+{{- if (index . "personal" | default false) }}
 cask "raycast"
 cask "cleanmymac"
 cask "visual-studio-code"
@@ -95,6 +107,15 @@ if command -v apt &> /dev/null; then
         apt-transport-https \
         ca-certificates
         
+    # Ghostty terminal (via GitHub releases)
+    if ! command -v ghostty &> /dev/null; then
+        echo "📦 Installation Ghostty..."
+        GHOSTTY_VERSION=$(curl -s "https://api.github.com/repos/ghostty-org/ghostty/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
+        wget -O ghostty.deb "https://github.com/ghostty-org/ghostty/releases/latest/download/ghostty_${GHOSTTY_VERSION}_amd64.deb"
+        sudo dpkg -i ghostty.deb || sudo apt-get install -f -y
+        rm ghostty.deb
+    fi
+        
     # Créer liens symboliques pour fd et bat si nécessaire
     if [[ ! -f /usr/local/bin/fd ]] && [[ -f /usr/bin/fdfind ]]; then
         sudo ln -sf /usr/bin/fdfind /usr/local/bin/fd
@@ -113,6 +134,22 @@ if command -v apt &> /dev/null; then
     # PHP si pas installé
     if ! command -v php &> /dev/null; then
         sudo apt install -y php php-cli php-mbstring php-xml php-zip php-curl composer
+    fi
+    
+    # Docker installation
+    if ! command -v docker &> /dev/null; then
+        echo "📦 Installation Docker..."
+        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+        echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        sudo apt update
+        sudo apt install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+        sudo usermod -aG docker $USER
+        echo "⚠️  Vous devez vous reconnecter pour utiliser Docker sans sudo"
+    fi
+    
+    # Python et pip
+    if ! command -v python3 &> /dev/null; then
+        sudo apt install -y python3 python3-pip python3-venv
     fi
     
     # Installation des outils modernes via cargo/scripts
@@ -149,7 +186,16 @@ elif command -v pacman &> /dev/null; then
         gnupg \
         dust \
         duf \
-        procs
+        procs \
+        docker \
+        docker-compose \
+        python \
+        python-pip
+        
+    # Ghostty terminal (AUR)
+    if command -v yay &> /dev/null && ! command -v ghostty &> /dev/null; then
+        yay -S --noconfirm ghostty
+    fi
         
     # AUR packages avec yay si disponible
     if command -v yay &> /dev/null; then
@@ -197,6 +243,38 @@ if ! command -v lazygit &> /dev/null; then
     rm lazygit lazygit.tar.gz
 fi
 
+# Installation Lazydocker (si pas disponible via package manager)
+if ! command -v lazydocker &> /dev/null; then
+    echo "📦 Installation Lazydocker..."
+    curl https://raw.githubusercontent.com/jesseduffield/lazydocker/master/scripts/install_update_linux.sh | bash
+fi
+
+# Installation d'outils Python utiles
+if command -v pip3 &> /dev/null; then
+    echo "📦 Installation outils Python..."
+    pip3 install --user --upgrade \
+        black \
+        flake8 \
+        mypy \
+        pytest \
+        requests \
+        httpie
+fi
+
+# Installation d'outils Node.js globaux
+if command -v npm &> /dev/null; then
+    echo "📦 Installation outils Node.js globaux..."
+    npm install -g \
+        typescript \
+        ts-node \
+        @types/node \
+        eslint \
+        prettier \
+        nodemon \
+        pm2 \
+        yarn
+fi
+
 # Configuration Zsh comme shell par défaut
 if [[ "$SHELL" != */zsh ]]; then
     echo "🐚 Configuration Zsh comme shell par défaut..."
@@ -207,9 +285,37 @@ if [[ "$SHELL" != */zsh ]]; then
     echo "✅ Zsh configuré. Redémarrez votre terminal."
 fi
 
+# Vérification finale des installations
+echo ""
+echo "🔍 Vérification des installations..."
+tools_to_check=(
+    "zsh" "starship" "neovim" "tmux" "git" "fzf" "ripgrep" "fd" "bat" "eza" 
+    "zoxide" "lazygit" "node" "npm" "php" "composer" "docker" "chezmoi" "ghostty"
+)
+
+for tool in "${tools_to_check[@]}"; do
+    if command -v "$tool" &> /dev/null; then
+        echo "✅ $tool"
+    else
+        echo "❌ $tool (non installé)"
+    fi
+done
+
+echo ""
 echo "✅ Installation des outils terminée!"
 echo ""
 echo "📋 Outils installés :"
+echo "   • Ghostty (terminal moderne)"
 echo "   • Starship (prompt moderne)"
-echo "   • Zsh + Oh My Zsh (shell avancé)"
+echo "   • Zsh (shell avancé)"
 echo "   • Neovim + tmux (éditeur et multiplexeur)"
+echo "   • Docker + Lazydocker (conteneurs)"
+echo "   • Outils modernes CLI (fzf, ripgrep, bat, eza, etc.)"
+echo "   • Développement (Node.js, PHP, Python)"
+echo ""
+echo "🔄 Actions requises :"
+echo "   1. Redémarrez votre terminal pour Zsh"
+{{- if eq .chezmoi.os "linux" }}
+echo "   2. Reconnectez-vous pour utiliser Docker sans sudo"
+{{- end }}
+echo "   3. Lancez 'chezmoi apply' pour appliquer la configuration"

@@ -6,6 +6,13 @@
 - **Validate templates**: `chezmoi execute-template < file.tmpl`
 - **Check status**: `chezmoi status`
 - **Update from remote**: `chezmoi update`
+- **Test script syntax**: `bash -n script.sh.tmpl`
+
+## Installation & Setup
+- **Full setup**: Run `chezmoi init --apply` (executes all run_once scripts)
+- **Manual tool install**: `./run_once_00-install-tools.sh` (installs all development tools)
+- **Tools installed**: Ghostty terminal, Docker, Starship, Node.js, PHP, Python, modern CLI tools (fzf, ripgrep, bat, eza, etc.)
+- **Post-install**: Restart terminal, run `chezmoi apply` for configuration
 
 ## Code Style Guidelines
 
@@ -32,12 +39,13 @@
 - Use chezmoi template syntax: `{{ .variable }}`
 - Conditional blocks: `{{- if condition }}...{{- end }}`
 - OS-specific: `{{ if eq .chezmoi.os "darwin" }}`
-- Personal/work context: `{{ if .personal }}`
+- Personal/work context: `{{ if (index . "personal" | default false) }}`
 
 ### Error Handling
 - Always check command existence: `command -v tool &> /dev/null`
 - Provide fallbacks for missing tools
 - Use descriptive error messages with emojis for user feedback
+- Use safe template variable access: `{{ if (index . "variable" | default false) }}`
 
 ## Adding Neovim Plugins Workflow
 

@@ -209,7 +209,7 @@
     optimize = "!git repack -Ad && git prune && git gc --aggressive"
 
 # ===== CONFIGURATION SPÉCIFIQUE =====
-{{- if .work }}
+{{- if (index . "work" | default false) }}
 # Configuration entreprise
 [includeIf "gitdir:~/work/"]
     path = ~/.gitconfig-work
@@ -218,7 +218,7 @@
     path = ~/.gitconfig-work
 {{- end }}
 
-{{- if .personal }}
+{{- if (index . "personal" | default false) }}
 # Configuration personnelle
 [includeIf "gitdir:~/personal/"]
     path = ~/.gitconfig-personal

@@ -8,13 +8,13 @@
 # export DATABASE_URL="postgresql://user:pass@localhost/db"
 
 # ===== CONFIGURATION LOCALE =====
-{{- if .work }}
+{{- if (index . "work" | default false) }}
 # Configuration entreprise
 export COMPANY_VPN_CONFIG="~/.openconnect/company.conf"
 export KUBECONFIG="~/.kube/config"
 {{- end }}
 
-{{- if .personal }}
+{{- if (index . "personal" | default false) }}
 # Configuration personnelle
 export PERSONAL_SERVER="user@myserver.com"
 export BACKUP_DESTINATION="/path/to/backup"

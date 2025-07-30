@@ -1,0 +1,93 @@
+# Ghostty Terminal Configuration
+# Optimized for tmux + starship workflow
+
+# ===== APPEARANCE =====
+# Font configuration - using Nerd Font for icon support
+font-family = "FiraCode Nerd Font"
+font-size = 14
+font-thicken = true
+
+# Theme and colors - minimal to let tmux/starship handle styling
+theme = "catppuccin-mocha"
+background-opacity = 0.95
+background-blur-radius = 20
+
+# Window appearance
+window-decoration = true
+window-title-font-family = "FiraCode Nerd Font"
+window-padding-x = 8
+window-padding-y = 8
+window-padding-balance = true
+
+# ===== BEHAVIOR =====
+# Shell integration - let tmux handle session management
+shell-integration = true
+shell-integration-features = cursor,sudo,title
+
+# Scrollback - moderate since tmux handles history
+scrollback-limit = 10000
+
+# Mouse support - essential for tmux
+mouse-hide-while-typing = true
+copy-on-select = false
+
+# ===== PERFORMANCE =====
+# Optimized for development workflow
+confirm-close-surface = false
+quit-after-last-window-closed = true
+auto-update = check
+
+# ===== KEYBINDINGS =====
+# Minimal keybinds - let tmux handle most shortcuts
+# Only essential terminal functions
+
+# Copy/Paste (standard)
+keybind = cmd+c=copy_to_clipboard
+keybind = cmd+v=paste_from_clipboard
+
+# Font size adjustment
+keybind = cmd+plus=increase_font_size:1
+keybind = cmd+minus=decrease_font_size:1
+keybind = cmd+zero=reset_font_size
+
+# New window/tab - delegate to tmux for session management
+keybind = cmd+t=new_tab
+keybind = cmd+w=close_surface
+
+# Search in terminal
+keybind = cmd+f=toggle_quick_terminal
+
+# ===== TMUX INTEGRATION =====
+# Cursor shape support for vim/nvim in tmux
+cursor-style = block
+cursor-style-blink = false
+
+# True color support for tmux and nvim
+term = xterm-256color
+
+# ===== ADVANCED =====
+# Working directory behavior
+working-directory = inherit
+
+# Link handling
+link-url = true
+
+# Bell configuration - minimal since tmux handles notifications
+desktop-notifications = false
+audible-bell = false
+visual-bell = false
+
+# ===== MACOS SPECIFIC =====
+{{- if eq .chezmoi.os "darwin" }}
+# macOS integration
+macos-non-native-fullscreen = false
+macos-option-as-alt = true
+macos-titlebar-style = tabs
+{{- end }}
+
+# ===== DEVELOPMENT =====
+# Quick terminal toggle for development
+quick-terminal = true
+quick-terminal-position = top
+quick-terminal-screen = main
+quick-terminal-animation-duration = 200
