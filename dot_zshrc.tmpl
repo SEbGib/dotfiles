@@ -39,48 +39,44 @@ fi
 # ===== VARIABLES D'ENVIRONNEMENT =====
 export EDITOR=nvim
 export VISUAL=nvim
-export BROWSER={{ if eq .chezmoi.os "darwin" }}open{{ else }}xdg-open{{ end }}
+export BROWSER=open
 export LANG=fr_FR.UTF-8
 export LC_ALL=fr_FR.UTF-8
 
 # Développement
 export NODE_ENV=development
-{{- if lookPath "php" }}
 export COMPOSER_MEMORY_LIMIT=-1
 export PHP_IDE_CONFIG="serverName=localhost"
-{{- end }}
 
 # Couleurs pour ls et autres
 export CLICOLOR=1
 export LS_COLORS="di=34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
 
 # Chemin personnalisé
-export PATH="$HOME/.local/bin:$HOME/bin{{- if eq .chezmoi.os "darwin" }}:/opt/homebrew/bin:/opt/homebrew/sbin{{- end }}{{- if lookPath "composer" }}:$HOME/.composer/vendor/bin{{- end }}{{- if lookPath "node" }}:$HOME/.npm-global/bin{{- end }}:$PATH"
+typeset -U path PATH
+path=(
+    $HOME/.local/bin
+    $HOME/bin
+    /opt/homebrew/bin
+    /opt/homebrew/sbin
+    $HOME/.composer/vendor/bin
+    $HOME/.npm-global/bin
+    $path
+)
 
 # ===== ALIAS MODERNES =====
 # Chargement alias depuis fichier séparé
 
 
 # Outils modernes en remplacement des classiques
-{{- if lookPath "eza" }}
 alias ls='eza --icons --group-directories-first'
 alias ll='eza -la --icons --git --group-directories-first'
 alias la='eza -la --icons --group-directories-first'
 alias lt='eza --tree --icons --level=3'
 alias lta='eza --tree --icons --level=3 -a'
-{{- else }}
-alias ll='ls -la'
-alias la='ls -la'
-{{- end }}
-
-{{- if lookPath "bat" }}
 alias cat='bat --style=auto'
 alias catp='bat --style=plain'  # Sans numéros de ligne
-{{- end }}
-
-{{- if lookPath "fd" }}
 alias find='fd'
-{{- end }}
 
 # Git (améliorations)
 alias g='git'
@@ -106,15 +102,11 @@ alias tn='tmux new-session'
 alias tk='tmux kill-session'
 
 # Développement moderne
-{{- if lookPath "php" }}
 alias sf='symfony'
 alias sfc='symfony console'
 alias sfcc='symfony console cache:clear'
 alias sfserve='symfony serve'
 alias sftest='symfony run bin/phpunit'
-{{- end }}
-
-{{- if lookPath "node" }}
 alias nr='npm run'
 alias ni='npm install'
 alias nid='npm install --save-dev'
@@ -122,7 +114,6 @@ alias nig='npm install -g'
 alias nu='npm uninstall'
 alias nup='npm update'
 alias nlg='npm list -g --depth=0'
-{{- end }}
 
 # Utilitaires modernes
 alias ..='cd ..'
@@ -136,20 +127,15 @@ alias v='nvim'
 alias reload='exec $SHELL'
 
 # Raccourcis système
-{{- if eq .chezmoi.os "darwin" }}
 alias finder='open -a Finder'
 alias brewup='brew update && brew upgrade && brew cleanup'
 alias flushdns='sudo dscacheutil -flushcache && sudo killall -HUP mDNSResponder'
-{{- else }}
-alias aptup='sudo apt update && sudo apt upgrade && sudo apt autoremove'
-alias ports='netstat -tulanp'
-{{- end }}
 
 # Raccourcis réseau et système
 alias myip='curl -s https://ipinfo.io/ip'
 alias localip='ipconfig getifaddr en0 2>/dev/null || hostname -I | cut -d" " -f1'
 alias speedtest='curl -s https://raw.githubusercontent.com/sivel/speedtest-cli/master/speedtest.py | python3 -'
-alias weather='curl wttr.in/{{ if .personal }}Paris{{ else }}{{ .chezmoi.username }}{{ end }}'
+alias weather='curl wttr.in/Paris'
 
 # ===== FONCTIONS AVANCÉES =====
 # Création et navigation dans dossier
@@ -211,12 +197,7 @@ ts() {
         local search_dirs=(
             ~/projects
             ~/work
-            {{- if .personal }}
             ~/personal
-            {{- end }}
-            {{- if .work }}
-            ~/company
-            {{- end }}
             ~/.config
         )
         
@@ -320,25 +301,12 @@ git_sync() {
 
 
 # ===== INTÉGRATIONS SPÉCIFIQUES =====
-{{- if .work }}
-# Configuration entreprise
-[[ -f ~/.work_profile ]] && source ~/.work_profile
-
-# Aliases entreprise
-alias vpn='sudo openconnect --config=~/.openconnect/company.conf'
-alias k='kubectl'
-alias kctx='kubectx'
-alias kns='kubens'
-{{- end }}
-
-{{- if .personal }}
 # Configuration personnelle
 [[ -f ~/.personal_profile ]] && source ~/.personal_profile
 
 # Aliases personnels
 alias blog='cd ~/projects/blog && code .'
 alias dotfiles='cd ~/.local/share/chezmoi && nvim'
-{{- end }}
 
 # ===== HOOKS ET INTEGRATIONS =====
 # Hook pour mise à jour automatique des repos Git
@@ -358,14 +326,8 @@ update_git_repos() {
 # Alias pour mise à jour complète du système
 update_all() {
     echo "🚀 Mise à jour complète du système..."
-    
-    {{- if eq .chezmoi.os "darwin" }}
     echo "📦 Mise à jour Homebrew..."
     brew update && brew upgrade && brew cleanup
-    {{- else }}
-    echo "📦 Mise à jour des packages système..."
-    sudo apt update && sudo apt upgrade -y && sudo apt autoremove -y
-    {{- end }}
     
     if command -v chezmoi &> /dev/null; then
         echo "⚙️ Mise à jour dotfiles..."
@@ -391,22 +353,18 @@ update_all() {
 # Inclusion configuration spécifique machine
 [[ -f ~/.zshrc.local ]] && source ~/.zshrc.local
 
-# ===== STARSHIP PROMPT =====
-# Initialisation Starship (doit être à la fin)
-if command -v starship &> /dev/null; then
-    eval "$(starship init zsh)"
-fi
-
 # ===== PERFORMANCE DEBUG =====
 # Décommenter pour mesurer temps de démarrage
 # zprof
 
 # Message de bienvenue personnalisé
 if [[ -o interactive ]] && [[ -z "$TMUX" ]]; then
-    echo "🚀 Terminal $(tput setaf 6){{ .chezmoi.username }}$(tput sgr0) sur $(tput setaf 3){{ .chezmoi.hostname }}$(tput sgr0) ({{ .chezmoi.os }}/{{ .chezmoi.arch }})"
-    {{- if .personal }}
+    echo "🚀 Terminal $(tput setaf 6)sebastiengiband$(tput sgr0) sur $(tput setaf 3)Ordinateur-portable-de-Sebastien$(tput sgr0) (darwin/arm64)"
     echo "💼 Mode: $(tput setaf 2)Personnel$(tput sgr0)"
-    {{- else if .work }}
-    echo "💼 Mode: $(tput setaf 1)Entreprise$(tput sgr0)"
-    {{- end }}
+fi
+export STARSHIP_CONFIG=~/.config/starship.toml
+
+# ===== STARSHIP PROMPT =====
+if command -v starship &> /dev/null; then
+    eval "$(starship init zsh)"
 fi

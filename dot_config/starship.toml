@@ -19,7 +19,6 @@ add_newline = false
 # Module de remplissage pour séparer gauche et droite
 [fill]
 symbol = " "
-style = "bold black"
 
 # Palette de couleurs Catppuccin Mocha
 palette = "catppuccin_mocha"
@@ -30,7 +29,6 @@ palette = "catppuccin_mocha"
 success_symbol = "[❯](bold green)"
 error_symbol = "[❯](bold red)"
 vimcmd_symbol = "[❮](bold yellow)"
-vicmd_symbol = "[❮](bold yellow)"
 
 [directory]
 style = "bold blue"
