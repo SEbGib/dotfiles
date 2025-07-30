@@ -269,6 +269,8 @@ return {
   -- Notifications
   {
     "rcarriga/nvim-notify",
+    -- Pin to compatible version for older Neovim
+    version = vim.fn.has("nvim-0.8") == 1 and false or "v3.10.0",
     keys = {
       {
         "<leader>un",
@@ -291,7 +293,19 @@ return {
       end,
     },
     init = function()
-      vim.notify = require("notify")
+      -- Only set vim.notify if nvim-notify is available and working
+      local ok, notify = pcall(require, "notify")
+      if ok and notify then
+        vim.notify = notify
+      else
+        -- Fallback to default vim.notify for older versions
+        vim.notify = function(msg, level, opts)
+          local levels = { "ERROR", "WARN", "INFO", "DEBUG" }
+          level = level or vim.log.levels.INFO
+          local level_name = levels[level] or "INFO"
+          print(string.format("[%s] %s", level_name, msg))
+        end
+      end
     end,
   },
 
