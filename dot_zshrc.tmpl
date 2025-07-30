@@ -55,22 +55,7 @@ export CLICOLOR=1
 export LS_COLORS="di=34:ln=35:so=32:pi=33:ex=31:bd=34;46:cd=34;43:su=30;41:sg=30;46:tw=30;42:ow=30;43"
 
 # Chemin personnalisé
-typeset -U path PATH
-path=(
-    $HOME/.local/bin
-    $HOME/bin
-    {{- if eq .chezmoi.os "darwin" }}
-    /opt/homebrew/bin
-    /opt/homebrew/sbin
-    {{- end }}
-    {{- if lookPath "composer" }}
-    $HOME/.composer/vendor/bin
-    {{- end }}
-    {{- if lookPath "node" }}
-    $HOME/.npm-global/bin
-    {{- end }}
-    $path
-)
+export PATH="$HOME/.local/bin:$HOME/bin{{- if eq .chezmoi.os "darwin" }}:/opt/homebrew/bin:/opt/homebrew/sbin{{- end }}{{- if lookPath "composer" }}:$HOME/.composer/vendor/bin{{- end }}{{- if lookPath "node" }}:$HOME/.npm-global/bin{{- end }}:$PATH"
 
 # ===== ALIAS MODERNES =====
 # Chargement alias depuis fichier séparé
@@ -401,6 +386,12 @@ update_all() {
     
     echo "✅ Mise à jour complète terminée!"
 }
+
+# ===== STARSHIP PROMPT =====
+# Initialisation Starship (doit être à la fin)
+if command -v starship &> /dev/null; then
+    eval "$(starship init zsh)"
+fi
 
 # ===== CONFIGURATION LOCALE =====
 # Inclusion configuration spécifique machine
