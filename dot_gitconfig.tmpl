@@ -1,12 +1,12 @@
 # Configuration Git moderne - Générée par Chezmoi
-# User: {{ .name }} <{{ .email }}>
+# User: {{ index . "name" | default "User" }} <{{ index . "email" | default "user@example.com" }}>
 # Hostname: {{ .chezmoi.hostname }}
 
 [user]
-    name = {{ .name }}
-    email = {{ .email }}
-    {{- if .gpg_key_id }}
-    signingkey = {{ .gpg_key_id }}
+    name = {{ index . "name" | default "Sebastien Giband" }}
+    email = {{ index . "email" | default "sebastien.giband@gmail.com" }}
+    {{- if (index . "gpg_key_id" | default "") }}
+    signingkey = {{ index . "gpg_key_id" | default "" }}
     {{- end }}
 
 [core]
@@ -26,7 +26,7 @@
 [push]
     default = simple
     autoSetupRemote = true
-    {{- if .gpg_key_id }}
+    {{- if (index . "gpg_key_id" | default "") }}
     gpgSign = if-asked
     {{- end }}
 
