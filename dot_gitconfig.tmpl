@@ -245,7 +245,7 @@
     {{- end }}
 
 # ===== HOOKS ET SÉCURITÉ =====
-{{- if .gpg_key_id }}
+{{- if (index . "gpg_key_id" | default "") }}
 [commit]
     gpgSign = true
 

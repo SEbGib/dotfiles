@@ -405,7 +405,7 @@ docker-clean() {
 }
 
 docker-stats() {
-    docker stats --format "table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}\t{{.NetIO}}\t{{.BlockIO}}"
+    docker stats --format "table {{ "{{" }}.Container{{ "}}" }}\t{{ "{{" }}.CPUPerc{{ "}}" }}\t{{ "{{" }}.MemUsage{{ "}}" }}\t{{ "{{" }}.NetIO{{ "}}" }}\t{{ "{{" }}.BlockIO{{ "}}" }}"
 }
 
 docker-logs() {
@@ -430,7 +430,7 @@ docker-ip() {
         echo "Usage: docker-ip <container_name>"
         return 1
     fi
-    docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$1"
+    docker inspect -f '{{ "{{" }}range .NetworkSettings.Networks{{ "}}" }}{{ "{{" }}.IPAddress{{ "}}" }}{{ "{{" }}end{{ "}}" }}' "$1"
 }
 
 # Docker Compose helpers
