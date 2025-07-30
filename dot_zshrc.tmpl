@@ -362,9 +362,9 @@ if [[ -o interactive ]] && [[ -z "$TMUX" ]]; then
     echo "🚀 Terminal $(tput setaf 6)sebastiengiband$(tput sgr0) sur $(tput setaf 3)Ordinateur-portable-de-Sebastien$(tput sgr0) (darwin/arm64)"
     echo "💼 Mode: $(tput setaf 2)Personnel$(tput sgr0)"
 fi
-export STARSHIP_CONFIG=~/.config/starship.toml
 
 # ===== STARSHIP PROMPT =====
+export STARSHIP_CONFIG=~/.config/starship.toml
 if command -v starship &> /dev/null; then
     eval "$(starship init zsh)"
 fi
