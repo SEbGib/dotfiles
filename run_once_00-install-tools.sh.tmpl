@@ -1,6 +1,7 @@
 #!/bin/bash
 
-set -eufo pipefail
+# Use safer error handling - don't exit on command failures
+set -ufo pipefail
 
 # ===== ERROR HANDLING AND CLEANUP =====
 TEMP_DIR=""
@@ -420,16 +421,44 @@ fi
 
 # Installation d'outils Node.js globaux
 if command -v npm &> /dev/null; then
+    echo "📦 Configuration npm pour installation utilisateur..."
+    
+    # Créer le dossier npm global utilisateur
+    mkdir -p "$HOME/.npm-global"
+    
+    # Configurer npm pour utiliser le dossier utilisateur
+    npm config set prefix "$HOME/.npm-global" 2>/dev/null || echo "⚠️  Configuration npm échouée"
+    
+    # Ajouter au PATH si pas déjà fait
+    if [[ ":$PATH:" != *":$HOME/.npm-global/bin:"* ]]; then
+        export PATH="$HOME/.npm-global/bin:$PATH"
+    fi
+    
     echo "📦 Installation outils Node.js globaux..."
-    npm install -g \
-        typescript \
-        ts-node \
-        @types/node \
-        eslint \
-        prettier \
-        nodemon \
-        pm2 \
-        yarn
+    
+    # Liste des packages à installer
+    npm_packages=(
+        "typescript"
+        "ts-node" 
+        "@types/node"
+        "eslint"
+        "prettier"
+        "nodemon"
+        "pm2"
+        "yarn"
+    )
+    
+    # Installer chaque package individuellement pour éviter l'échec total
+    for package in "${npm_packages[@]}"; do
+        echo "📦 Installation $package..."
+        if npm install -g "$package" 2>/dev/null; then
+            echo "✅ $package installé"
+        else
+            echo "⚠️  Échec installation $package (non critique)"
+        fi
+    done
+    
+    echo "💡 Ajoutez 'export PATH=\"\$HOME/.npm-global/bin:\$PATH\"' à votre ~/.bashrc ou ~/.zshrc"
 fi
 
 # Configuration Zsh comme shell par défaut
