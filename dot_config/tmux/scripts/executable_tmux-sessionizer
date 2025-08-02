@@ -5,19 +5,36 @@
 
 set -euo pipefail
 
-# Répertoires de recherche
-search_dirs=(
-    ~/projects
-    ~/work
-    {{- if (index . "personal" | default false) }}
-    ~/personal
-    {{- end }}
-    {{- if (index . "work" | default false) }}
-    ~/company
-    {{- end }}
-    ~/.config
-    ~/
-)
+# Répertoires de recherche (uniquement ceux qui existent)
+search_dirs=()
+for dir in ~/projects ~/work ~/.config ~/; do
+    if [[ -d "$dir" ]]; then
+        search_dirs+=("$dir")
+    fi
+done
+
+# Ajout conditionnel des répertoires spécifiques
+{{- if (index . "personal" | default false) }}
+if [[ -d ~/personal ]]; then
+    search_dirs+=(~/personal)
+fi
+{{- end }}
+
+{{- if (index . "work" | default false) }}
+if [[ -d ~/company ]]; then
+    search_dirs+=(~/company)
+fi
+{{- end }}
+
+# Vérification des dépendances requises
+required_commands=("fzf" "find")
+for cmd in "${required_commands[@]}"; do
+    if ! command -v "$cmd" &> /dev/null; then
+        echo "❌ Commande requise non trouvée: $cmd"
+        echo "💡 Installer fzf avec: brew install fzf"
+        exit 1
+    fi
+done
 
 # Si un argument est fourni, l'utiliser directement
 if [[ $# -eq 1 ]]; then

@@ -7,10 +7,17 @@ set -euo pipefail
 
 project_path="${1:-$(pwd)}"
 
+# Vérification que le chemin existe
+if [[ ! -d "$project_path" ]]; then
+    echo "❌ Chemin invalide: $project_path"
+    exit 1
+fi
+
 # Fonction pour détecter le type de projet
 detect_project_type() {
     local path="$1"
     
+    # Vérification des fichiers dans l'ordre de priorité
     # Symfony
     if [[ -f "$path/bin/console" ]] || [[ -f "$path/symfony.lock" ]]; then
         echo "symfony"
@@ -36,13 +43,13 @@ detect_project_type() {
     fi
     
     # Vue.js
-    if [[ -f "$path/vue.config.js" ]] || [[ -f "$path/vite.config.js" ]] && grep -q "vue" "$path/package.json" 2>/dev/null; then
+    if ([[ -f "$path/vue.config.js" ]] || [[ -f "$path/vite.config.js" ]]) && [[ -f "$path/package.json" ]] && grep -q "vue" "$path/package.json" 2>/dev/null; then
         echo "vue"
         return 0
     fi
     
     # React (générique)
-    if [[ -f "$path/package.json" ]] && grep -q "react" "$path/package.json"; then
+    if [[ -f "$path/package.json" ]] && grep -q "react" "$path/package.json" 2>/dev/null; then
         echo "react"
         return 0
     fi

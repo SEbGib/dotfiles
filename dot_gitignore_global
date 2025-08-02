@@ -376,3 +376,6 @@ site/
 *.tfstate
 *.tfstate.*
 .terraform.lock.hcl
+
+# ===== CRUSH =====
+.crush/
