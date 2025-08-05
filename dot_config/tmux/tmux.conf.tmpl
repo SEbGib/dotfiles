@@ -215,7 +215,7 @@ set -gF window-status-separator "#[bg=#{@thm_bg},fg=#{@thm_overlay_0}]│"
 set -g window-status-current-format " #I#{?#{!=:#{window_name},Window},: #W,} "
 set -g window-status-current-style "bg=#{@thm_peach},fg=#{@thm_bg},bold"
 
-===== CONFIGURATION LOCALE =====
+#===== CONFIGURATION LOCALE =====
 # Inclusion de la configuration locale si elle existe
 if-shell "test -f ~/.tmux.conf.local" "source ~/.tmux.conf.local"
 
