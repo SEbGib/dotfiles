@@ -4,11 +4,6 @@
 # OS: {{ .chezmoi.os }}
 
 # ===== CONFIGURATION DE BASE =====
-# Utiliser Ctrl+Space comme préfixe (plus ergonomique que Ctrl+b)
-unbind C-b
-set -g prefix C-Space
-bind C-Space send-prefix
-
 # Terminal et couleurs (optimisé pour Neovim)
 set -g default-terminal "tmux-256color"
 set -ga terminal-overrides ",*256col*:Tc"
@@ -44,9 +39,7 @@ set -g set-clipboard on
 bind r source-file ~/.config/tmux/tmux.conf \; display "🔄 Configuration rechargée!"
 
 # Splits plus intuitifs (comme dans Neovim)
-bind | split-window -h -c "#{pane_current_path}"
-bind - split-window -v -c "#{pane_current_path}"
-bind '\' split-window -h -c "#{pane_current_path}"
+bind - split-window -h -c "#{pane_current_path}"
 bind _ split-window -v -c "#{pane_current_path}"
 unbind '"'
 unbind %
@@ -114,73 +107,6 @@ bind Q confirm-before -p "Tuer le serveur tmux? (y/n)" kill-server
 # Zoom toggle (utile avec Neovim)
 bind z resize-pane -Z
 
-# ===== THÈME CATPPUCCIN MOCHA (COORDONNÉ AVEC NEOVIM) =====
-# Palette de couleurs Catppuccin Mocha
-thm_bg="#1e1e2e"
-thm_fg="#cdd6f4"
-thm_cyan="#89dceb"
-thm_black="#181825"
-thm_gray="#313244"
-thm_magenta="#cba6f7"
-thm_pink="#f5c2e7"
-thm_red="#f38ba8"
-thm_green="#a6e3a1"
-thm_yellow="#f9e2af"
-thm_blue="#89b4fa"
-thm_orange="#fab387"
-thm_black4="#585b70"
-thm_surface0="#313244"
-thm_surface1="#45475a"
-thm_surface2="#585b70"
-
-# Configuration des couleurs de base
-set -g status-style "bg=$thm_bg,fg=$thm_fg"
-set -g status-left-style "bg=$thm_bg,fg=$thm_fg"
-set -g status-right-style "bg=$thm_bg,fg=$thm_fg"
-
-# Couleurs des panes (coordonnées avec Neovim)
-set -g pane-border-style "fg=$thm_surface0"
-set -g pane-active-border-style "fg=$thm_blue,bold"
-
-# Couleurs des fenêtres
-setw -g window-status-style "bg=$thm_bg,fg=$thm_surface2"
-setw -g window-status-current-style "bg=$thm_surface0,fg=$thm_blue,bold"
-setw -g window-status-activity-style "bg=$thm_bg,fg=$thm_yellow"
-setw -g window-status-bell-style "bg=$thm_red,fg=$thm_bg,bold"
-
-# Mode copie (coordonné avec Neovim)
-setw -g mode-style "bg=$thm_pink,fg=$thm_bg"
-
-# Messages
-set -g message-style "bg=$thm_orange,fg=$thm_bg,bold"
-set -g message-command-style "bg=$thm_orange,fg=$thm_bg,bold"
-
-# ===== BARRE DE STATUT MODERNE =====
-set -g status-position bottom
-set -g status-justify left
-set -g status-left-length 100
-set -g status-right-length 100
-
-# Partie gauche : session et indicateurs
-session_icon="#{?client_prefix,🟢,⚪}"
-set -g status-left "#[bg=$thm_blue,fg=$thm_bg,bold] $session_icon #S #[bg=$thm_bg,fg=$thm_blue]"
-
-# Partie droite : informations système et développement
-{{- if eq .chezmoi.os "darwin" }}
-set -g status-right "#[fg=$thm_surface1]#[bg=$thm_surface1,fg=$thm_fg] #{?#{==:#{pane_current_command},nvim},📝 NVIM,#{pane_current_command}} #[fg=$thm_surface2]#[bg=$thm_surface2,fg=$thm_fg] %d/%m #[fg=$thm_blue]#[bg=$thm_blue,fg=$thm_bg,bold] %H:%M #[bg=$thm_bg,fg=$thm_blue]#[fg=$thm_green]#[bg=$thm_green,fg=$thm_bg,bold] 🍎 #h "
-{{- else }}
-set -g status-right "#[fg=$thm_surface1]#[bg=$thm_surface1,fg=$thm_fg] #{?#{==:#{pane_current_command},nvim},📝 NVIM,#{pane_current_command}} #[fg=$thm_surface2]#[bg=$thm_surface2,fg=$thm_fg] %d/%m #[fg=$thm_blue]#[bg=$thm_blue,fg=$thm_bg,bold] %H:%M #[bg=$thm_bg,fg=$thm_blue]#[fg=$thm_green]#[bg=$thm_green,fg=$thm_bg,bold] 🐧 #h "
-{{- end }}
-
-# Format des fenêtres avec indicateurs de projet
-setw -g window-status-format "#[bg=$thm_bg,fg=$thm_surface2] #I#{?#{m:*symfony*,#{pane_current_path}},🎼,#{?#{m:*node_modules*,#{pane_current_path}},📦,}}:#W "
-setw -g window-status-current-format "#[bg=$thm_surface0,fg=$thm_blue,bold] #I#{?#{m:*symfony*,#{pane_current_path}},🎼,#{?#{m:*node_modules*,#{pane_current_path}},📦,}}:#W#{?window_zoomed_flag, 🔍,} "
-
-# Indicateurs d'activité
-setw -g monitor-activity on
-set -g visual-activity off
-set -g visual-bell off
-
 # ===== PLUGINS ESSENTIELS =====
 # Liste des plugins (TPM - Tmux Plugin Manager)
 set -g @plugin 'tmux-plugins/tpm'
@@ -231,38 +157,65 @@ set -g @thumbs-alphabet dvorak-homerow
 set -g @thumbs-reverse enabled
 set -g @thumbs-unique enabled
 
-# ===== HOOKS ET AUTOMATISATIONS =====
-# Hook pour définir le titre de la fenêtre automatiquement
-set-hook -g after-new-window 'if-shell "test -f composer.json" "rename-window \"🎼 $(basename $PWD)\""'
-set-hook -g after-new-window 'if-shell "test -f package.json" "rename-window \"📦 $(basename $PWD)\""'
-set-hook -g after-new-window 'if-shell "test -f artisan" "rename-window \"🔥 $(basename $PWD)\""'
+# Configure Catppuccin
+set -g @catppuccin_flavor "mocha"
+set -g @catppuccin_status_background "none"
+set -g @catppuccin_window_status_style "none"
+set -g @catppuccin_pane_status_enabled "off"
+set -g @catppuccin_pane_border_status "off"
 
-# Hook pour les sessions de développement
-set-hook -g after-new-session 'if-shell "test -f composer.json" "rename-session \"🎼 $(basename $PWD)\""'
-set-hook -g after-new-session 'if-shell "test -f package.json" "rename-session \"📦 $(basename $PWD)\""'
+# Configure Online status
+set -g @online_icon "ok"
+set -g @offline_icon "nok"
 
-# ===== RACCOURCIS DÉVELOPPEMENT PHP/SYMFONY =====
-# Outils de développement rapides
-bind g new-window -n "🔍 lazygit" -c "#{pane_current_path}" "lazygit"
-bind N new-window -n "📝 nvim" -c "#{pane_current_path}" "nvim ."
-bind P new-window -n "🐘 php" -c "#{pane_current_path}" "php -a"
+# status left look and feel
+set -g status-left-length 100
+set -g status-left ""
+set -ga status-left "#{?client_prefix,#{#[bg=#{@thm_red},fg=#{@thm_bg},bold]  #S },#{#[bg=#{@thm_bg},fg=#{@thm_green}]  #S }}"
+# set -ga status-left "#[bg=#{@thm_bg},fg=#{@thm_overlay_0},none]│"
+# set -ga status-left "#[bg=#{@thm_bg},fg=#{@thm_maroon}]  #{pane_current_command} "
+set -ga status-left "#[bg=#{@thm_bg},fg=#{@thm_overlay_0},none]│"
+set -ga status-left "#[bg=#{@thm_bg},fg=#{@thm_blue}]  #{=/-32/...:#{s|$USER|~|:#{b:pane_current_path}}} "
+set -ga status-left "#[bg=#{@thm_bg},fg=#{@thm_overlay_0},none]#{?window_zoomed_flag,│,}"
+set -ga status-left "#[bg=#{@thm_bg},fg=#{@thm_yellow}]#{?window_zoomed_flag,  zoom ,}"
 
-# Symfony spécifique
-bind s new-window -n "🎼 symfony" -c "#{pane_current_path}" "symfony console"
-bind C new-window -n "🧹 cache" -c "#{pane_current_path}" "symfony console cache:clear && echo 'Cache cleared! Press any key...' && read"
+# status right look and feel
+set -g status-right-length 100
+set -g status-right ""
+set -ga status-right "#{?#{e|>=:10,#{battery_percentage}},#{#[bg=#{@thm_red},fg=#{@thm_bg}]},#{#[bg=#{@thm_bg},fg=#{@thm_pink}]}} #{battery_icon} #{battery_percentage} "
+set -ga status-right "#[bg=#{@thm_bg},fg=#{@thm_overlay_0}, none]│"
+set -ga status-right "#[bg=#{@thm_bg}]#{?#{==:#{online_status},ok},#[fg=#{@thm_mauve}] 󰖩 on ,#[fg=#{@thm_red},bold]#[reverse] 󰖪 off }"
+# set -ga status-right "#[bg=#{@thm_bg},fg=#{@thm_overlay_0}, none]│"
+# set -ga status-right "#[bg=#{@thm_bg},fg=#{@thm_blue}] 󰭦 %Y-%m-%d 󰅐 %H:%M "
 
-# Tests et qualité
-bind T new-window -n "🧪 tests" -c "#{pane_current_path}" "{{- if eq .chezmoi.os "darwin" }}if test -f vendor/bin/phpunit; then vendor/bin/phpunit; elif test -f bin/phpunit; then bin/phpunit; else echo 'PHPUnit not found'; fi{{- else }}phpunit{{- end }}"
 
-# ===== CONFIGURATION AVANCÉE =====
-# Amélioration de la gestion des couleurs pour Neovim
-set -as terminal-overrides ',*:Smulx=\E[4::%p1%dm'
-set -as terminal-overrides ',*:Setulc=\E[58::2::%p1%{65536}%/%d::%p1%{256}%/%{255}%&%d::%p1%{255}%&%d%;m'
+# Configure Tmux
+set -g status-position bottom
+set -g status-style "bg=#{@thm_bg}"
+set -g status-justify "absolute-centre"
 
-# Support des undercurls (soulignements ondulés) pour Neovim
-set -as terminal-overrides ',*:Smulx=\E[4::%p1%dm'
+# pane border look and feel
+# setw -g pane-border-status top
+# setw -g pane-border-format ""
+# setw -g pane-active-border-style "bg=#{@thm_bg},fg=#{@thm_overlay_0}"
+# setw -g pane-border-style "bg=#{@thm_bg},fg=#{@thm_surface_0}"
+# setw -g pane-border-lines single
 
-# ===== CONFIGURATION LOCALE =====
+# window look and feel
+set -wg automatic-rename on
+set -g automatic-rename-format "#{pane_current_command}"
+
+set -g window-status-format " #I#{?#{!=:#{window_name},Window},: #W,} "
+set -g window-status-style "bg=#{@thm_bg},fg=#{@thm_rosewater}"
+set -g window-status-last-style "bg=#{@thm_bg},fg=#{@thm_peach}"
+set -g window-status-activity-style "bg=#{@thm_red},fg=#{@thm_bg}"
+set -g window-status-bell-style "bg=#{@thm_red},fg=#{@thm_bg},bold"
+set -gF window-status-separator "#[bg=#{@thm_bg},fg=#{@thm_overlay_0}]│"
+
+set -g window-status-current-format " #I#{?#{!=:#{window_name},Window},: #W,} "
+set -g window-status-current-style "bg=#{@thm_peach},fg=#{@thm_bg},bold"
+
+===== CONFIGURATION LOCALE =====
 # Inclusion de la configuration locale si elle existe
 if-shell "test -f ~/.tmux.conf.local" "source ~/.tmux.conf.local"
 
@@ -274,5 +227,3 @@ if "test ! -d ~/.tmux/plugins/tpm" \
 # Initialisation du gestionnaire de plugins (doit être à la fin)
 run '~/.tmux/plugins/tpm/tpm'
 
-# ===== MESSAGES DE DÉMARRAGE =====
-display-message "🚀 tmux optimisé pour Neovim avec Catppuccin Mocha"
