@@ -83,7 +83,7 @@ which fzf ripgrep    # Outils modernes installés
 - `↑/↓` : Recherche dans l'historique
 - `Ctrl+R` : Recherche fuzzy avec fzf
 
-### Tmux (Prefix: `Ctrl+Space`)
+### Tmux (Prefix: `Ctrl+b`)
 - `|` : Split vertical
 - `-` : Split horizontal
 - `Alt+hjkl` : Navigation entre panes (sans prefix)
@@ -129,12 +129,6 @@ chezmoi cd
 vim .chezmoi.toml
 chezmoi apply
 ```
-
-### Ajouter des secrets Bitwarden
-
-1. Créez les items dans votre vault Bitwarden
-2. Utilisez dans les templates : `{{ (bitwarden "item" "Nom Item").login.password }}`
-3. Appliquez : `chezmoi apply`
 
 ### Configuration locale
 

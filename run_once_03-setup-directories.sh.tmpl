@@ -13,23 +13,6 @@ mkdir -p "$HOME/.config"
 mkdir -p "$HOME/.cache"
 mkdir -p "$HOME/projects"
 
-{{- if (index . "personal" | default false) }}
-mkdir -p "$HOME/personal"
-echo "  ✅ Dossier personnel créé"
-{{- end }}
-
-{{- if (index . "work" | default false) }}
-mkdir -p "$HOME/work"
-mkdir -p "$HOME/company"
-echo "  ✅ Dossiers professionnels créés"
-{{- end }}
-
-# Dossiers utilitaires
-mkdir -p "$HOME/projects/scripts"
-mkdir -p "$HOME/projects/dotfiles"
-mkdir -p "$HOME/projects/learning"
-mkdir -p "$HOME/projects/sandbox"
-
 echo "  ✅ Dossiers de développement créés"
 
 # Configuration des dossiers tmux
@@ -129,12 +112,6 @@ echo ""
 echo "📋 Dossiers créés :"
 echo "   • ~/.local/bin (binaires personnels)"
 echo "   • ~/projects/* (projets de développement)"
-{{- if (index . "personal" | default false) }}
-echo "   • ~/personal (projets personnels)"
-{{- end }}
-{{- if (index . "work" | default false) }}
-echo "   • ~/work et ~/company (projets professionnels)"
-{{- end }}
 echo "   • ~/.config/* (configurations)"
 echo "   • ~/.cache/* (cache applications)"
 echo ""

@@ -21,7 +21,7 @@ window-padding-balance = false
 
 # ===== BEHAVIOR =====
 # Shell integration - let tmux handle session management
-shell-integration = true
+shell-integration = detect
 shell-integration-features = cursor,sudo,title
 
 # Scrollback - moderate since tmux handles history
@@ -74,20 +74,9 @@ link-url = true
 
 # Bell configuration - minimal since tmux handles notifications
 desktop-notifications = false
-audible-bell = false
-visual-bell = false
-
-# ===== MACOS SPECIFIC =====
-{{- if eq .chezmoi.os "darwin" }}
-# macOS integration
-macos-non-native-fullscreen = false
-macos-option-as-alt = true
-macos-titlebar-style = tabs
-{{- end }}
 
 # ===== DEVELOPMENT =====
 # Quick terminal toggle for development
-quick-terminal = true
 quick-terminal-position = top
 quick-terminal-screen = main
 quick-terminal-animation-duration = 200
