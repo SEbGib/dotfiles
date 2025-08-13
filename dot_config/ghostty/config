@@ -59,6 +59,9 @@ keybind = cmd+w=close_surface
 # Search in terminal
 keybind = cmd+f=toggle_quick_terminal
 
+# Alt key behavior - essential for tmux Alt+hjkl navigation
+macos-option-as-alt = true
+
 # ===== TMUX INTEGRATION =====
 # Cursor shape support for vim/nvim in tmux
 cursor-style = block
