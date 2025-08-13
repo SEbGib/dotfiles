@@ -185,14 +185,35 @@ if-shell "test -f ~/.tmux.conf.local" "source ~/.tmux.conf.local"
 if "test ! -d ~/.config/tmux/.tmux/plugins/tpm" \
    "run 'git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/.tmux/plugins/tpm && ~/.config/tmux/.tmux/plugins/tpm/bin/install_plugins'"
 
-# Manual Rose Pine status bar (overrides plugin issues)
+# Rose Pine theme status bar - bottom position to match reference
+set -g status-position bottom
 set -g status-bg "#191724"
 set -g status-fg "#e0def4"
-set -g status-left "#[bg=#eb6f92,fg=#191724,bold]  #S #[bg=#191724,fg=#eb6f92,nobold]#[fg=#908caa] │ "
-set -g status-right "#[fg=#908caa]│ #[fg=#c4a7e7] %H:%M #[fg=#908caa]│ #[fg=#ebbcba] #h "
-set -g window-status-current-format "#[bg=#31748f,fg=#e0def4,bold] #I: #W "
-set -g window-status-format "#[fg=#6e6a86] #I: #W "
-set -g window-status-separator "  "
+set -g status-left-length 40
+set -g status-right-length 40
+
+# Left side: session name
+set -g status-left "#[bg=#191724,fg=#e0def4,bold] #S "
+
+# Right side: battery and status
+{{- if eq .chezmoi.os "darwin" }}
+set -g status-right "#[fg=#e0def4] #{battery_percentage} #[fg=#908caa]│ #[fg=#e0def4]on "
+{{- else }}
+set -g status-right "#[fg=#e0def4]on "
+{{- end }}
+
+# Window status - active tab with orange/amber background like in image
+set -g window-status-current-format "#[bg=#f6c177,fg=#191724,bold] #I: #W "
+set -g window-status-format "#[fg=#e0def4] #I: #W "
+set -g window-status-separator " #[fg=#908caa]│ "
+
+# Pane borders
+set -g pane-border-style "fg=#6e6a86"
+set -g pane-active-border-style "fg=#31748f"
+
+# Messages
+set -g message-style "bg=#eb6f92,fg=#191724"
+set -g message-command-style "bg=#c4a7e7,fg=#191724"
 
 # Initialize plugin manager (keep at the very bottom)
 run '~/.config/tmux/.tmux/plugins/tpm/tpm'
