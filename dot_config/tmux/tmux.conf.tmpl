@@ -8,6 +8,9 @@
 set -g default-terminal "tmux-256color"
 {{- if eq .chezmoi.os "darwin" }}
 set -ag terminal-overrides ",xterm-256color:RGB"
+set -ag terminal-overrides ",*256col*:Tc"
+set -ag terminal-overrides ",alacritty:RGB"
+set -ag terminal-overrides ",ghostty:RGB"
 set -gq allow-passthrough on
 {{- else }}
 set -ga terminal-overrides ",*256col*:Tc"
