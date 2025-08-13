@@ -6,11 +6,11 @@ if command -v fzf &> /dev/null; then
     export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
     export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
     
-    # Thème Catppuccin Mocha pour FZF
+    # Thème Rose Pine pour FZF
     export FZF_DEFAULT_OPTS="
-        --color=bg+:#363a4f,bg:#24273a,spinner:#f4dbd6,hl:#ed8796
-        --color=fg:#cad3f5,header:#ed8796,info:#c6a0f6,pointer:#f4dbd6
-        --color=marker:#f4dbd6,fg+:#cad3f5,prompt:#c6a0f6,hl+:#ed8796
+        --color=bg+:#1f1d2e,bg:#191724,spinner:#ebbcba,hl:#eb6f92
+        --color=fg:#e0def4,header:#eb6f92,info:#c4a7e7,pointer:#ebbcba
+        --color=marker:#ebbcba,fg+:#e0def4,prompt:#c4a7e7,hl+:#eb6f92
         --height 40% --layout=reverse --border rounded --preview-window=right:60%
         --bind='ctrl-u:preview-page-up,ctrl-d:preview-page-down'
         --bind='ctrl-/:toggle-preview'
@@ -451,3 +451,56 @@ dc-fresh() {
     docker-compose up -d
     echo "✅ Environnement Docker redémarré"
 }
+
+# ===== CLAUDE CODE & CCUSAGE =====
+{{- if lookPath "claude" }}
+# Claude Code helper functions
+claude-session() {
+    if [[ $# -eq 0 ]]; then
+        echo "💭 Nouvelle session Claude Code..."
+        claude
+    else
+        echo "💭 Claude Code: $*"
+        claude "$@"
+    fi
+}
+
+# Quick Claude Code usage check  
+claude-usage() {
+    if command -v ccusage &> /dev/null; then
+        echo "📊 Utilisation Claude Code aujourd'hui:"
+        ccusage --since today
+    else
+        echo "⚠️  ccusage non installé. Installer avec: npm install -g ccusage"
+    fi
+}
+
+# Show Claude Code cost for current month
+claude-cost() {
+    if command -v ccusage &> /dev/null; then
+        echo "💰 Coût Claude Code ce mois-ci:"
+        ccusage monthly --since "$(date +%Y%m)01"
+    else
+        echo "⚠️  ccusage non installé"
+    fi
+}
+{{- end }}
+
+{{- if lookPath "ccusage" }}
+# ccusage quick functions
+usage-today() { ccusage --since today; }
+usage-week() { ccusage --since "$(date -d '1 week ago' '+%Y%m%d' 2>/dev/null || date -v-1w '+%Y%m%d')"; }
+usage-month() { ccusage monthly; }
+usage-cost() { ccusage --json --since today | jq -r '.summary.total_cost' 2>/dev/null || echo "N/A"; }
+
+# Add ccusage status to prompt (optional - uncomment to use)
+# ccusage_status() {
+#   if command -v ccusage &> /dev/null; then
+#     local cost=$(ccusage --json --since today 2>/dev/null | jq -r '.summary.total_cost' 2>/dev/null)
+#     if [[ "$cost" != "null" && "$cost" != "N/A" && -n "$cost" ]]; then
+#       echo "💰$cost"
+#     fi
+#   fi
+# }
+# Add to your prompt: $(ccusage_status)
+{{- end }}

@@ -8,9 +8,11 @@ font-size = 14
 font-thicken = true
 
 # Theme and colors - minimal to let tmux/starship handle styling
-background-opacity = 0.95
-background-blur-radius = 20
 config-file = themes/rosepine
+
+background = #000000
+background-opacity = 0.75
+background-blur-radius = 20
 
 # Window appearance
 window-decoration = true
@@ -61,6 +63,7 @@ keybind = cmd+f=toggle_quick_terminal
 # Cursor shape support for vim/nvim in tmux
 cursor-style = block
 cursor-style-blink = false
+cursor-invert-fg-bg = true
 
 # True color support for tmux and nvim
 term = xterm-256color
@@ -74,6 +77,8 @@ link-url = true
 
 # Bell configuration - minimal since tmux handles notifications
 desktop-notifications = false
+
+macos-titlebar-style = hidden
 
 # ===== DEVELOPMENT =====
 # Quick terminal toggle for development

@@ -127,7 +127,7 @@ return {
       { "<leader>ut", "<cmd>Tmuxline<cr>", desc = "Update Tmux statusline" },
     },
     init = function()
-      -- Tmuxline configuration to match our Catppuccin theme
+      -- Tmuxline configuration to match our Rose Pine theme
       vim.g.tmuxline_preset = {
         a = "#S",
         b = "#W",

@@ -158,6 +158,9 @@ cask "ghostty"
 cask "raycast"
 cask "visual-studio-code"
 {{- end }}
+
+# Claude Code CLI
+cask "claude-code"
 EOF
 
 {{- else if eq .chezmoi.os "linux" }}
@@ -195,6 +198,15 @@ if command -v apt &> /dev/null; then
         software-properties-common \
         apt-transport-https \
         ca-certificates
+        
+    # Claude Code CLI
+    if ! command -v claude &> /dev/null; then
+        echo "📦 Installation Claude Code CLI..."
+        # Installation via curl (method recommandé par Anthropic)
+        curl -L -o claude "https://storage.googleapis.com/claude-cli/claude-linux-$(uname -m)"
+        chmod +x claude
+        sudo mv claude /usr/local/bin/
+    fi
         
     # Ghostty terminal (via GitHub releases)
     if ! command -v ghostty &> /dev/null; then
@@ -306,6 +318,14 @@ elif command -v pacman &> /dev/null; then
         python \
         python-pip
         
+    # Claude Code CLI
+    if ! command -v claude &> /dev/null; then
+        echo "📦 Installation Claude Code CLI..."
+        curl -L -o claude "https://storage.googleapis.com/claude-cli/claude-linux-$(uname -m)"
+        chmod +x claude
+        sudo mv claude /usr/local/bin/
+    fi
+        
     # Ghostty terminal (AUR)
     if command -v yay &> /dev/null && ! command -v ghostty &> /dev/null; then
         yay -S --noconfirm ghostty
@@ -318,6 +338,41 @@ elif command -v pacman &> /dev/null; then
 fi
 
 # Installation manuelle des outils manquants
+
+# Claude Code CLI (si pas déjà installé)
+if ! command -v claude &> /dev/null; then
+    echo "📦 Installation Claude Code CLI..."
+    
+    # Déterminer l'architecture et l'OS
+    CLAUDE_OS="{{ .chezmoi.os }}"
+    CLAUDE_ARCH="{{ .chezmoi.arch }}"
+    
+    # Mapping d'architecture pour Claude Code
+    case "$CLAUDE_ARCH" in
+        amd64|x86_64) CLAUDE_ARCH="x86_64" ;;
+        arm64|aarch64) CLAUDE_ARCH="arm64" ;;
+        *) CLAUDE_ARCH="x86_64" ;; # Default fallback
+    esac
+    
+    if [[ "$CLAUDE_OS" == "darwin" ]]; then
+        CLAUDE_URL="https://storage.googleapis.com/claude-cli/claude-macos-${CLAUDE_ARCH}"
+    elif [[ "$CLAUDE_OS" == "linux" ]]; then
+        CLAUDE_URL="https://storage.googleapis.com/claude-cli/claude-linux-${CLAUDE_ARCH}"
+    else
+        echo "⚠️  OS non supporté pour Claude Code CLI: $CLAUDE_OS"
+        CLAUDE_URL=""
+    fi
+    
+    if [[ -n "$CLAUDE_URL" ]]; then
+        if safe_download "$CLAUDE_URL" "$TEMP_DIR/claude"; then
+            chmod +x "$TEMP_DIR/claude"
+            sudo mv "$TEMP_DIR/claude" /usr/local/bin/ || mv "$TEMP_DIR/claude" "$HOME/.local/bin/" 2>/dev/null || echo "⚠️  Installation Claude Code dans le répertoire utilisateur échouée"
+            echo "✅ Claude Code CLI installé"
+        else
+            echo "⚠️  Claude Code CLI non installé (échec téléchargement)"
+        fi
+    fi
+fi
 
 # Starship
 if ! command -v starship &> /dev/null; then
@@ -448,6 +503,7 @@ if command -v npm &> /dev/null; then
         "nodemon"
         "pm2"
         "yarn"
+        "ccusage"
     )
     
     # Installer chaque package individuellement pour éviter l'échec total
@@ -478,7 +534,7 @@ echo ""
 echo "🔍 Vérification des installations..."
 tools_to_check=(
     "zsh" "starship" "neovim" "tmux" "git" "fzf" "ripgrep" "fd" "bat" "eza" 
-    "zoxide" "lazygit" "node" "npm" "php" "composer" "docker" "chezmoi" "ghostty"
+    "zoxide" "lazygit" "node" "npm" "php" "composer" "docker" "chezmoi" "ghostty" "claude" "ccusage"
 )
 
 for tool in "${tools_to_check[@]}"; do
@@ -508,6 +564,7 @@ echo "   • Starship (prompt moderne)"
 echo "   • Zsh (shell avancé)"
 echo "   • Neovim + tmux (éditeur et multiplexeur)"
 echo "   • Docker + Lazydocker (conteneurs)"
+echo "   • Claude Code + ccusage (CLI AI assistant + usage tracker)"
 echo "   • Outils modernes CLI (fzf, ripgrep, bat, eza, etc.)"
 echo "   • Développement (Node.js, PHP, Python)"
 echo ""

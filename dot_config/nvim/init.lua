@@ -1,6 +1,6 @@
 -- Neovim Configuration moderne - Générée par Chezmoi
 -- Optimisée pour PHP/Symfony et TypeScript
--- Thème: Catppuccin Mocha coordonné
+-- Thème: Rose Pine coordonné
 
 -- ===== CONFIGURATION DE BASE =====
 -- Désactiver les plugins par défaut pour améliorer les performances
@@ -52,7 +52,7 @@ require("lazy").setup("plugins", {
   },
   install = {
     missing = true,
-    colorscheme = { "catppuccin" },
+    colorscheme = { "rose-pine" },
   },
   checker = {
     enabled = true,
@@ -89,7 +89,7 @@ vim.api.nvim_create_autocmd("VimEnter", {
   callback = function()
     if vim.fn.argc() == 0 then
       vim.defer_fn(function()
-        vim.notify("🚀 Neovim configuré avec Catppuccin Mocha", vim.log.levels.INFO, { title = "Dotfiles" })
+        vim.notify("🚀 Neovim configuré avec Rose Pine", vim.log.levels.INFO, { title = "Dotfiles" })
       end, 100)
     end
   end,

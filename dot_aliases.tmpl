@@ -369,6 +369,34 @@ alias czs='chezmoi status'
 alias czu='chezmoi update'
 alias czcd='chezmoi cd'
 
+# ===== CLAUDE CODE & CCUSAGE =====
+{{- if lookPath "claude" }}
+# Claude Code
+alias c='claude'
+alias chat='claude'
+alias ai='claude'
+{{- end }}
+
+{{- if lookPath "ccusage" }}
+# ccusage - Claude Code Usage Analytics
+alias usage='ccusage'
+alias cu='ccusage'                    # Quick usage report
+alias cum='ccusage monthly'           # Monthly report  
+alias cus='ccusage session'           # Usage by session
+alias cub='ccusage blocks'            # 5-hour billing windows
+alias custat='ccusage --json | jq'   # JSON stats with jq formatting
+alias cuhelp='ccusage --help'         # Show help
+
+# ccusage with time filters
+alias cutoday='ccusage --since today'
+alias cuyesterday='ccusage --since yesterday --until today'
+alias cuweek='ccusage --since "1 week ago"'
+alias cumonth='ccusage --since "1 month ago"'
+
+# Quick status for shell prompt or scripts  
+alias custatus='ccusage --json --since today | jq -r ".summary.total_cost" 2>/dev/null || echo "N/A"'
+{{- end }}
+
 # Tmux sessionizer
 alias work-session='ts'  # Utilise la fonction ts() définie dans .zshrc
 
