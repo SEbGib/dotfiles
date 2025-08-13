@@ -185,5 +185,14 @@ if-shell "test -f ~/.tmux.conf.local" "source ~/.tmux.conf.local"
 if "test ! -d ~/.config/tmux/.tmux/plugins/tpm" \
    "run 'git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/.tmux/plugins/tpm && ~/.config/tmux/.tmux/plugins/tpm/bin/install_plugins'"
 
+# Manual Rose Pine status bar (overrides plugin issues)
+set -g status-bg "#191724"
+set -g status-fg "#e0def4"
+set -g status-left "#[bg=#eb6f92,fg=#191724,bold]  #S #[bg=#191724,fg=#eb6f92,nobold]#[fg=#908caa] │ "
+set -g status-right "#[fg=#908caa]│ #[fg=#c4a7e7] %H:%M #[fg=#908caa]│ #[fg=#ebbcba] #h "
+set -g window-status-current-format "#[bg=#31748f,fg=#e0def4,bold] #I: #W "
+set -g window-status-format "#[fg=#6e6a86] #I: #W "
+set -g window-status-separator "  "
+
 # Initialize plugin manager (keep at the very bottom)
 run '~/.config/tmux/.tmux/plugins/tpm/tpm'
