@@ -54,6 +54,19 @@ bind -r k resize-pane -U 5
 bind -r l resize-pane -R 5
 bind -r h resize-pane -L 5
 
+# Additional navigation for AZERTY/French keyboards
+# Alternative pane navigation (prefix + arrow keys)
+bind -r Up select-pane -U
+bind -r Down select-pane -D
+bind -r Left select-pane -L  
+bind -r Right select-pane -R
+
+# AZERTY-specific hjkl alternatives (prefix + keys)
+bind -r H select-pane -L
+bind -r J select-pane -D  
+bind -r K select-pane -U
+bind -r L select-pane -R
+
 # Maximize panes
 bind -r m resize-pane -Z
 
@@ -87,7 +100,16 @@ set-environment -g TMUX_PLUGIN_MANAGER_PATH ~/.config/tmux/.tmux/plugins
 # Core plugins
 set -g @plugin 'tmux-plugins/tpm'
 set -g @plugin 'tmux-plugins/tmux-sensible'
-set -g @plugin 'christoomey/vim-tmux-navigator'
+# vim-tmux-navigator disabled - using custom Alt+hjkl bindings
+# set -g @plugin 'christoomey/vim-tmux-navigator'
+
+# Custom navigation to match nvim Alt+hjkl setup
+# Alt+h/j/k/l for pane navigation (matches nvim config)
+bind -n M-h select-pane -L
+bind -n M-j select-pane -D
+bind -n M-k select-pane -U
+bind -n M-l select-pane -R
+bind -n M-\\ select-pane -l
 
 # Session management
 set -g @plugin 'omerxx/tmux-sessionx'
@@ -105,8 +127,8 @@ set -g @plugin 'tmux-plugins/tmux-battery'
 set -g @plugin 'fcsonline/tmux-thumbs'
 {{- end }}
 
-# Rose Pine theme
-set -g @plugin 'rose-pine/tmux'
+# Rose Pine theme (disabled - using manual config below)
+# set -g @plugin 'rose-pine/tmux'
 
 # ===== ROSE PINE THEME CONFIGURATION =====
 set -g @rose_pine_variant 'main' # main, moon, or dawn
@@ -185,27 +207,27 @@ if-shell "test -f ~/.tmux.conf.local" "source ~/.tmux.conf.local"
 if "test ! -d ~/.config/tmux/.tmux/plugins/tpm" \
    "run 'git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/.tmux/plugins/tpm && ~/.config/tmux/.tmux/plugins/tpm/bin/install_plugins'"
 
-# Rose Pine theme status bar - bottom position to match reference
+# Rose Pine theme status bar - translucent with centered layout
 set -g status-position bottom
-set -g status-bg "#191724"
-set -g status-fg "#e0def4"
-set -g status-left-length 40
-set -g status-right-length 40
+set -g status-style "bg=default,fg=#e0def4"
+set -g status-left-length 50
+set -g status-right-length 50
+set -g status-justify centre
 
-# Left side: session name
-set -g status-left "#[bg=#191724,fg=#e0def4,bold] #S "
+# Left side: session with icon
+set -g status-left "#[fg=#eb6f92,bold]󰊠 #S "
 
-# Right side: battery and status
+# Right side: battery and wifi icons
 {{- if eq .chezmoi.os "darwin" }}
-set -g status-right "#[fg=#e0def4] #{battery_percentage} #[fg=#908caa]│ #[fg=#e0def4]on "
+set -g status-right "#[fg=#c4a7e7]󰁹 #{battery_percentage} #[fg=#9ccfd8]󰖩 on"
 {{- else }}
-set -g status-right "#[fg=#e0def4]on "
+set -g status-right "#[fg=#9ccfd8]󰖩 on"
 {{- end }}
 
-# Window status - active tab with orange/amber background like in image
+# Window status - refined colors and centered
 set -g window-status-current-format "#[bg=#f6c177,fg=#191724,bold] #I: #W "
-set -g window-status-format "#[fg=#e0def4] #I: #W "
-set -g window-status-separator " #[fg=#908caa]│ "
+set -g window-status-format "#[fg=#6e6a86] #I: #W "
+set -g window-status-separator "  "
 
 # Pane borders
 set -g pane-border-style "fg=#6e6a86"

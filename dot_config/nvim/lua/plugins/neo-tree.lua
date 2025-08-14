@@ -16,7 +16,7 @@ return {
     { "<leader>ge", "<cmd>Neotree git_status<cr>", desc = "Git explorer" },
     { "<leader>be", "<cmd>Neotree buffers<cr>", desc = "Buffer explorer" },
     { "<leader>se", "<cmd>Neotree document_symbols<cr>", desc = "Symbols explorer" },
-    { "<leader>fE", function() require("neo-tree.command").execute({ toggle = true, dir = vim.loop.cwd() }) end, desc = "Explorer NeoTree (cwd)" },
+    { "<leader>fE", function() require("neo-tree.command").execute({ toggle = true, dir = vim.uv.cwd() }) end, desc = "Explorer NeoTree (cwd)" },
     { "<c-n>", "<cmd>Neotree toggle<cr>", desc = "Toggle Explorer" },
   },
   deactivate = function()
@@ -29,7 +29,7 @@ return {
     
     -- Ouvrir neo-tree si nvim est lancé avec un dossier
     if vim.fn.argc(-1) == 1 then
-      local stat = vim.loop.fs_stat(vim.fn.argv(0))
+      local stat = vim.uv.fs_stat(vim.fn.argv(0))
       if stat and stat.type == "directory" then
         require("neo-tree")
       end
@@ -47,12 +47,6 @@ return {
     sort_case_insensitive = false,
     sort_function = nil,
     default_source = "filesystem",
-    sources = {
-      "filesystem",
-      "buffers", 
-      "git_status",
-      "document_symbols",
-    },
     source_selector = {
       winbar = false,
       statusline = false,

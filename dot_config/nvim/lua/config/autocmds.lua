@@ -75,7 +75,7 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
     if event.match:match("^%w%w+://") then
       return
     end
-    local file = vim.loop.fs_realpath(event.match) or event.match
+    local file = vim.uv.fs_realpath(event.match) or event.match
     vim.fn.mkdir(vim.fn.fnamemodify(file, ":p:h"), "p")
   end,
 })
@@ -140,7 +140,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
 vim.api.nvim_create_autocmd("BufReadPre", {
   group = augroup("big_file"),
   callback = function(event)
-    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(event.buf))
+    local ok, stats = pcall(vim.uv.fs_stat, vim.api.nvim_buf_get_name(event.buf))
     if ok and stats and stats.size > 1024 * 1024 then -- 1MB
       vim.b[event.buf].big_file = true
       vim.opt_local.syntax = ""
