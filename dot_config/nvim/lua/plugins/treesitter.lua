@@ -75,7 +75,7 @@ return {
         "markdown",
         "markdown_inline",
         
-        -- Shell and system  
+        -- Shell and system
         "bash",
         "fish",
         

@@ -74,7 +74,8 @@
       "WebSearch",
       "WebFetch(domain:api.github.com)",
       "Bash(XDG_CONFIG_HOME=\"/Users/sebastiengiband/Downloads/dotfiles/dot_config\" nvim --headless -c 'lua print(\"\"Testing nvim config\"\")' -c 'qa!')",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(git checkout:*)"
     ],
     "deny": []
   }
