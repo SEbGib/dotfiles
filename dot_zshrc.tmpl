@@ -504,3 +504,58 @@ usage-cost() { ccusage --json --since today | jq -r '.summary.total_cost' 2>/dev
 # }
 # Add to your prompt: $(ccusage_status)
 {{- end }}
+
+# ===== ZSH PLUGINS =====
+# Plugin directory
+ZSH_CUSTOM=${ZSH_CUSTOM:-~/.oh-my-zsh/custom}
+
+# Load zsh-autosuggestions
+if [[ -f "$ZSH_CUSTOM/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+    source "$ZSH_CUSTOM/plugins/zsh-autosuggestions/zsh-autosuggestions.zsh"
+fi
+
+# Load fast-syntax-highlighting (must be last)
+if [[ -f "$ZSH_CUSTOM/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh" ]]; then
+    source "$ZSH_CUSTOM/plugins/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh"
+fi
+
+# Load zsh-completions
+if [[ -d "$ZSH_CUSTOM/plugins/zsh-completions/src" ]]; then
+    fpath=("$ZSH_CUSTOM/plugins/zsh-completions/src" $fpath)
+fi
+
+# Load zsh-history-substring-search
+if [[ -f "$ZSH_CUSTOM/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh" ]]; then
+    source "$ZSH_CUSTOM/plugins/zsh-history-substring-search/zsh-history-substring-search.zsh"
+    # Bind keys for history search
+    bindkey '^[[A' history-substring-search-up
+    bindkey '^[[B' history-substring-search-down
+    bindkey '^P' history-substring-search-up
+    bindkey '^N' history-substring-search-down
+fi
+
+# Load zsh-z
+if [[ -f "$ZSH_CUSTOM/plugins/zsh-z/zsh-z.plugin.zsh" ]]; then
+    source "$ZSH_CUSTOM/plugins/zsh-z/zsh-z.plugin.zsh"
+fi
+
+# Load zsh-bat
+if [[ -f "$ZSH_CUSTOM/plugins/zsh-bat/zsh-bat.plugin.zsh" ]]; then
+    source "$ZSH_CUSTOM/plugins/zsh-bat/zsh-bat.plugin.zsh"
+fi
+
+# Configure autosuggestions
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE="fg=#626880,bold"
+ZSH_AUTOSUGGEST_STRATEGY=(history completion)
+ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE=20
+
+# Configure history substring search
+HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_FOUND="bg=magenta,fg=white,bold"
+HISTORY_SUBSTRING_SEARCH_HIGHLIGHT_NOT_FOUND="bg=red,fg=white,bold"
+
+# Initialize starship prompt (must be at the end)
+{{- if lookPath "starship" }}
+if command -v starship &> /dev/null; then
+    eval "$(starship init zsh)"
+fi
+{{- end }}
