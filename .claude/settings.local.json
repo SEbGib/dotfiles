@@ -88,7 +88,8 @@
     ],
     "deny": [],
     "additionalDirectories": [
-      "/private/tmp/nvim-test"
+      "/private/tmp/nvim-test",
+      "/Users/sebastiengiband/.local/share/nvim/lazy/LazyVim"
     ]
   }
 }
