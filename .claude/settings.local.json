@@ -84,12 +84,15 @@
       "mcp__notion__notion-create-pages",
       "mcp__notion__notion-update-page",
       "mcp__notion__fetch",
-      "Bash(true)"
+      "Bash(true)",
+      "Bash(rg:*)"
     ],
     "deny": [],
     "additionalDirectories": [
       "/private/tmp/nvim-test",
-      "/Users/sebastiengiband/.local/share/nvim/lazy/LazyVim"
-    ]
+      "/Users/sebastiengiband/.local/share/nvim/lazy/LazyVim",
+      "/Users/sebastiengiband"
+    ],
+    "defaultMode": "acceptEdits"
   }
 }
