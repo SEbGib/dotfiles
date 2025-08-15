@@ -120,7 +120,7 @@ return {
             end,
           },
         },
-        extensions = { "neo-tree", "lazy" },
+        extensions = { "lazy" },
       }
     end,
   },
@@ -157,14 +157,7 @@ return {
             .. (diag.warning and icons.Warn .. diag.warning or "")
           return vim.trim(ret)
         end,
-        offsets = {
-          {
-            filetype = "neo-tree",
-            text = "Neo-tree",
-            highlight = "Directory",
-            text_align = "left",
-          },
-        },
+        offsets = {},
       },
     },
     config = function(_, opts)
@@ -308,9 +301,10 @@ return {
     end,
   },
 
-  -- Dashboard
+  -- Dashboard (désactivé pour éviter conflits avec neo-tree)
   {
     "nvimdev/dashboard-nvim",
+    enabled = false, -- Désactivé car on utilise neo-tree comme explorateur principal
     event = "VimEnter",
     opts = function()
       local logo = [[

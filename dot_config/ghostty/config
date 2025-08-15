@@ -62,6 +62,13 @@ keybind = cmd+f=toggle_quick_terminal
 # Alt key behavior - essential for tmux Alt+hjkl navigation
 macos-option-as-alt = true
 
+# AZERTY French keyboard specific - map common tmux navigation
+# Alt+h/j/k/l should work, but provide alternatives for AZERTY layout
+keybind = alt+left=text:\x1b\x68   # Alt+h equivalent  
+keybind = alt+down=text:\x1b\x6a   # Alt+j equivalent
+keybind = alt+up=text:\x1b\x6b     # Alt+k equivalent
+keybind = alt+right=text:\x1b\x6c  # Alt+l equivalent
+
 # ===== TMUX INTEGRATION =====
 # Cursor shape support for vim/nvim in tmux
 cursor-style = block

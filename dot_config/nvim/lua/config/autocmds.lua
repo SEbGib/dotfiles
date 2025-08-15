@@ -156,6 +156,7 @@ vim.api.nvim_create_autocmd("BufReadPre", {
   end,
 })
 
+
 -- ===== PROJETS =====
 -- Détection automatique du type de projet
 vim.api.nvim_create_autocmd("VimEnter", {

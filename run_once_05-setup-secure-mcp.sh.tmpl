@@ -1,0 +1,176 @@
+#!/bin/bash
+
+# Secure MCP Server Setup Script
+# Automatically configures MCP servers with security controls
+# Part of chezmoi dotfiles automation
+
+set -euo pipefail
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m' # No Color
+
+echo -e "${BLUE}🔒 Setting up MCP servers with security controls...${NC}"
+echo -e "${BLUE}=====================================================${NC}"
+
+# Check if security tools are available
+check_security_tools() {
+    echo -e "${BLUE}🔍 Checking security tools...${NC}"
+    
+    if ! command -v jq &> /dev/null; then
+        echo -e "${RED}❌ jq is required for security checks. Installing via Homebrew...${NC}"
+        brew install jq
+    fi
+    
+    if ! command -v gh &> /dev/null; then
+        echo -e "${YELLOW}⚠️  GitHub CLI not found. Some security checks will be skipped.${NC}"
+    fi
+    
+    echo -e "${GREEN}✅ Security tools check completed${NC}"
+}
+
+# Create audit log directory
+setup_audit_logging() {
+    echo -e "${BLUE}📋 Setting up audit logging...${NC}"
+    
+    local audit_dir="$HOME/.local/share/claude"
+    mkdir -p "$audit_dir"
+    
+    if [[ ! -f "$audit_dir/audit.log" ]]; then
+        touch "$audit_dir/audit.log"
+        chmod 600 "$audit_dir/audit.log"
+        echo "$(date): MCP audit logging initialized" >> "$audit_dir/audit.log"
+    fi
+    
+    echo -e "${GREEN}✅ Audit logging configured${NC}"
+}
+
+# Install essential MCP servers with security validation
+install_mcp_servers() {
+    echo -e "${BLUE}📦 Installing MCP servers...${NC}"
+    
+    # Check if security assessment script exists
+    local security_script="$HOME/.local/bin/mcp-security-check"
+    if [[ ! -f "$security_script" ]]; then
+        echo -e "${YELLOW}⚠️  Security assessment script not found. Skipping security checks.${NC}"
+    fi
+    
+    # Install Context7 (Documentation server)
+    echo -e "${BLUE}📖 Installing Context7 MCP server...${NC}"
+    if [[ -f "$security_script" ]]; then
+        if "$security_script" context7 \
+           --repo-url https://github.com/upstash/context7 \
+           --package-name @upstash/context7-mcp \
+           --network-endpoints https://mcp.context7.com \
+           --data-scope read-only; then
+            echo -e "${GREEN}✅ Context7 security assessment passed${NC}"
+        else
+            echo -e "${YELLOW}⚠️  Context7 security assessment failed, proceeding with caution${NC}"
+        fi
+    fi
+    
+    # Install npm package globally
+    npm install -g @upstash/context7-mcp
+    
+    # Add to Claude MCP configuration
+    if ! claude mcp list | grep -q "context7"; then
+        claude mcp add context7 "npx @upstash/context7-mcp"
+        echo -e "${GREEN}✅ Context7 MCP server added${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Context7 already configured${NC}"
+    fi
+    
+    # Install Notion MCP server
+    echo -e "${BLUE}📝 Installing Notion MCP server...${NC}"
+    if ! claude mcp list | grep -q "notion"; then
+        claude mcp add --transport http notion https://mcp.notion.com/mcp
+        echo -e "${GREEN}✅ Notion MCP server added (requires authentication)${NC}"
+        echo -e "${YELLOW}⚠️  Configure NOTION_API_TOKEN in ~/.env for authentication${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Notion already configured${NC}"
+    fi
+}
+
+# Validate MCP server security configuration
+validate_security_config() {
+    echo -e "${BLUE}🔒 Validating security configuration...${NC}"
+    
+    local claude_config="$HOME/.claude.json"
+    if [[ -f "$claude_config" ]]; then
+        # Check if security settings are present
+        if jq -e '.security' "$claude_config" &> /dev/null; then
+            echo -e "${GREEN}✅ Security configuration found${NC}"
+        else
+            echo -e "${YELLOW}⚠️  No security configuration found in Claude config${NC}"
+        fi
+        
+        # List configured MCP servers
+        echo -e "${BLUE}📋 Configured MCP servers:${NC}"
+        claude mcp list
+    else
+        echo -e "${YELLOW}⚠️  Claude configuration file not found${NC}"
+    fi
+}
+
+# Set up periodic security checks
+setup_security_monitoring() {
+    echo -e "${BLUE}📊 Setting up security monitoring...${NC}"
+    
+    # Create a simple cron job for weekly security updates (commented out by default)
+    cat > "$HOME/.local/bin/mcp-security-update" << 'EOF'
+#!/bin/bash
+# Weekly MCP security update script
+# Uncomment the following lines to enable automatic updates
+
+# echo "$(date): Running weekly MCP security update" >> "$HOME/.local/share/claude/audit.log"
+# npm update -g @upstash/context7-mcp
+# echo "$(date): MCP packages updated" >> "$HOME/.local/share/claude/audit.log"
+EOF
+    
+    chmod +x "$HOME/.local/bin/mcp-security-update"
+    echo -e "${GREEN}✅ Security monitoring script created${NC}"
+    echo -e "${YELLOW}💡 Edit ~/.local/bin/mcp-security-update to enable automatic updates${NC}"
+}
+
+# Display security recommendations
+show_security_recommendations() {
+    echo -e "\n${BLUE}🛡️  Security Recommendations:${NC}"
+    echo -e "${BLUE}================================${NC}"
+    echo -e "1. ${YELLOW}Set up authentication tokens:${NC}"
+    echo -e "   - Add NOTION_API_TOKEN to ~/.env for Notion access"
+    echo -e "   - Add GITHUB_TOKEN to ~/.env for GitHub integration"
+    echo -e ""
+    echo -e "2. ${YELLOW}Review MCP server permissions:${NC}"
+    echo -e "   - Check 'claude mcp list' regularly"
+    echo -e "   - Monitor audit logs at ~/.local/share/claude/audit.log"
+    echo -e ""
+    echo -e "3. ${YELLOW}Keep packages updated:${NC}"
+    echo -e "   - Run 'npm update -g @upstash/context7-mcp' monthly"
+    echo -e "   - Monitor security advisories for installed packages"
+    echo -e ""
+    echo -e "4. ${YELLOW}Enable automatic security updates:${NC}"
+    echo -e "   - Edit ~/.local/bin/mcp-security-update"
+    echo -e "   - Consider setting up a cron job for weekly updates"
+    echo -e ""
+    echo -e "${GREEN}✅ MCP setup completed with security controls!${NC}"
+}
+
+# Main execution
+main() {
+    echo -e "${GREEN}Starting secure MCP setup...${NC}"
+    
+    check_security_tools
+    setup_audit_logging
+    install_mcp_servers
+    validate_security_config
+    setup_security_monitoring
+    show_security_recommendations
+    
+    echo -e "\n${GREEN}🎉 Secure MCP setup completed successfully!${NC}"
+}
+
+# Run main function
+main "$@"

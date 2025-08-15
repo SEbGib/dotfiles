@@ -76,8 +76,19 @@
       "Bash(XDG_CONFIG_HOME=\"/Users/sebastiengiband/Downloads/dotfiles/dot_config\" nvim --headless -c 'lua print(\"\"Testing nvim config\"\")' -c 'qa!')",
       "Bash(mv:*)",
       "Bash(git checkout:*)",
-      "Bash(XDG_CONFIG_HOME=\"/Users/sebastiengiband/Downloads/dotfiles/dot_config\" nvim --headless -c 'lua print(\"\"Testing nvim config\"\")' -c 'qa!')"
+      "Bash(XDG_CONFIG_HOME=\"/Users/sebastiengiband/Downloads/dotfiles/dot_config\" nvim --headless -c 'lua print(\"\"Testing nvim config\"\")' -c 'qa!')",
+      "WebFetch(domain:docs.anthropic.com)",
+      "Bash(claude mcp:*)",
+      "Bash(~/Downloads/dotfiles/bin/executable_mcp-security-check:*)",
+      "mcp__notion__search",
+      "mcp__notion__notion-create-pages",
+      "mcp__notion__notion-update-page",
+      "mcp__notion__fetch",
+      "Bash(true)"
     ],
-    "deny": []
+    "deny": [],
+    "additionalDirectories": [
+      "/private/tmp/nvim-test"
+    ]
   }
 }

@@ -7,6 +7,26 @@
 # export OPENAI_API_KEY="your_openai_key_here"
 # export DATABASE_URL="postgresql://user:pass@localhost/db"
 
+# ===== MCP SECURITY CONFIGURATION =====
+# MCP Server Authentication Tokens
+# Generate these tokens from respective service providers
+# export GITHUB_TOKEN="ghp_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+# export NOTION_API_TOKEN="secret_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+# export CONTEXT7_API_KEY="optional_if_required"
+
+# MCP Security Settings
+export MCP_SECURITY_AUDIT_LOG="$HOME/.local/share/claude/audit.log"
+export MCP_MAX_EXECUTION_TIME="30000"
+export MCP_REQUIRE_APPROVAL="true"
+
+# MCP Network Security
+export MCP_ALLOWED_DOMAINS="api.notion.com,api.github.com,raw.githubusercontent.com,mcp.context7.com"
+export MCP_BLOCKED_COMMANDS="rm -rf,sudo,chmod 777,dd,mkfs"
+
+# MCP Token Rotation (set to rotate tokens monthly)
+export MCP_TOKEN_ROTATION_DAYS="30"
+export MCP_LAST_SECURITY_CHECK="$(date +%Y%m%d)"
+
 # ===== CONFIGURATION LOCALE =====
 {{- if (index . "work" | default false) }}
 # Configuration entreprise

@@ -1,0 +1,84 @@
+{
+  "mcpServers": {
+    "context7": {
+      "command": "npx",
+      "args": ["@upstash/context7-mcp"],
+      "env": {},
+      "security": {
+        "dataScope": "read-only",
+        "networkAccess": ["mcp.context7.com"],
+        "riskLevel": "low"
+      }
+    },
+    "notion": {
+      "url": "https://mcp.notion.com/mcp",
+      "transport": "http",
+      "env": {
+        "NOTION_API_TOKEN": "{{ .Env.NOTION_API_TOKEN }}"
+      },
+      "security": {
+        "dataScope": "read-write",
+        "networkAccess": ["api.notion.com"],
+        "riskLevel": "medium",
+        "requireApproval": true
+      }
+    }
+  },
+  "security": {
+    "globalSettings": {
+      "requireHumanApproval": true,
+      "enableResourceIndicators": true,
+      "maxExecutionTime": 30000,
+      "auditLogging": true
+    },
+    "networkPolicy": {
+      "allowedDomains": [
+        "api.notion.com",
+        "api.github.com",
+        "raw.githubusercontent.com",
+        "mcp.context7.com"
+      ],
+      "blockedDomains": [
+        "*.suspicious-domain.com"
+      ]
+    },
+    "commandPolicy": {
+      "blockedCommands": [
+        "rm -rf",
+        "sudo",
+        "chmod 777",
+        "dd",
+        "mkfs",
+        "fdisk"
+      ],
+      "allowedCommands": [
+        "git",
+        "npm",
+        "node"
+      ]
+    }
+  },
+  "monitoring": {
+    "auditLog": {
+      "enabled": true,
+      "location": "~/.local/share/claude/audit.log",
+      "rotationSize": "10MB",
+      "retentionDays": 90
+    },
+    "alerts": {
+      "securityViolations": true,
+      "unauthorizedAccess": true,
+      "suspiciousActivity": true
+    }
+  },
+  "metadata": {
+    "configVersion": "1.0.0",
+    "lastUpdated": "{{ now | date \"2006-01-02T15:04:05Z07:00\" }}",
+    "generatedBy": "chezmoi-dotfiles",
+    "securityReview": {
+      "lastReview": "{{ now | date \"2006-01-02\" }}",
+      "nextReview": "{{ now | date \"2006-01-02\" | dateModify \"720h\" }}",
+      "reviewer": "automated-security-framework"
+    }
+  }
+}

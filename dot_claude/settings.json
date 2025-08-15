@@ -2,5 +2,32 @@
   "statusLine": {
     "type": "command",
     "command": "npx ccusage statusline"
+  },
+  "mcpServers": {},
+  "security": {
+    "requireHumanApproval": true,
+    "enableResourceIndicators": true,
+    "maxExecutionTime": 30000,
+    "allowedNetworkTargets": [
+      "api.notion.com",
+      "api.github.com",
+      "raw.githubusercontent.com"
+    ],
+    "blockedCommands": [
+      "rm -rf",
+      "sudo",
+      "chmod 777"
+    ],
+    "auditLog": {
+      "enabled": true,
+      "location": "~/.local/share/claude/audit.log"
+    }
+  },
+  "hooks": {
+    "beforeMcpServerAdd": {
+      "command": "~/.local/bin/mcp-security-check",
+      "args": ["${serverName}", "--repo-url", "${repoUrl}", "--package-name", "${packageName}", "--network-endpoints", "${networkEndpoints}", "--data-scope", "${dataScope}"],
+      "requireSuccess": true
+    }
   }
 }
