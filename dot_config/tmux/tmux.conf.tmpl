@@ -212,27 +212,27 @@ if-shell "test -f ~/.tmux.conf.local" "source ~/.tmux.conf.local"
 if "test ! -d ~/.config/tmux/.tmux/plugins/tpm" \
    "run 'git clone https://github.com/tmux-plugins/tpm ~/.config/tmux/.tmux/plugins/tpm && ~/.config/tmux/.tmux/plugins/tpm/bin/install_plugins'"
 
-# Rose Pine theme status bar - translucent with centered layout
+# Rose Pine theme status bar - transparent with modern styling
 set -g status-position bottom
-set -g status-style "bg=default,fg=#e0def4"
-set -g status-left-length 50
-set -g status-right-length 50
+set -g status-style "bg=terminal,fg=#e0def4"
+set -g status-left-length 40
+set -g status-right-length 60
 set -g status-justify centre
 
-# Left side: session with icon
-set -g status-left "#[fg=#eb6f92,bold]󰊠 #S "
+# Left side: session with rounded separators
+set -g status-left "#[bg=#1f1d2e,fg=#eb6f92,bold]  #S #[bg=terminal,fg=#1f1d2e]"
 
-# Right side: battery and wifi icons
+# Right side: info with separators and icons
 {{- if eq .chezmoi.os "darwin" }}
-set -g status-right "#[fg=#c4a7e7]󰁹 #{battery_percentage} #[fg=#9ccfd8]󰖩 on"
+set -g status-right "#[bg=terminal,fg=#403d52]#[bg=#403d52,fg=#c4a7e7] 󰁹 #{battery_percentage} #[bg=#403d52,fg=#1f1d2e]#[bg=#1f1d2e,fg=#9ccfd8] 󰖩 on "
 {{- else }}
-set -g status-right "#[fg=#9ccfd8]󰖩 on"
+set -g status-right "#[bg=terminal,fg=#1f1d2e]#[bg=#1f1d2e,fg=#9ccfd8] 󰖩 on "
 {{- end }}
 
-# Window status - refined colors and centered
-set -g window-status-current-format "#[bg=#f6c177,fg=#191724,bold] #I: #W "
+# Window status - transparent with modern separators
+set -g window-status-current-format "#[bg=terminal,fg=#f6c177]#[bg=#f6c177,fg=#191724,bold] #I: #W #[bg=terminal,fg=#f6c177]"
 set -g window-status-format "#[fg=#6e6a86] #I: #W "
-set -g window-status-separator "  "
+set -g window-status-separator " "
 
 # Pane borders
 set -g pane-border-style "fg=#6e6a86"

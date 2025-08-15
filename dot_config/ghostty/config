@@ -8,7 +8,7 @@ font-size = 14
 font-thicken = true
 
 # Theme and colors - minimal to let tmux/starship handle styling
-config-file = themes/rosepine
+theme = rose-pine
 
 background = #000000
 background-opacity = 0.75
