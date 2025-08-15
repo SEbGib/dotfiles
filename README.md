@@ -84,8 +84,8 @@ which fzf ripgrep    # Outils modernes installés
 - `Ctrl+R` : Recherche fuzzy avec fzf
 
 ### Tmux (Prefix: `Ctrl+b`)
-- `|` : Split vertical
 - `-` : Split horizontal
+- `_` : Split vertical
 - `Alt+hjkl` : Navigation entre panes (sans prefix)
 - `f` : Sessionizer avec fzf
 - `Ctrl+S` : Workflow Symfony
